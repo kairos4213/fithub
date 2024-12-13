@@ -4,7 +4,7 @@ CREATE TABLE users (
   created_at TIMESTAMP NOT NULL,
   updated_at TIMESTAMP NOT NULL,
   first_name VARCHAR(100) NOT NULL,
-  middle_name VARCHAR(100),
+  middle_name VARCHAR(100) DEFAULT NULL,
   last_name VARCHAR(100) NOT NULL,
   email VARCHAR(254) UNIQUE NOT NULL,
   hashed_password TEXT NOT NULL,
