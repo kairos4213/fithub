@@ -45,6 +45,7 @@ func main() {
 	mux.Handle("/app/", http.StripPrefix("/app", http.FileServer(http.Dir("."))))
 
 	mux.HandleFunc("POST /api/users", apiConfig.handlerUsersCreate)
+	mux.HandleFunc("GET /api/users", apiConfig.handlerUsersLogin)
 
 	mux.HandleFunc("GET /api/healthz", handlerReadiness)
 
