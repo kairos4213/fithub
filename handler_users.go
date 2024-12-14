@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/kairos4213/fithub/internal/auth"
 	"github.com/kairos4213/fithub/internal/database"
 )
 
@@ -17,11 +18,11 @@ type User struct {
 
 func (cfg *apiConfig) handlerUsersCreate(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
-		FirstName      string `json:"first_name"`
-		MiddleName     string `json:"middle_name"`
-		LastName       string `json:"last_name"`
-		Email          string `json:"email"`
-		HashedPassword string `json:"hashed_password"`
+		FirstName  string `json:"first_name"`
+		MiddleName string `json:"middle_name"`
+		LastName   string `json:"last_name"`
+		Email      string `json:"email"`
+		Password   string `json:"password"`
 	}
 
 	params := parameters{}
@@ -32,12 +33,18 @@ func (cfg *apiConfig) handlerUsersCreate(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	hashedPassword, err := auth.HashPassword(params.Password)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Couldn't hash password", err)
+		return
+	}
+
 	user, err := cfg.db.CreateUser(r.Context(), database.CreateUserParams{
 		FirstName:      params.FirstName,
 		MiddleName:     sql.NullString{String: params.MiddleName},
 		LastName:       params.LastName,
 		Email:          params.Email,
-		HashedPassword: params.HashedPassword,
+		HashedPassword: hashedPassword,
 	})
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Error creating user in database", err)
