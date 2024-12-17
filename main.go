@@ -61,6 +61,8 @@ func main() {
 	mux.HandleFunc("POST /api/users", apiConfig.handlerUsersCreate)
 	mux.HandleFunc("GET /api/users", apiConfig.handlerUsersLogin)
 
+	mux.HandleFunc("POST /api/goals", apiConfig.handlerGoalsCreate)
+
 	mux.HandleFunc("GET /api/healthz", handlerReadiness)
 
 	server := http.Server{
