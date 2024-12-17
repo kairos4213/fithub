@@ -31,7 +31,7 @@ type CustomClaims struct {
 }
 
 func MakeJWT(userID uuid.UUID, privateKeyBytes []byte) (string, error) {
-	claims := CustomClaims{
+	claims := &CustomClaims{
 		userID,
 		jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(1 * time.Hour)),
@@ -70,6 +70,10 @@ func ValidateJWT(tokenString string, publicKey []byte) (uuid.UUID, error) {
 	claims, ok := token.Claims.(*CustomClaims)
 	if !ok {
 		return uuid.Nil, errors.New("error parsing custom claims")
+	}
+
+	if claims.Issuer != "fithub" {
+		return uuid.Nil, errors.New("invalid token issuer")
 	}
 
 	return claims.UserID, nil
