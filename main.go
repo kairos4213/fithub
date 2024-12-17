@@ -12,11 +12,23 @@ import (
 )
 
 type apiConfig struct {
-	db *database.Queries
+	db         *database.Queries
+	privateKey []byte
+	publicKey  []byte
 }
 
 func main() {
-	err := godotenv.Load(".env")
+	privKey, err := os.ReadFile("private_key.pem")
+	if err != nil {
+		log.Fatalf("missing private key: %v", err)
+	}
+
+	pubKey, err := os.ReadFile("public_key.pem")
+	if err != nil {
+		log.Fatalf("missing public key: %v", err)
+	}
+
+	err = godotenv.Load(".env")
 	if err != nil {
 		log.Printf("warning: missing or misconfigured .env: %v", err)
 	}
@@ -38,7 +50,9 @@ func main() {
 	dbQueries := database.New(db)
 
 	apiConfig := apiConfig{
-		db: dbQueries,
+		db:         dbQueries,
+		privateKey: privKey,
+		publicKey:  pubKey,
 	}
 
 	mux := http.NewServeMux()
