@@ -12,6 +12,19 @@ import (
 	"github.com/sqlc-dev/pqtype"
 )
 
+type Goal struct {
+	ID             uuid.UUID
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+	Name           string
+	Description    string
+	GoalDate       time.Time
+	CompletionDate sql.NullTime
+	Notes          sql.NullString
+	Status         string
+	UserID         uuid.UUID
+}
+
 type User struct {
 	ID             uuid.UUID
 	CreatedAt      time.Time

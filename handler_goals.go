@@ -1,8 +1,10 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -25,7 +27,10 @@ type Goal struct {
 
 func (cfg *apiConfig) handlerGoalsCreate(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
-		Body string `json:"body"`
+		Name        string `json:"name"`
+		Description string `json:"description"`
+		GoalDate    string `json:"goal_date"`
+		Notes       string `json:"notes"`
 	}
 
 	accessToken, err := auth.GetBearerToken(r.Header)
@@ -48,13 +53,36 @@ func (cfg *apiConfig) handlerGoalsCreate(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	goal, err := cfg.db.CreateGoal(r.Context(), database.CreateGoalParams{})
+	goalDate, err := time.Parse(time.DateOnly, params.GoalDate)
 	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Error parsing date", err)
+		return
+	}
+
+	goal, err := cfg.db.CreateGoal(r.Context(), database.CreateGoalParams{
+		Name:        params.Name,
+		Description: params.Description,
+		GoalDate:    goalDate,
+		Notes:       sql.NullString{String: params.Notes},
+		UserID:      userID,
+	})
+	if err != nil {
+		if strings.Contains(err.Error(), `pq: duplicate key value violates unique constraint "goals_name_user_id_key"`) {
+			respondWithError(w, http.StatusBadRequest, "Cannot have duplicate goal names", err)
+			return
+		}
 		respondWithError(w, http.StatusInternalServerError, "Error saving goal", err)
 		return
 	}
 
 	respondWithJSON(w, http.StatusCreated, Goal{
-		
+		ID:          goal.ID,
+		CreatedAt:   goal.CreatedAt,
+		UpdatedAt:   goal.UpdatedAt,
+		Name:        goal.Name,
+		Description: goal.Description,
+		GoalDate:    goal.GoalDate,
+		Notes:       goal.Notes.String,
+		UserID:      goal.UserID,
 	})
 }
