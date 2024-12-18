@@ -62,7 +62,7 @@ func (cfg *apiConfig) handlerGoalsCreate(w http.ResponseWriter, r *http.Request)
 	goal, err := cfg.db.CreateGoal(r.Context(), database.CreateGoalParams{
 		Name:        strings.ToLower(params.Name),
 		Description: params.Description,
-		GoalDate:    goalDate,
+		GoalDate:    goalDate.UTC(),
 		Notes:       sql.NullString{String: strings.ToLower(params.Notes)},
 		UserID:      userID,
 	})
