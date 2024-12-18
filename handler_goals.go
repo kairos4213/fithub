@@ -60,10 +60,10 @@ func (cfg *apiConfig) handlerGoalsCreate(w http.ResponseWriter, r *http.Request)
 	}
 
 	goal, err := cfg.db.CreateGoal(r.Context(), database.CreateGoalParams{
-		Name:        params.Name,
+		Name:        strings.ToLower(params.Name),
 		Description: params.Description,
 		GoalDate:    goalDate,
-		Notes:       sql.NullString{String: params.Notes},
+		Notes:       sql.NullString{String: strings.ToLower(params.Notes)},
 		UserID:      userID,
 	})
 	if err != nil {

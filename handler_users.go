@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/kairos4213/fithub/internal/auth"
@@ -46,10 +47,10 @@ func (cfg *apiConfig) handlerUsersCreate(w http.ResponseWriter, r *http.Request)
 	}
 
 	user, err := cfg.db.CreateUser(r.Context(), database.CreateUserParams{
-		FirstName:      params.FirstName,
-		MiddleName:     sql.NullString{String: params.MiddleName},
-		LastName:       params.LastName,
-		Email:          params.Email,
+		FirstName:      strings.ToLower(params.FirstName),
+		MiddleName:     sql.NullString{String: strings.ToLower(params.MiddleName)},
+		LastName:       strings.ToLower(params.LastName),
+		Email:          strings.ToLower(params.Email),
 		HashedPassword: hashedPassword,
 	})
 	if err != nil {

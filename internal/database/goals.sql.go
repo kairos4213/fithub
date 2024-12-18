@@ -21,20 +21,18 @@ INSERT INTO goals (
   name,
   description,
   goal_date,
-  completion_date,
   notes,
   user_id
-) VALUES (gen_random_uuid(), NOW(), NOW(), $1, $2, $3, $4, $5, $6)
+) VALUES (gen_random_uuid(), NOW(), NOW(), $1, $2, $3, $4, $5)
 RETURNING id, created_at, updated_at, name, description, goal_date, completion_date, notes, status, user_id
 `
 
 type CreateGoalParams struct {
-	Name           string
-	Description    string
-	GoalDate       time.Time
-	CompletionDate sql.NullTime
-	Notes          sql.NullString
-	UserID         uuid.UUID
+	Name        string
+	Description string
+	GoalDate    time.Time
+	Notes       sql.NullString
+	UserID      uuid.UUID
 }
 
 func (q *Queries) CreateGoal(ctx context.Context, arg CreateGoalParams) (Goal, error) {
@@ -42,7 +40,6 @@ func (q *Queries) CreateGoal(ctx context.Context, arg CreateGoalParams) (Goal, e
 		arg.Name,
 		arg.Description,
 		arg.GoalDate,
-		arg.CompletionDate,
 		arg.Notes,
 		arg.UserID,
 	)
