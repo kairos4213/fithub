@@ -14,3 +14,9 @@ RETURNING id, first_name, last_name, email;
 -- name: GetUser :one
 SELECT * FROM users
 WHERE email = $1;
+
+-- name: UpdateUser :one
+UPDATE users
+SET hashed_password = COALESCE($1, hashed_password), email = COALESCE($2, email)
+WHERE id = $3
+RETURNING *;

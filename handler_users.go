@@ -13,16 +13,16 @@ import (
 )
 
 type User struct {
-	ID        uuid.UUID `json:"id"`
-	FirstName string    `json:"first_name"`
-	LastName  string    `json:"last_name"`
-	Email     string    `json:"email"`
+	ID        uuid.UUID `json:"id,omitempty"`
+	FirstName string    `json:"first_name,omitempty"`
+	LastName  string    `json:"last_name,omitempty"`
+	Email     string    `json:"email,omitempty"`
 }
 
 type response struct {
 	User
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
+	AccessToken  string `json:"access_token,omitempty"`
+	RefreshToken string `json:"refresh_token,omitempty"`
 }
 
 func (cfg *apiConfig) handlerUsersCreate(w http.ResponseWriter, r *http.Request) {
@@ -152,4 +152,61 @@ func (cfg *apiConfig) handlerUsersLogin(w http.ResponseWriter, r *http.Request) 
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	})
+}
+
+func (cfg *apiConfig) handlerUsersUpdate(w http.ResponseWriter, r *http.Request) {
+	type parameters struct {
+		Email    string `json:"email,omitempty"`
+		Password string `json:"password,omitempty"`
+	}
+
+	accessToken, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Missing JWT", err)
+		return
+	}
+
+	userID, err := auth.ValidateJWT(accessToken, cfg.publicKey)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Invalid JWT", err)
+		return
+	}
+
+	params := parameters{}
+	decoder := json.NewDecoder(r.Body)
+	err = decoder.Decode(&params)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Error unmarshalling", err)
+		return
+	}
+
+	userParams := database.UpdateUserParams{
+		ID: userID,
+	}
+
+	if params.Password != "" {
+		hashedPassword, err := auth.HashPassword(params.Password)
+		if err != nil {
+			respondWithError(w, http.StatusInternalServerError, "Error hashing password", err)
+			return
+		}
+		userParams.HashedPassword = &hashedPassword
+	}
+
+	if params.Email != "" {
+		userParams.Email = &params.Email
+	}
+
+	updatedUser, err := cfg.db.UpdateUser(r.Context(), userParams)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Error updating user", err)
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, response{User: User{
+		ID:        updatedUser.ID,
+		FirstName: updatedUser.FirstName,
+		LastName:  updatedUser.LastName,
+		Email:     updatedUser.Email,
+	}})
 }
