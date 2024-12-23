@@ -10,3 +10,7 @@ INSERT INTO goals (
   user_id
 ) VALUES (gen_random_uuid(), NOW(), NOW(), $1, $2, $3, $4, $5)
 RETURNING *;
+
+-- name: GetAllUserGoals :many
+SELECT * FROM goals
+WHERE user_id = $1;

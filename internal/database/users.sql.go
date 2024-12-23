@@ -84,7 +84,9 @@ func (q *Queries) GetUser(ctx context.Context, email string) (User, error) {
 
 const updateUser = `-- name: UpdateUser :one
 UPDATE users
-SET hashed_password = COALESCE($1, hashed_password), email = COALESCE($2, email)
+SET hashed_password = COALESCE($1, hashed_password),
+  email = COALESCE($2, email),
+  updated_at = NOW()
 WHERE id = $3
 RETURNING id, created_at, updated_at, first_name, middle_name, last_name, email, hashed_password, profile_image, preferences
 `

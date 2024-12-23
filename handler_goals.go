@@ -13,16 +13,16 @@ import (
 )
 
 type Goal struct {
-	ID             uuid.UUID `json:"goal_id"`
-	CreatedAt      time.Time `json:"created_at"`
-	UpdatedAt      time.Time `json:"updated_at"`
-	Name           string    `json:"name"`
-	Description    string    `json:"description"`
-	GoalDate       time.Time `json:"goal_date"`
-	CompletionDate time.Time `json:"completion_date"`
-	Notes          string    `json:"notes"`
-	Status         string    `json:"status"`
-	UserID         uuid.UUID `json:"user_id"`
+	ID             uuid.UUID `json:"goal_id,omitempty"`
+	CreatedAt      time.Time `json:"created_at,omitempty"`
+	UpdatedAt      time.Time `json:"updated_at,omitempty"`
+	Name           string    `json:"name,omitempty"`
+	Description    string    `json:"description,omitempty"`
+	GoalDate       time.Time `json:"goal_date,omitempty"`
+	CompletionDate time.Time `json:"completion_date,omitempty"`
+	Notes          string    `json:"notes,omitempty"`
+	Status         string    `json:"status,omitempty"`
+	UserID         uuid.UUID `json:"user_id,omitempty"`
 }
 
 func (cfg *apiConfig) handlerGoalsCreate(w http.ResponseWriter, r *http.Request) {
@@ -85,4 +85,41 @@ func (cfg *apiConfig) handlerGoalsCreate(w http.ResponseWriter, r *http.Request)
 		Notes:       goal.Notes.String,
 		UserID:      goal.UserID,
 	})
+}
+
+func (cfg *apiConfig) handlerGoalsGetAll(w http.ResponseWriter, r *http.Request) {
+	accesToken, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Missing JWT", err)
+		return
+	}
+
+	userID, err := auth.ValidateJWT(accesToken, cfg.publicKey)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Invalid JWT", err)
+		return
+	}
+
+	goals, err := cfg.db.GetAllUserGoals(r.Context(), userID)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Error getting goals", err)
+		return
+	}
+
+	response := []Goal{}
+	for _, goal := range goals {
+		response = append(response, Goal{
+			ID:             goal.ID,
+			CreatedAt:      goal.CreatedAt,
+			UpdatedAt:      goal.UpdatedAt,
+			Name:           goal.Name,
+			Description:    goal.Description,
+			GoalDate:       goal.GoalDate,
+			CompletionDate: goal.CompletionDate.Time,
+			Notes:          goal.Notes.String,
+			Status:         goal.Status,
+			UserID:         userID,
+		})
+	}
+	respondWithJSON(w, http.StatusOK, response)
 }

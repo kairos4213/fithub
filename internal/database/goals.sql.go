@@ -58,3 +58,42 @@ func (q *Queries) CreateGoal(ctx context.Context, arg CreateGoalParams) (Goal, e
 	)
 	return i, err
 }
+
+const getAllUserGoals = `-- name: GetAllUserGoals :many
+SELECT id, created_at, updated_at, name, description, goal_date, completion_date, notes, status, user_id FROM goals
+WHERE user_id = $1
+`
+
+func (q *Queries) GetAllUserGoals(ctx context.Context, userID uuid.UUID) ([]Goal, error) {
+	rows, err := q.db.QueryContext(ctx, getAllUserGoals, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Goal
+	for rows.Next() {
+		var i Goal
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.Name,
+			&i.Description,
+			&i.GoalDate,
+			&i.CompletionDate,
+			&i.Notes,
+			&i.Status,
+			&i.UserID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

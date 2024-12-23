@@ -66,6 +66,7 @@ func main() {
 	mux.HandleFunc("POST /api/revoke", apiConfig.handlerRevoke)
 
 	mux.HandleFunc("POST /api/goals", apiConfig.handlerGoalsCreate)
+	mux.HandleFunc("GET /api/goals", apiConfig.handlerGoalsGetAll)
 
 	mux.HandleFunc("GET /api/healthz", handlerReadiness)
 
