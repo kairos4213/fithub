@@ -156,8 +156,8 @@ func (cfg *apiConfig) handlerUsersLogin(w http.ResponseWriter, r *http.Request) 
 
 func (cfg *apiConfig) handlerUsersUpdate(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
-		Email    string `json:"email,omitempty"`
-		Password string `json:"password,omitempty"`
+		Email    *string `json:"email,omitempty"`
+		Password *string `json:"password,omitempty"`
 	}
 
 	accessToken, err := auth.GetBearerToken(r.Header)
@@ -184,17 +184,17 @@ func (cfg *apiConfig) handlerUsersUpdate(w http.ResponseWriter, r *http.Request)
 		ID: userID,
 	}
 
-	if params.Password != "" {
-		hashedPassword, err := auth.HashPassword(params.Password)
+	if params.Password != nil {
+		hashedPassword, err := auth.HashPassword(*params.Password)
 		if err != nil {
 			respondWithError(w, http.StatusInternalServerError, "Error hashing password", err)
 			return
 		}
-		userParams.HashedPassword = &hashedPassword
+		userParams.Column1 = hashedPassword
 	}
 
-	if params.Email != "" {
-		userParams.Email = &params.Email
+	if params.Email != nil {
+		userParams.Column2 = *params.Email
 	}
 
 	updatedUser, err := cfg.db.UpdateUser(r.Context(), userParams)
