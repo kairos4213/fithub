@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/joho/godotenv"
 	"github.com/kairos4213/fithub/internal/database"
@@ -60,19 +61,23 @@ func main() {
 
 	mux.HandleFunc("POST /api/users", apiConfig.handlerUsersCreate)
 	mux.HandleFunc("GET /api/users", apiConfig.handlerUsersLogin)
-	mux.HandleFunc("PUT /api/users", apiConfig.handlerUsersUpdate)
 
 	mux.HandleFunc("POST /api/refresh", apiConfig.handlerRefresh)
 	mux.HandleFunc("POST /api/revoke", apiConfig.handlerRevoke)
 
-	mux.HandleFunc("POST /api/goals", apiConfig.handlerGoalsCreate)
-	mux.HandleFunc("GET /api/goals", apiConfig.handlerGoalsGetAll)
+	mux.Handle("PUT /api/users", apiConfig.middlewareAuth(http.HandlerFunc(apiConfig.handlerUsersUpdate)))
+
+	mux.Handle("POST /api/goals", apiConfig.middlewareAuth(http.HandlerFunc(apiConfig.handlerGoalsCreate)))
+	mux.Handle("GET /api/goals", apiConfig.middlewareAuth(http.HandlerFunc(apiConfig.handlerGoalsGetAll)))
+	mux.Handle("PUT /api/goals", apiConfig.middlewareAuth(http.HandlerFunc(apiConfig.handlerGoalsUpdate)))
 
 	mux.HandleFunc("GET /api/healthz", handlerReadiness)
 
-	server := http.Server{
-		Addr:    ":" + port,
-		Handler: mux,
+	server := &http.Server{
+		Addr:         ":" + port,
+		Handler:      mux,
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 10 * time.Second,
 	}
 
 	log.Printf("Serving on port: %s\n", port)

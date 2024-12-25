@@ -155,26 +155,19 @@ func (cfg *apiConfig) handlerUsersLogin(w http.ResponseWriter, r *http.Request) 
 }
 
 func (cfg *apiConfig) handlerUsersUpdate(w http.ResponseWriter, r *http.Request) {
+	// TODO: Split this handler into two separate handlers
+	// handlerUsersUpdatePassword
+	// handlerUsersUpdateInfo (handles all other user information)
 	type parameters struct {
 		Email    *string `json:"email,omitempty"`
 		Password *string `json:"password,omitempty"`
 	}
 
-	accessToken, err := auth.GetBearerToken(r.Header)
-	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Missing JWT", err)
-		return
-	}
-
-	userID, err := auth.ValidateJWT(accessToken, cfg.publicKey)
-	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Invalid JWT", err)
-		return
-	}
+	userID := r.Context().Value(userIDKey).(uuid.UUID)
 
 	params := parameters{}
 	decoder := json.NewDecoder(r.Body)
-	err = decoder.Decode(&params)
+	err := decoder.Decode(&params)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Error unmarshalling", err)
 		return

@@ -14,3 +14,15 @@ RETURNING *;
 -- name: GetAllUserGoals :many
 SELECT * FROM goals
 WHERE user_id = $1;
+
+-- name: UpdateGoal :one
+UPDATE goals
+SET updated_at = NOW(),
+    name = $1,
+    description = $2,
+    goal_date = $3,
+    completion_date = $4,
+    notes = $5,
+    status = $6
+WHERE id = $7
+RETURNING *;

@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/kairos4213/fithub/internal/auth"
 	"github.com/kairos4213/fithub/internal/database"
 )
 
@@ -26,44 +25,34 @@ type Goal struct {
 }
 
 func (cfg *apiConfig) handlerGoalsCreate(w http.ResponseWriter, r *http.Request) {
-	type parameters struct {
+	type request struct {
 		Name        string `json:"name"`
 		Description string `json:"description"`
 		GoalDate    string `json:"goal_date"`
 		Notes       string `json:"notes"`
 	}
 
-	accessToken, err := auth.GetBearerToken(r.Header)
-	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Missing JWT", err)
-		return
-	}
+	userID := r.Context().Value(userIDKey).(uuid.UUID)
 
-	userID, err := auth.ValidateJWT(accessToken, cfg.publicKey)
-	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Invalid JWT", err)
-		return
-	}
-
-	params := parameters{}
+	reqParams := request{}
 	decoder := json.NewDecoder(r.Body)
-	err = decoder.Decode(&params)
+	err := decoder.Decode(&reqParams)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Error decoding request", err)
 		return
 	}
 
-	goalDate, err := time.Parse(time.DateOnly, params.GoalDate)
+	goalDate, err := time.Parse(time.DateOnly, reqParams.GoalDate)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Error parsing date", err)
 		return
 	}
 
 	goal, err := cfg.db.CreateGoal(r.Context(), database.CreateGoalParams{
-		Name:        strings.ToLower(params.Name),
-		Description: params.Description,
+		Name:        strings.ToLower(reqParams.Name),
+		Description: reqParams.Description,
 		GoalDate:    goalDate.UTC(),
-		Notes:       sql.NullString{String: strings.ToLower(params.Notes)},
+		Notes:       sql.NullString{String: strings.ToLower(reqParams.Notes)},
 		UserID:      userID,
 	})
 	if err != nil {
@@ -88,17 +77,7 @@ func (cfg *apiConfig) handlerGoalsCreate(w http.ResponseWriter, r *http.Request)
 }
 
 func (cfg *apiConfig) handlerGoalsGetAll(w http.ResponseWriter, r *http.Request) {
-	accesToken, err := auth.GetBearerToken(r.Header)
-	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Missing JWT", err)
-		return
-	}
-
-	userID, err := auth.ValidateJWT(accesToken, cfg.publicKey)
-	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Invalid JWT", err)
-		return
-	}
+	userID := r.Context().Value(userIDKey).(uuid.UUID)
 
 	goals, err := cfg.db.GetAllUserGoals(r.Context(), userID)
 	if err != nil {
@@ -122,4 +101,19 @@ func (cfg *apiConfig) handlerGoalsGetAll(w http.ResponseWriter, r *http.Request)
 		})
 	}
 	respondWithJSON(w, http.StatusOK, response)
+}
+
+func (cfg *apiConfig) handlerGoalsUpdate(w http.ResponseWriter, r *http.Request) {
+	type request struct {
+		ID             uuid.UUID `json:"goal_id"`
+		Name           string    `json:"goal_name"`
+		Description    string    `json:"description"`
+		GoalDate       time.Time `json:"goal_date"`
+		CompletionDate time.Time `json:"completion_date"`
+		Notes          string    `json:"notes"`
+		Status         string    `json:"status"`
+	}
+
+	// reqParams := request{}
+	// decoder := json.NewDecoder(r.Body)
 }
