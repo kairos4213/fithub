@@ -1,16 +1,15 @@
 package main
 
 import (
-	"context"
 	"net/http"
 
+	"github.com/google/uuid"
 	"github.com/kairos4213/fithub/internal/auth"
 )
 
-type contextKey string
-const userIDKey contextKey = "userID"
+type authedHandler func(http.ResponseWriter, *http.Request, uuid.UUID)
 
-func (cfg *apiConfig) middlewareAuth(next http.Handler) http.Handler {
+func (cfg *apiConfig) middlewareAuth(handler authedHandler) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		accessToken, err := auth.GetBearerToken(r.Header)
 		if err != nil {
@@ -24,9 +23,6 @@ func (cfg *apiConfig) middlewareAuth(next http.Handler) http.Handler {
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), userIDKey, userID)
-		req := r.WithContext(ctx)
-
-		next.ServeHTTP(w, req)
+		handler(w, r, userID)
 	})
 }

@@ -24,15 +24,13 @@ type Goal struct {
 	UserID         uuid.UUID `json:"user_id,omitempty"`
 }
 
-func (cfg *apiConfig) handlerGoalsCreate(w http.ResponseWriter, r *http.Request) {
+func (cfg *apiConfig) handlerGoalsCreate(w http.ResponseWriter, r *http.Request, userID uuid.UUID) {
 	type request struct {
 		Name        string `json:"name"`
 		Description string `json:"description"`
 		GoalDate    string `json:"goal_date"`
 		Notes       string `json:"notes"`
 	}
-
-	userID := r.Context().Value(userIDKey).(uuid.UUID)
 
 	reqParams := request{}
 	decoder := json.NewDecoder(r.Body)
@@ -76,9 +74,7 @@ func (cfg *apiConfig) handlerGoalsCreate(w http.ResponseWriter, r *http.Request)
 	})
 }
 
-func (cfg *apiConfig) handlerGoalsGetAll(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value(userIDKey).(uuid.UUID)
-
+func (cfg *apiConfig) handlerGoalsGetAll(w http.ResponseWriter, r *http.Request, userID uuid.UUID) {
 	goals, err := cfg.db.GetAllUserGoals(r.Context(), userID)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Error getting goals", err)
@@ -103,7 +99,7 @@ func (cfg *apiConfig) handlerGoalsGetAll(w http.ResponseWriter, r *http.Request)
 	respondWithJSON(w, http.StatusOK, response)
 }
 
-func (cfg *apiConfig) handlerGoalsUpdate(w http.ResponseWriter, r *http.Request) {
+func (cfg *apiConfig) handlerGoalsUpdate(w http.ResponseWriter, r *http.Request, userID uuid.UUID) {
 	type request struct {
 		ID             uuid.UUID `json:"goal_id"`
 		Name           string    `json:"goal_name"`
