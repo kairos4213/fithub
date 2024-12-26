@@ -104,12 +104,67 @@ func (cfg *apiConfig) handlerGoalsUpdate(w http.ResponseWriter, r *http.Request,
 		ID             uuid.UUID `json:"goal_id"`
 		Name           string    `json:"goal_name"`
 		Description    string    `json:"description"`
-		GoalDate       time.Time `json:"goal_date"`
-		CompletionDate time.Time `json:"completion_date"`
+		GoalDate       string    `json:"goal_date"`
+		CompletionDate string    `json:"completion_date"`
 		Notes          string    `json:"notes"`
 		Status         string    `json:"status"`
 	}
 
-	// reqParams := request{}
-	// decoder := json.NewDecoder(r.Body)
+	reqParams := request{}
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&reqParams)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Error decoding request", err)
+		return
+	}
+
+	updateGoalParams := database.UpdateGoalParams{
+		ID:          reqParams.ID,
+		Name:        reqParams.Name,
+		Description: reqParams.Description,
+		Status:      reqParams.Status,
+	}
+
+	goalDate, err := time.Parse(time.DateOnly, reqParams.GoalDate)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Error parsing date", err)
+		return
+	}
+	updateGoalParams.GoalDate = goalDate
+
+	if reqParams.CompletionDate == "" {
+		updateGoalParams.CompletionDate = sql.NullTime{Valid: false}
+	} else {
+		completionDate, err := time.Parse(time.DateOnly, reqParams.CompletionDate)
+		if err != nil {
+			respondWithError(w, http.StatusInternalServerError, "Error parsing date", err)
+			return
+		}
+		updateGoalParams.CompletionDate = sql.NullTime{Time: completionDate, Valid: true}
+	}
+
+	if reqParams.Notes == "" {
+		updateGoalParams.Notes = sql.NullString{Valid: false}
+	} else {
+		updateGoalParams.Notes = sql.NullString{String: reqParams.Notes, Valid: true}
+	}
+
+	goal, err := cfg.db.UpdateGoal(r.Context(), updateGoalParams)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Error updating goal", err)
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, Goal{
+		ID:             goal.ID,
+		CreatedAt:      goal.CreatedAt,
+		UpdatedAt:      goal.UpdatedAt,
+		Name:           goal.Name,
+		Description:    goal.Description,
+		GoalDate:       goal.GoalDate,
+		CompletionDate: goal.CompletionDate.Time,
+		Notes:          goal.Notes.String,
+		Status:         goal.Status,
+		UserID:         goal.UserID,
+	})
 }
