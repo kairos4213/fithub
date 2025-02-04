@@ -25,7 +25,7 @@ type response struct {
 	RefreshToken string `json:"refresh_token,omitempty"`
 }
 
-func (cfg *apiConfig) handlerUsersCreate(w http.ResponseWriter, r *http.Request) {
+func (cfg *apiConfig) createUsersHandler(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
 		FirstName  string `json:"first_name"`
 		MiddleName string `json:"middle_name"`
@@ -94,7 +94,7 @@ func (cfg *apiConfig) handlerUsersCreate(w http.ResponseWriter, r *http.Request)
 	})
 }
 
-func (cfg *apiConfig) handlerUsersLogin(w http.ResponseWriter, r *http.Request) {
+func (cfg *apiConfig) loginUsersHandler(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
@@ -154,10 +154,10 @@ func (cfg *apiConfig) handlerUsersLogin(w http.ResponseWriter, r *http.Request) 
 	})
 }
 
-func (cfg *apiConfig) handlerUsersUpdate(w http.ResponseWriter, r *http.Request, userID uuid.UUID) {
+func (cfg *apiConfig) updateUsersHandler(w http.ResponseWriter, r *http.Request, userID uuid.UUID) {
 	// TODO: Split this handler into two separate handlers
-	// handlerUsersUpdatePassword
-	// handlerUsersUpdateInfo (handles all other user information)
+	// updateUsersHandlerPassword
+	// updateUsersHandlerInfo (handles all other user information)
 	type parameters struct {
 		Email    *string `json:"email,omitempty"`
 		Password *string `json:"password,omitempty"`

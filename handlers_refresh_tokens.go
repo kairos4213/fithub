@@ -6,7 +6,7 @@ import (
 	"github.com/kairos4213/fithub/internal/auth"
 )
 
-func (cfg apiConfig) handlerRefresh(w http.ResponseWriter, r *http.Request) {
+func (cfg apiConfig) refreshHandler(w http.ResponseWriter, r *http.Request) {
 	type response struct {
 		AccesToken string `json:"access_token"`
 	}
@@ -32,7 +32,7 @@ func (cfg apiConfig) handlerRefresh(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, response{AccesToken: accessToken})
 }
 
-func (cfg apiConfig) handlerRevoke(w http.ResponseWriter, r *http.Request) {
+func (cfg apiConfig) revokeHandler(w http.ResponseWriter, r *http.Request) {
 	refreshToken, err := auth.GetBearerToken(r.Header)
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest, "Error getting bearer token", err)

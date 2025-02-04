@@ -59,19 +59,19 @@ func main() {
 	mux := http.NewServeMux()
 	mux.Handle("/app/", http.StripPrefix("/app", http.FileServer(http.Dir("."))))
 
-	mux.HandleFunc("POST /api/users", apiConfig.handlerUsersCreate)
-	mux.HandleFunc("GET /api/users", apiConfig.handlerUsersLogin)
+	mux.HandleFunc("POST /api/users", apiConfig.createUsersHandler)
+	mux.HandleFunc("GET /api/users", apiConfig.loginUsersHandler)
 
-	mux.HandleFunc("POST /api/refresh", apiConfig.handlerRefresh)
-	mux.HandleFunc("POST /api/revoke", apiConfig.handlerRevoke)
+	mux.HandleFunc("POST /api/refresh", apiConfig.refreshHandler)
+	mux.HandleFunc("POST /api/revoke", apiConfig.revokeHandler)
 
-	mux.HandleFunc("PUT /api/users", apiConfig.middlewareAuth(apiConfig.handlerUsersUpdate))
+	mux.HandleFunc("PUT /api/users", apiConfig.middlewareAuth(apiConfig.updateUsersHandler))
 
-	mux.HandleFunc("POST /api/goals", apiConfig.middlewareAuth(apiConfig.handlerGoalsCreate))
-	mux.HandleFunc("GET /api/goals", apiConfig.middlewareAuth(apiConfig.handlerGoalsGetAll))
-	mux.HandleFunc("PUT /api/goals", apiConfig.middlewareAuth(apiConfig.handlerGoalsUpdate))
+	mux.HandleFunc("POST /api/goals", apiConfig.middlewareAuth(apiConfig.createGoalsHandler))
+	mux.HandleFunc("GET /api/goals", apiConfig.middlewareAuth(apiConfig.getAllGoalsHandler))
+	mux.HandleFunc("PUT /api/goals", apiConfig.middlewareAuth(apiConfig.updateGoalsHandler))
 
-	mux.HandleFunc("GET /api/healthz", handlerReadiness)
+	mux.HandleFunc("GET /api/healthz", readinessHandler)
 
 	server := &http.Server{
 		Addr:         ":" + port,
