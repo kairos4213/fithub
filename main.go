@@ -65,11 +65,11 @@ func main() {
 	mux.HandleFunc("POST /api/refresh", apiConfig.refreshHandler)
 	mux.HandleFunc("POST /api/revoke", apiConfig.revokeHandler)
 
-	mux.HandleFunc("PUT /api/users", apiConfig.middlewareAuth(apiConfig.updateUsersHandler))
+	mux.HandleFunc("PUT /api/users", apiConfig.authMiddleware(apiConfig.updateUsersHandler))
 
-	mux.HandleFunc("POST /api/goals", apiConfig.middlewareAuth(apiConfig.createGoalsHandler))
-	mux.HandleFunc("GET /api/goals", apiConfig.middlewareAuth(apiConfig.getAllGoalsHandler))
-	mux.HandleFunc("PUT /api/goals", apiConfig.middlewareAuth(apiConfig.updateGoalsHandler))
+	mux.HandleFunc("POST /api/goals", apiConfig.authMiddleware(apiConfig.createGoalsHandler))
+	mux.HandleFunc("GET /api/goals", apiConfig.authMiddleware(apiConfig.getAllGoalsHandler))
+	mux.HandleFunc("PUT /api/goals", apiConfig.authMiddleware(apiConfig.updateGoalsHandler))
 
 	mux.HandleFunc("GET /api/healthz", readinessHandler)
 
