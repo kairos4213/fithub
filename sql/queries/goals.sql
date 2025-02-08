@@ -3,7 +3,7 @@ INSERT INTO goals (
   id,
   created_at,
   updated_at,
-  name,
+  goal_name,
   description,
   goal_date,
   notes,
@@ -18,7 +18,7 @@ WHERE user_id = $1;
 -- name: UpdateGoal :one
 UPDATE goals
 SET updated_at = NOW(),
-    name = $1,
+    goal_name = $1,
     description = $2,
     goal_date = $3,
     completion_date = $4,

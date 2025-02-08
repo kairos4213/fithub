@@ -16,7 +16,7 @@ type Goal struct {
 	ID             uuid.UUID
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
-	Name           string
+	GoalName       string
 	Description    string
 	GoalDate       time.Time
 	CompletionDate sql.NullTime
