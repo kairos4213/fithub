@@ -61,15 +61,20 @@ func main() {
 
 	mux.HandleFunc("POST /api/users", apiConfig.createUsersHandler)
 	mux.HandleFunc("GET /api/users", apiConfig.loginUsersHandler)
+	mux.HandleFunc("PUT /api/users", apiConfig.authMiddleware(apiConfig.updateUsersHandler))
+	// TODO: getUsersHandler
+	// TODO: deleteUsersHandler
 
 	mux.HandleFunc("POST /api/refresh", apiConfig.refreshHandler)
 	mux.HandleFunc("POST /api/revoke", apiConfig.revokeHandler)
 
-	mux.HandleFunc("PUT /api/users", apiConfig.authMiddleware(apiConfig.updateUsersHandler))
-
 	mux.HandleFunc("POST /api/goals", apiConfig.authMiddleware(apiConfig.createGoalsHandler))
 	mux.HandleFunc("GET /api/goals", apiConfig.authMiddleware(apiConfig.getAllGoalsHandler))
 	mux.HandleFunc("PUT /api/goals", apiConfig.authMiddleware(apiConfig.updateGoalsHandler))
+	mux.HandleFunc("DELETE /api/goals/{id}", apiConfig.authMiddleware(apiConfig.deleteGoalsHandler))
+	// TODO: deleteAllGoalsHandler
+	// TODO: deleteGoalsHandler
+	// TODO: getGoalsHandler
 
 	mux.HandleFunc("GET /api/healthz", readinessHandler)
 

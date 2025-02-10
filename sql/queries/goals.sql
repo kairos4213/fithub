@@ -26,3 +26,7 @@ SET updated_at = NOW(),
     status = $6
 WHERE id = $7
 RETURNING *;
+
+-- name: DeleteGoal :exec
+DELETE FROM goals
+WHERE id = $1;

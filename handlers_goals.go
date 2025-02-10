@@ -93,13 +93,13 @@ func (cfg *apiConfig) getAllGoalsHandler(w http.ResponseWriter, r *http.Request,
 			CompletionDate: goal.CompletionDate.Time,
 			Notes:          goal.Notes.String,
 			Status:         goal.Status,
-			UserID:         userID,
+			UserID:         goal.UserID,
 		})
 	}
 	respondWithJSON(w, http.StatusOK, response)
 }
 
-func (cfg *apiConfig) updateGoalsHandler(w http.ResponseWriter, r *http.Request, userID uuid.UUID) {
+func (cfg *apiConfig) updateGoalsHandler(w http.ResponseWriter, r *http.Request, _ uuid.UUID) {
 	type request struct {
 		ID             uuid.UUID `json:"goal_id"`
 		Name           string    `json:"goal_name"`
@@ -167,4 +167,19 @@ func (cfg *apiConfig) updateGoalsHandler(w http.ResponseWriter, r *http.Request,
 		Status:         goal.Status,
 		UserID:         goal.UserID,
 	})
+}
+
+func (cfg *apiConfig) deleteGoalsHandler(w http.ResponseWriter, r *http.Request, _ uuid.UUID) {
+	goal_id, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Error parsing goal id", err)
+	}
+
+	err = cfg.db.DeleteGoal(r.Context(), goal_id)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Error deleting goal", err)
+		return
+	}
+
+	respondWithJSON(w, http.StatusNoContent, Goal{})
 }
