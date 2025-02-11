@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -178,16 +179,20 @@ func (cfg *apiConfig) updateUsersHandler(w http.ResponseWriter, r *http.Request)
 	}
 
 	if params.Password != nil {
+		fmt.Print("Changing password")
 		hashedPassword, err := auth.HashPassword(*params.Password)
 		if err != nil {
 			respondWithError(w, http.StatusInternalServerError, "Error hashing password", err)
 			return
 		}
-		userParams.Column1 = hashedPassword
+		userParams.HashedPassword.String = hashedPassword
+		userParams.HashedPassword.Valid = true
 	}
 
 	if params.Email != nil {
-		userParams.Column2 = *params.Email
+		fmt.Print("Changing email")
+		userParams.Email.String = *params.Email
+		userParams.Email.Valid = true
 	}
 
 	updatedUser, err := cfg.db.UpdateUser(r.Context(), userParams)

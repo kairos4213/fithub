@@ -17,8 +17,9 @@ WHERE email = $1;
 
 -- name: UpdateUser :one
 UPDATE users
-SET hashed_password = COALESCE(NULLIF($1, ''), hashed_password),
-  email = COALESCE(NULLIF($2, ''), email),
+SET
+  hashed_password = COALESCE(sqlc.narg('hashedPassword'), hashed_password),
+  email = COALESCE(sqlc.narg('email'), email),
   updated_at = NOW()
-WHERE id = $3
+WHERE id = $1
 RETURNING *;
