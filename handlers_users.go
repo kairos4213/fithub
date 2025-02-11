@@ -154,7 +154,7 @@ func (cfg *apiConfig) loginUsersHandler(w http.ResponseWriter, r *http.Request) 
 	})
 }
 
-func (cfg *apiConfig) updateUsersHandler(w http.ResponseWriter, r *http.Request, userID uuid.UUID) {
+func (cfg *apiConfig) updateUsersHandler(w http.ResponseWriter, r *http.Request) {
 	// TODO: Split this handler into two separate handlers
 	// updateUsersHandlerPassword
 	// updateUsersHandlerInfo (handles all other user information)
@@ -162,6 +162,8 @@ func (cfg *apiConfig) updateUsersHandler(w http.ResponseWriter, r *http.Request,
 		Email    *string `json:"email,omitempty"`
 		Password *string `json:"password,omitempty"`
 	}
+
+	userID := r.Context().Value(userIDKey).(uuid.UUID)
 
 	params := parameters{}
 	decoder := json.NewDecoder(r.Body)

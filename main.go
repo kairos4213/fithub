@@ -61,19 +61,18 @@ func main() {
 
 	mux.HandleFunc("POST /api/users", apiConfig.createUsersHandler)
 	mux.HandleFunc("GET /api/users", apiConfig.loginUsersHandler)
-	mux.HandleFunc("PUT /api/users", apiConfig.authMiddleware(apiConfig.updateUsersHandler))
+	mux.Handle("PUT /api/users", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.updateUsersHandler)))
 	// TODO: getUsersHandler
 	// TODO: deleteUsersHandler
 
 	mux.HandleFunc("POST /api/refresh", apiConfig.refreshHandler)
 	mux.HandleFunc("POST /api/revoke", apiConfig.revokeHandler)
 
-	mux.HandleFunc("POST /api/goals", apiConfig.authMiddleware(apiConfig.createGoalsHandler))
-	mux.HandleFunc("GET /api/goals", apiConfig.authMiddleware(apiConfig.getAllGoalsHandler))
-	mux.HandleFunc("PUT /api/goals", apiConfig.authMiddleware(apiConfig.updateGoalsHandler))
-	mux.HandleFunc("DELETE /api/goals/{id}", apiConfig.authMiddleware(apiConfig.deleteGoalsHandler))
+	mux.Handle("POST /api/goals", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.createGoalsHandler)))
+	mux.Handle("GET /api/goals", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.getAllGoalsHandler)))
+	mux.Handle("PUT /api/goals", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.updateGoalsHandler)))
+	mux.Handle("DELETE /api/goals/{id}", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.deleteGoalsHandler)))
 	// TODO: deleteAllGoalsHandler
-	// TODO: deleteGoalsHandler
 	// TODO: getGoalsHandler
 
 	mux.HandleFunc("GET /api/healthz", readinessHandler)
