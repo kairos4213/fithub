@@ -32,3 +32,12 @@ func respondWithJSON(w http.ResponseWriter, statusCode int, payload interface{})
 	w.WriteHeader(statusCode)
 	w.Write(data)
 }
+
+func parseJSON(r *http.Request, reqParams any) error {
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&reqParams)
+	if err != nil {
+		return err
+	}
+	return nil
+}

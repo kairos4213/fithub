@@ -2,7 +2,7 @@ package main
 
 import (
 	"database/sql"
-	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -27,7 +27,7 @@ type response struct {
 }
 
 func (cfg *apiConfig) createUsersHandler(w http.ResponseWriter, r *http.Request) {
-	type parameters struct {
+	type requestParams struct {
 		FirstName  string `json:"first_name"`
 		MiddleName string `json:"middle_name"`
 		LastName   string `json:"last_name"`
@@ -35,25 +35,43 @@ func (cfg *apiConfig) createUsersHandler(w http.ResponseWriter, r *http.Request)
 		Password   string `json:"password"`
 	}
 
-	params := parameters{}
-	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&params)
-	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Error decoding request", err)
+	reqParams := requestParams{}
+	if err := parseJSON(r, &reqParams); err != nil {
+		respondWithError(w, http.StatusBadRequest, "malformed request", err)
 		return
 	}
 
-	hashedPassword, err := auth.HashPassword(params.Password)
+	if reqParams.FirstName == "" {
+		respondWithError(w, http.StatusBadRequest, "Missing First Name", errors.New("malformed request"))
+		return
+	}
+
+	if reqParams.LastName == "" {
+		respondWithError(w, http.StatusBadRequest, "Missing Last Name", errors.New("malformed request"))
+		return
+	}
+
+	if reqParams.Email == "" {
+		respondWithError(w, http.StatusBadRequest, "Missing Email", errors.New("malformed request"))
+		return
+	}
+
+	if reqParams.Password == "" {
+		respondWithError(w, http.StatusBadRequest, "Missing Password", errors.New("malformed request"))
+		return
+	}
+
+	hashedPassword, err := auth.HashPassword(reqParams.Password)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't hash password", err)
 		return
 	}
 
 	user, err := cfg.db.CreateUser(r.Context(), database.CreateUserParams{
-		FirstName:      strings.ToLower(params.FirstName),
-		MiddleName:     sql.NullString{String: strings.ToLower(params.MiddleName)},
-		LastName:       strings.ToLower(params.LastName),
-		Email:          strings.ToLower(params.Email),
+		FirstName:      strings.ToLower(reqParams.FirstName),
+		MiddleName:     sql.NullString{String: strings.ToLower(reqParams.MiddleName)},
+		LastName:       strings.ToLower(reqParams.LastName),
+		Email:          strings.ToLower(reqParams.Email),
 		HashedPassword: hashedPassword,
 	})
 	if err != nil {
@@ -96,26 +114,34 @@ func (cfg *apiConfig) createUsersHandler(w http.ResponseWriter, r *http.Request)
 }
 
 func (cfg *apiConfig) loginUsersHandler(w http.ResponseWriter, r *http.Request) {
-	type parameters struct {
+	type requestParams struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
 	}
 
-	params := parameters{}
-	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&params)
-	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Error decoding request", err)
+	reqParams := requestParams{}
+	if err := parseJSON(r, reqParams); err != nil {
+		respondWithError(w, http.StatusBadRequest, "Malformed request", err)
 		return
 	}
 
-	user, err := cfg.db.GetUser(r.Context(), params.Email)
+	if reqParams.Email == "" {
+		respondWithError(w, http.StatusBadRequest, "Missing Email", errors.New("malformed request"))
+		return
+	}
+
+	if reqParams.Password == "" {
+		respondWithError(w, http.StatusBadRequest, "Missing Password", errors.New("malformed request"))
+		return
+	}
+
+	user, err := cfg.db.GetUser(r.Context(), reqParams.Email)
 	if err != nil {
 		respondWithError(w, http.StatusUnauthorized, "Incorrect email or password", err)
 		return
 	}
 
-	err = auth.CheckPasswordHash(params.Password, user.HashedPassword)
+	err = auth.CheckPasswordHash(reqParams.Password, user.HashedPassword)
 	if err != nil {
 		respondWithError(w, http.StatusUnauthorized, "Incorrect email or password", err)
 		return
@@ -159,18 +185,16 @@ func (cfg *apiConfig) updateUsersHandler(w http.ResponseWriter, r *http.Request)
 	// TODO: Split this handler into two separate handlers
 	// updateUsersHandlerPassword
 	// updateUsersHandlerInfo (handles all other user information)
-	type parameters struct {
+	type requestParams struct {
 		Email    *string `json:"email,omitempty"`
 		Password *string `json:"password,omitempty"`
 	}
 
 	userID := r.Context().Value(userIDKey).(uuid.UUID)
 
-	params := parameters{}
-	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&params)
-	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Error unmarshalling", err)
+	reqParams := requestParams{}
+	if err := parseJSON(r, reqParams); err != nil {
+		respondWithError(w, http.StatusBadRequest, "malformed request", err)
 		return
 	}
 
@@ -178,9 +202,9 @@ func (cfg *apiConfig) updateUsersHandler(w http.ResponseWriter, r *http.Request)
 		ID: userID,
 	}
 
-	if params.Password != nil {
+	if reqParams.Password != nil {
 		fmt.Print("Changing password")
-		hashedPassword, err := auth.HashPassword(*params.Password)
+		hashedPassword, err := auth.HashPassword(*reqParams.Password)
 		if err != nil {
 			respondWithError(w, http.StatusInternalServerError, "Error hashing password", err)
 			return
@@ -189,9 +213,9 @@ func (cfg *apiConfig) updateUsersHandler(w http.ResponseWriter, r *http.Request)
 		userParams.HashedPassword.Valid = true
 	}
 
-	if params.Email != nil {
+	if reqParams.Email != nil {
 		fmt.Print("Changing email")
-		userParams.Email.String = *params.Email
+		userParams.Email.String = *reqParams.Email
 		userParams.Email.Valid = true
 	}
 

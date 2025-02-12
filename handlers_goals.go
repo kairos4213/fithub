@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"encoding/json"
 	"net/http"
 	"strings"
 	"time"
@@ -25,7 +24,7 @@ type Goal struct {
 }
 
 func (cfg *apiConfig) createGoalsHandler(w http.ResponseWriter, r *http.Request) {
-	type request struct {
+	type requestParams struct {
 		Name        string `json:"name"`
 		Description string `json:"description"`
 		GoalDate    string `json:"goal_date"`
@@ -34,11 +33,9 @@ func (cfg *apiConfig) createGoalsHandler(w http.ResponseWriter, r *http.Request)
 
 	userID := r.Context().Value(userIDKey).(uuid.UUID)
 
-	reqParams := request{}
-	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&reqParams)
-	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Error decoding request", err)
+	reqParams := requestParams{}
+	if err := parseJSON(r, reqParams); err != nil {
+		respondWithError(w, http.StatusBadRequest, "malformed request", err)
 		return
 	}
 
@@ -103,7 +100,7 @@ func (cfg *apiConfig) getAllGoalsHandler(w http.ResponseWriter, r *http.Request)
 }
 
 func (cfg *apiConfig) updateGoalsHandler(w http.ResponseWriter, r *http.Request) {
-	type request struct {
+	type requestParams struct {
 		ID             uuid.UUID `json:"goal_id"`
 		Name           string    `json:"goal_name"`
 		Description    string    `json:"description"`
@@ -113,11 +110,9 @@ func (cfg *apiConfig) updateGoalsHandler(w http.ResponseWriter, r *http.Request)
 		Status         string    `json:"status"`
 	}
 
-	reqParams := request{}
-	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&reqParams)
-	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Error decoding request", err)
+	reqParams := requestParams{}
+	if err := parseJSON(r, reqParams); err != nil {
+		respondWithError(w, http.StatusBadRequest, "malformed request", err)
 		return
 	}
 
@@ -176,6 +171,7 @@ func (cfg *apiConfig) deleteGoalsHandler(w http.ResponseWriter, r *http.Request)
 	goal_id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Error parsing goal id", err)
+		return
 	}
 
 	err = cfg.db.DeleteGoal(r.Context(), goal_id)
