@@ -62,8 +62,8 @@ func main() {
 	mux.HandleFunc("POST /api/users", apiConfig.createUsersHandler)
 	mux.HandleFunc("GET /api/users", apiConfig.loginUsersHandler)
 	mux.Handle("PUT /api/users", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.updateUsersHandler)))
+	mux.Handle("DELETE /api/users", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.deleteUsersHandler)))
 	// TODO: getUsersHandler
-	// TODO: deleteUsersHandler
 
 	mux.HandleFunc("POST /api/refresh", apiConfig.refreshHandler)
 	mux.HandleFunc("POST /api/revoke", apiConfig.revokeHandler)

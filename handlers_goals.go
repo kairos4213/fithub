@@ -34,7 +34,7 @@ func (cfg *apiConfig) createGoalsHandler(w http.ResponseWriter, r *http.Request)
 	userID := r.Context().Value(userIDKey).(uuid.UUID)
 
 	reqParams := requestParams{}
-	if err := parseJSON(r, reqParams); err != nil {
+	if err := parseJSON(r, &reqParams); err != nil {
 		respondWithError(w, http.StatusBadRequest, "malformed request", err)
 		return
 	}
@@ -111,7 +111,7 @@ func (cfg *apiConfig) updateGoalsHandler(w http.ResponseWriter, r *http.Request)
 	}
 
 	reqParams := requestParams{}
-	if err := parseJSON(r, reqParams); err != nil {
+	if err := parseJSON(r, &reqParams); err != nil {
 		respondWithError(w, http.StatusBadRequest, "malformed request", err)
 		return
 	}

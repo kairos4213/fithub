@@ -56,8 +56,8 @@ func (cfg *apiConfig) createUsersHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if reqParams.Password == "" {
-		respondWithError(w, http.StatusBadRequest, "Missing Password", errors.New("malformed request"))
+	if len(reqParams.Password) < 10 {
+		respondWithError(w, http.StatusBadRequest, "Password must be at least 10 characters", errors.New("malformed request"))
 		return
 	}
 
@@ -120,7 +120,7 @@ func (cfg *apiConfig) loginUsersHandler(w http.ResponseWriter, r *http.Request) 
 	}
 
 	reqParams := requestParams{}
-	if err := parseJSON(r, reqParams); err != nil {
+	if err := parseJSON(r, &reqParams); err != nil {
 		respondWithError(w, http.StatusBadRequest, "Malformed request", err)
 		return
 	}
@@ -231,4 +231,15 @@ func (cfg *apiConfig) updateUsersHandler(w http.ResponseWriter, r *http.Request)
 		LastName:  updatedUser.LastName,
 		Email:     updatedUser.Email,
 	}})
+}
+
+func (cfg *apiConfig) deleteUsersHandler(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value(userIDKey).(uuid.UUID)
+
+	if err := cfg.db.DeleteUser(r.Context(), userID); err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Error deleting user profile", err)
+		return
+	}
+
+	respondWithJSON(w, http.StatusNoContent, User{})
 }
