@@ -72,7 +72,7 @@ func main() {
 	mux.Handle("GET /api/goals", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.getAllGoalsHandler)))
 	mux.Handle("PUT /api/goals", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.updateGoalsHandler)))
 	mux.Handle("DELETE /api/goals/{id}", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.deleteGoalsHandler)))
-	// TODO: deleteAllGoalsHandler
+	mux.Handle("DELETE /api/goals", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.deleteAllGoalsHandler)))
 	// TODO: getGoalsHandler
 
 	mux.HandleFunc("GET /api/healthz", readinessHandler)

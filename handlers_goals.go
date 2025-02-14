@@ -168,15 +168,25 @@ func (cfg *apiConfig) updateGoalsHandler(w http.ResponseWriter, r *http.Request)
 }
 
 func (cfg *apiConfig) deleteGoalsHandler(w http.ResponseWriter, r *http.Request) {
-	goal_id, err := uuid.Parse(r.PathValue("id"))
+	goalID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Error parsing goal id", err)
 		return
 	}
 
-	err = cfg.db.DeleteGoal(r.Context(), goal_id)
-	if err != nil {
+	if err := cfg.db.DeleteGoal(r.Context(), goalID); err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Error deleting goal", err)
+		return
+	}
+
+	respondWithJSON(w, http.StatusNoContent, Goal{})
+}
+
+func (cfg *apiConfig) deleteAllGoalsHandler(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value(userIDKey).(uuid.UUID)
+
+	if err := cfg.db.DeleteAllUserGoals(r.Context(), userID); err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Error deleting goals", err)
 		return
 	}
 
