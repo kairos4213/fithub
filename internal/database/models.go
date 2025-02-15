@@ -12,6 +12,22 @@ import (
 	"github.com/sqlc-dev/pqtype"
 )
 
+type BodyFatPercent struct {
+	ID          uuid.UUID
+	UserID      uuid.UUID
+	Measurement string
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+}
+
+type BodyWeight struct {
+	ID          uuid.UUID
+	UserID      uuid.UUID
+	Measurement string
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+}
+
 type Goal struct {
 	ID             uuid.UUID
 	CreatedAt      time.Time
@@ -23,6 +39,14 @@ type Goal struct {
 	Notes          sql.NullString
 	Status         string
 	UserID         uuid.UUID
+}
+
+type MuscleMass struct {
+	ID          uuid.UUID
+	UserID      uuid.UUID
+	Measurement string
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
 
 type RefreshToken struct {

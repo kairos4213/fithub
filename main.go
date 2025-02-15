@@ -75,6 +75,13 @@ func main() {
 	mux.Handle("DELETE /api/goals", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.deleteAllGoalsHandler)))
 	// TODO: getGoalsHandler
 
+	// TODO: createMetricsHandler
+	// TODO: getMetricsHandler
+	// TODO: getMetricsHistoryHandler
+	// TODO: updateMetricsHandler
+	// TODO: deleteMetricsHandler
+	// TODO: deleteAllMetricsHandler
+
 	mux.HandleFunc("GET /api/healthz", readinessHandler)
 
 	server := &http.Server{
