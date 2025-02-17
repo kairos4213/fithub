@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -193,7 +192,7 @@ func (cfg *apiConfig) updateUsersHandler(w http.ResponseWriter, r *http.Request)
 	userID := r.Context().Value(userIDKey).(uuid.UUID)
 
 	reqParams := requestParams{}
-	if err := parseJSON(r, reqParams); err != nil {
+	if err := parseJSON(r, &reqParams); err != nil {
 		respondWithError(w, http.StatusBadRequest, "malformed request", err)
 		return
 	}
@@ -203,7 +202,6 @@ func (cfg *apiConfig) updateUsersHandler(w http.ResponseWriter, r *http.Request)
 	}
 
 	if reqParams.Password != nil {
-		fmt.Print("Changing password")
 		hashedPassword, err := auth.HashPassword(*reqParams.Password)
 		if err != nil {
 			respondWithError(w, http.StatusInternalServerError, "Error hashing password", err)
@@ -214,7 +212,6 @@ func (cfg *apiConfig) updateUsersHandler(w http.ResponseWriter, r *http.Request)
 	}
 
 	if reqParams.Email != nil {
-		fmt.Print("Changing email")
 		userParams.Email.String = *reqParams.Email
 		userParams.Email.Valid = true
 	}
