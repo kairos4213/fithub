@@ -75,7 +75,7 @@ func main() {
 	mux.Handle("DELETE /api/goals", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.deleteAllGoalsHandler)))
 	// TODO: getGoalsHandler
 
-	// TODO: createMetricsHandler
+	mux.Handle("POST /api/metrics/{type}", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.addMetricsHandler)))
 	// TODO: getMetricsHandler
 	// TODO: getMetricsHistoryHandler
 	// TODO: updateMetricsHandler
