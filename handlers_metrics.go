@@ -43,7 +43,7 @@ func (cfg *apiConfig) addMetricsHandler(w http.ResponseWriter, r *http.Request) 
 
 		respondWithJSON(w, http.StatusCreated, Metric{
 			ID:          bodyWeightEntry.ID,
-			MetricType:  metricType,
+			MetricType:  "body_weight",
 			Measurement: bodyWeightEntry.Measurement,
 			CreatedAt:   bodyWeightEntry.CreatedAt,
 			UpdatedAt:   bodyWeightEntry.UpdatedAt,
@@ -61,7 +61,7 @@ func (cfg *apiConfig) addMetricsHandler(w http.ResponseWriter, r *http.Request) 
 
 		respondWithJSON(w, http.StatusCreated, Metric{
 			ID:          userID,
-			MetricType:  metricType,
+			MetricType:  "muscle_mass",
 			Measurement: muscleMassEntry.Measurement,
 			CreatedAt:   muscleMassEntry.CreatedAt,
 			UpdatedAt:   muscleMassEntry.UpdatedAt,
@@ -79,7 +79,7 @@ func (cfg *apiConfig) addMetricsHandler(w http.ResponseWriter, r *http.Request) 
 
 		respondWithJSON(w, http.StatusCreated, Metric{
 			ID:          userID,
-			MetricType:  metricType,
+			MetricType:  "body_fat_percentage",
 			Measurement: bfPercentEntry.Measurement,
 			CreatedAt:   bfPercentEntry.CreatedAt,
 			UpdatedAt:   bfPercentEntry.UpdatedAt,
@@ -103,7 +103,7 @@ func (cfg *apiConfig) getAllUserMetrics(w http.ResponseWriter, r *http.Request) 
 	for _, bodyWeight := range bodyWeights {
 		bodyWeightsResp = append(bodyWeightsResp, Metric{
 			ID:          bodyWeight.ID,
-			MetricType:  "body_weights",
+			MetricType:  "body_weight",
 			Measurement: bodyWeight.Measurement,
 			CreatedAt:   bodyWeight.CreatedAt,
 			UpdatedAt:   bodyWeight.UpdatedAt,
