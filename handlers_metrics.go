@@ -49,5 +49,23 @@ func (cfg *apiConfig) addMetricsHandler(w http.ResponseWriter, r *http.Request) 
 			UpdatedAt:   bodyWeightEntry.UpdatedAt,
 			UserID:      userID,
 		})
+	case "muscle_mass":
+		muscleMassEntry, err := cfg.db.AddMuscleMass(r.Context(), database.AddMuscleMassParams{
+			UserID:      userID,
+			Measurement: reqParams.Measurement,
+		})
+		if err != nil {
+			respondWithError(w, http.StatusInternalServerError, "Error saving muscle mass metric", err)
+			return
+		}
+
+		respondWithJSON(w, http.StatusCreated, Metric{
+			ID:          userID,
+			MetricType:  metricType,
+			Measurement: muscleMassEntry.Measurement,
+			CreatedAt:   muscleMassEntry.CreatedAt,
+			UpdatedAt:   muscleMassEntry.UpdatedAt,
+			UserID:      userID,
+		})
 	}
 }

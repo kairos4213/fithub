@@ -39,3 +39,32 @@ func (q *Queries) AddBodyWeight(ctx context.Context, arg AddBodyWeightParams) (B
 	)
 	return i, err
 }
+
+const addMuscleMass = `-- name: AddMuscleMass :one
+INSERT INTO muscle_masses (
+  id,
+  created_at,
+  updated_at,
+  user_id,
+  measurement
+) VALUES ( gen_random_uuid(), NOW(), NOW(), $1, $2)
+  RETURNING id, user_id, measurement, created_at, updated_at
+`
+
+type AddMuscleMassParams struct {
+	UserID      uuid.UUID
+	Measurement string
+}
+
+func (q *Queries) AddMuscleMass(ctx context.Context, arg AddMuscleMassParams) (MuscleMass, error) {
+	row := q.db.QueryRowContext(ctx, addMuscleMass, arg.UserID, arg.Measurement)
+	var i MuscleMass
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Measurement,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}

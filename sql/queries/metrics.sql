@@ -7,3 +7,13 @@ INSERT INTO body_weights (
   measurement
 ) VALUES ( gen_random_uuid(), NOW(), NOW(), $1, $2)
   RETURNING *;
+
+-- name: AddMuscleMass :one
+INSERT INTO muscle_masses (
+  id,
+  created_at,
+  updated_at,
+  user_id,
+  measurement
+) VALUES ( gen_random_uuid(), NOW(), NOW(), $1, $2)
+  RETURNING *;
