@@ -76,6 +76,7 @@ func main() {
 	// TODO: getGoalsHandler
 
 	mux.Handle("POST /api/metrics/{type}", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.addMetricsHandler)))
+	mux.Handle("GET /api/metrics", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.getAllUserMetrics)))
 	// TODO: getMetricsHandler
 	// TODO: getMetricsHistoryHandler
 	// TODO: updateMetricsHandler

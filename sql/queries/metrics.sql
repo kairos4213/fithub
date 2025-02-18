@@ -27,3 +27,7 @@ INSERT INTO body_fat_percents (
   measurement
 ) VALUES ( gen_random_uuid(), NOW(), NOW(), $1, $2)
   RETURNING *;
+
+-- name: GetAllBodyWeights :many
+SELECT * FROM body_weights
+  WHERE user_id = $1;

@@ -97,3 +97,37 @@ func (q *Queries) AddMuscleMass(ctx context.Context, arg AddMuscleMassParams) (M
 	)
 	return i, err
 }
+
+const getAllBodyWeights = `-- name: GetAllBodyWeights :many
+SELECT id, user_id, measurement, created_at, updated_at FROM body_weights
+  WHERE user_id = $1
+`
+
+func (q *Queries) GetAllBodyWeights(ctx context.Context, userID uuid.UUID) ([]BodyWeight, error) {
+	rows, err := q.db.QueryContext(ctx, getAllBodyWeights, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []BodyWeight
+	for rows.Next() {
+		var i BodyWeight
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Measurement,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

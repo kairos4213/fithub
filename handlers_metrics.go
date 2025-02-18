@@ -87,3 +87,32 @@ func (cfg *apiConfig) addMetricsHandler(w http.ResponseWriter, r *http.Request) 
 		})
 	}
 }
+
+func (cfg *apiConfig) getAllUserMetrics(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value(userIDKey).(uuid.UUID)
+
+	bodyWeightsResp := []Metric{}
+	// muscleMassesResp := []Metric{}
+	// bfPercentsResp := []Metric{}
+
+	bodyWeights, err := cfg.db.GetAllBodyWeights(r.Context(), userID)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Error retrieving body weights", err)
+		return
+	}
+	for _, bodyWeight := range bodyWeights {
+		bodyWeightsResp = append(bodyWeightsResp, Metric{
+			ID:          bodyWeight.ID,
+			MetricType:  "body_weights",
+			Measurement: bodyWeight.Measurement,
+			CreatedAt:   bodyWeight.CreatedAt,
+			UpdatedAt:   bodyWeight.UpdatedAt,
+			UserID:      bodyWeight.UserID,
+		})
+	}
+
+	resp := map[string][]Metric{
+		"body_weights": bodyWeightsResp,
+	}
+	respondWithJSON(w, http.StatusOK, resp)
+}
