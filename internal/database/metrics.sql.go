@@ -11,6 +11,35 @@ import (
 	"github.com/google/uuid"
 )
 
+const addBodyFatPerc = `-- name: AddBodyFatPerc :one
+INSERT INTO body_fat_percents (
+  id,
+  created_at,
+  updated_at,
+  user_id,
+  measurement
+) VALUES ( gen_random_uuid(), NOW(), NOW(), $1, $2)
+  RETURNING id, user_id, measurement, created_at, updated_at
+`
+
+type AddBodyFatPercParams struct {
+	UserID      uuid.UUID
+	Measurement string
+}
+
+func (q *Queries) AddBodyFatPerc(ctx context.Context, arg AddBodyFatPercParams) (BodyFatPercent, error) {
+	row := q.db.QueryRowContext(ctx, addBodyFatPerc, arg.UserID, arg.Measurement)
+	var i BodyFatPercent
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Measurement,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const addBodyWeight = `-- name: AddBodyWeight :one
 INSERT INTO body_weights (
   id,

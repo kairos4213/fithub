@@ -31,7 +31,7 @@ func (cfg *apiConfig) addMetricsHandler(w http.ResponseWriter, r *http.Request) 
 
 	metricType := r.PathValue("type")
 	switch metricType {
-	case "body_weight":
+	case "body_weights":
 		bodyWeightEntry, err := cfg.db.AddBodyWeight(r.Context(), database.AddBodyWeightParams{
 			UserID:      userID,
 			Measurement: reqParams.Measurement,
@@ -49,7 +49,7 @@ func (cfg *apiConfig) addMetricsHandler(w http.ResponseWriter, r *http.Request) 
 			UpdatedAt:   bodyWeightEntry.UpdatedAt,
 			UserID:      userID,
 		})
-	case "muscle_mass":
+	case "muscle_masses":
 		muscleMassEntry, err := cfg.db.AddMuscleMass(r.Context(), database.AddMuscleMassParams{
 			UserID:      userID,
 			Measurement: reqParams.Measurement,
@@ -65,6 +65,24 @@ func (cfg *apiConfig) addMetricsHandler(w http.ResponseWriter, r *http.Request) 
 			Measurement: muscleMassEntry.Measurement,
 			CreatedAt:   muscleMassEntry.CreatedAt,
 			UpdatedAt:   muscleMassEntry.UpdatedAt,
+			UserID:      userID,
+		})
+	case "body_fat_percents":
+		bfPercentEntry, err := cfg.db.AddBodyFatPerc(r.Context(), database.AddBodyFatPercParams{
+			UserID:      userID,
+			Measurement: reqParams.Measurement,
+		})
+		if err != nil {
+			respondWithError(w, http.StatusInternalServerError, "Error saving body fat percentage", err)
+			return
+		}
+
+		respondWithJSON(w, http.StatusCreated, Metric{
+			ID:          userID,
+			MetricType:  metricType,
+			Measurement: bfPercentEntry.Measurement,
+			CreatedAt:   bfPercentEntry.CreatedAt,
+			UpdatedAt:   bfPercentEntry.UpdatedAt,
 			UserID:      userID,
 		})
 	}
