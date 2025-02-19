@@ -31,3 +31,7 @@ INSERT INTO body_fat_percents (
 -- name: GetAllBodyWeights :many
 SELECT * FROM body_weights
   WHERE user_id = $1;
+
+-- name: GetAllMuscleMasses :many
+SELECT * FROM muscle_masses
+  WHERE user_id = $1;
