@@ -93,7 +93,7 @@ func (cfg *apiConfig) getAllUserMetrics(w http.ResponseWriter, r *http.Request) 
 
 	bodyWeightsResp := []Metric{}
 	muscleMassesResp := []Metric{}
-	// bfPercentsResp := []Metric{}
+	bfPercentsResp := []Metric{}
 
 	bodyWeights, err := cfg.db.GetAllBodyWeights(r.Context(), userID)
 	if err != nil {
@@ -127,9 +127,26 @@ func (cfg *apiConfig) getAllUserMetrics(w http.ResponseWriter, r *http.Request) 
 		})
 	}
 
+	bfPercents, err := cfg.db.GetAllBodyFatPercs(r.Context(), userID)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Error retrieving body fat percentages", err)
+		return
+	}
+	for _, bfPercent := range bfPercents {
+		bfPercentsResp = append(bfPercentsResp, Metric{
+			ID:          bfPercent.ID,
+			MetricType:  "body_fat_percentage",
+			Measurement: bfPercent.Measurement,
+			CreatedAt:   bfPercent.CreatedAt,
+			UpdatedAt:   bfPercent.UpdatedAt,
+			UserID:      userID,
+		})
+	}
+
 	resp := map[string][]Metric{
-		"body_weights":  bodyWeightsResp,
-		"muscle_masses": muscleMassesResp,
+		"body_weights":         bodyWeightsResp,
+		"muscle_masses":        muscleMassesResp,
+		"body_fat_percentages": bfPercentsResp,
 	}
 	respondWithJSON(w, http.StatusOK, resp)
 }

@@ -35,3 +35,7 @@ SELECT * FROM body_weights
 -- name: GetAllMuscleMasses :many
 SELECT * FROM muscle_masses
   WHERE user_id = $1;
+
+-- name: GetAllBodyFatPercs :many
+SELECT * FROM body_fat_percents
+  WHERE user_id = $1;
