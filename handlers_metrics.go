@@ -150,3 +150,82 @@ func (cfg *apiConfig) getAllUserMetrics(w http.ResponseWriter, r *http.Request) 
 	}
 	respondWithJSON(w, http.StatusOK, resp)
 }
+
+func (cfg *apiConfig) updateMetricsHandler(w http.ResponseWriter, r *http.Request) {
+	type requestParams struct {
+		MetricType  string `json:"metric_type"`
+		Measurement string `json:"measurement"`
+	}
+	userID := r.Context().Value(userIDKey).(uuid.UUID)
+	metricID, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "error parsing metric id", err)
+		return
+	}
+
+	reqParams := requestParams{}
+	if err := parseJSON(r, &reqParams); err != nil {
+		respondWithError(w, http.StatusBadRequest, "malformed request", err)
+		return
+	}
+
+	switch reqParams.MetricType {
+	case "body_weight":
+		bodyWeightEntry, err := cfg.db.UpdateBodyWeight(r.Context(), database.UpdateBodyWeightParams{
+			ID:          metricID,
+			UserID:      userID,
+			Measurement: reqParams.Measurement,
+		})
+		if err != nil {
+			respondWithError(w, http.StatusInternalServerError, "error updating body weight entry", err)
+			return
+		}
+
+		respondWithJSON(w, http.StatusAccepted, Metric{
+			ID:          bodyWeightEntry.ID,
+			MetricType:  "body_weight",
+			Measurement: bodyWeightEntry.Measurement,
+			CreatedAt:   bodyWeightEntry.CreatedAt,
+			UpdatedAt:   bodyWeightEntry.UpdatedAt,
+			UserID:      bodyWeightEntry.UserID,
+		})
+	case "muscle_mass":
+		muscleMassEntry, err := cfg.db.UpdateMuscleMass(r.Context(), database.UpdateMuscleMassParams{
+			ID:          metricID,
+			UserID:      userID,
+			Measurement: reqParams.Measurement,
+		})
+		if err != nil {
+			respondWithError(w, http.StatusInternalServerError, "error updating body weight entry", err)
+			return
+		}
+
+		respondWithJSON(w, http.StatusAccepted, Metric{
+			ID:          muscleMassEntry.ID,
+			MetricType:  "body_weight",
+			Measurement: muscleMassEntry.Measurement,
+			CreatedAt:   muscleMassEntry.CreatedAt,
+			UpdatedAt:   muscleMassEntry.UpdatedAt,
+			UserID:      muscleMassEntry.UserID,
+		})
+	case "body_fat_percentage":
+		bfPercentEntry, err := cfg.db.UpdateBodyFatPerc(r.Context(), database.UpdateBodyFatPercParams{
+			ID:          metricID,
+			UserID:      userID,
+			Measurement: reqParams.Measurement,
+		})
+		if err != nil {
+			respondWithError(w, http.StatusInternalServerError, "error updating body weight entry", err)
+			return
+		}
+
+		respondWithJSON(w, http.StatusAccepted, Metric{
+			ID:          bfPercentEntry.ID,
+			MetricType:  "body_fat_percentage",
+			Measurement: bfPercentEntry.Measurement,
+			CreatedAt:   bfPercentEntry.CreatedAt,
+			UpdatedAt:   bfPercentEntry.UpdatedAt,
+			UserID:      bfPercentEntry.UserID,
+		})
+	}
+}

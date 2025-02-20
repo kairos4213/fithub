@@ -199,3 +199,84 @@ func (q *Queries) GetAllMuscleMasses(ctx context.Context, userID uuid.UUID) ([]M
 	}
 	return items, nil
 }
+
+const updateBodyFatPerc = `-- name: UpdateBodyFatPerc :one
+UPDATE body_fat_percents
+  SET measurement = $1,
+      updated_at = NOW()
+  WHERE id = $2 AND user_id = $3
+  RETURNING id, user_id, measurement, created_at, updated_at
+`
+
+type UpdateBodyFatPercParams struct {
+	Measurement string
+	ID          uuid.UUID
+	UserID      uuid.UUID
+}
+
+func (q *Queries) UpdateBodyFatPerc(ctx context.Context, arg UpdateBodyFatPercParams) (BodyFatPercent, error) {
+	row := q.db.QueryRowContext(ctx, updateBodyFatPerc, arg.Measurement, arg.ID, arg.UserID)
+	var i BodyFatPercent
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Measurement,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const updateBodyWeight = `-- name: UpdateBodyWeight :one
+UPDATE body_weights
+  SET measurement = $1,
+      updated_at = NOW()
+  WHERE id = $2 AND user_id = $3 
+  RETURNING id, user_id, measurement, created_at, updated_at
+`
+
+type UpdateBodyWeightParams struct {
+	Measurement string
+	ID          uuid.UUID
+	UserID      uuid.UUID
+}
+
+func (q *Queries) UpdateBodyWeight(ctx context.Context, arg UpdateBodyWeightParams) (BodyWeight, error) {
+	row := q.db.QueryRowContext(ctx, updateBodyWeight, arg.Measurement, arg.ID, arg.UserID)
+	var i BodyWeight
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Measurement,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const updateMuscleMass = `-- name: UpdateMuscleMass :one
+UPDATE muscle_masses
+  SET measurement = $1,
+      updated_at = NOW()
+  WHERE id = $2 AND user_id = $3
+  RETURNING id, user_id, measurement, created_at, updated_at
+`
+
+type UpdateMuscleMassParams struct {
+	Measurement string
+	ID          uuid.UUID
+	UserID      uuid.UUID
+}
+
+func (q *Queries) UpdateMuscleMass(ctx context.Context, arg UpdateMuscleMassParams) (MuscleMass, error) {
+	row := q.db.QueryRowContext(ctx, updateMuscleMass, arg.Measurement, arg.ID, arg.UserID)
+	var i MuscleMass
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Measurement,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}

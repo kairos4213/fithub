@@ -39,3 +39,24 @@ SELECT * FROM muscle_masses
 -- name: GetAllBodyFatPercs :many
 SELECT * FROM body_fat_percents
   WHERE user_id = $1;
+
+-- name: UpdateBodyWeight :one
+UPDATE body_weights
+  SET measurement = $1,
+      updated_at = NOW()
+  WHERE id = $2 AND user_id = $3 
+  RETURNING *;
+
+-- name: UpdateMuscleMass :one
+UPDATE muscle_masses
+  SET measurement = $1,
+      updated_at = NOW()
+  WHERE id = $2 AND user_id = $3
+  RETURNING *;
+
+-- name: UpdateBodyFatPerc :one
+UPDATE body_fat_percents
+  SET measurement = $1,
+      updated_at = NOW()
+  WHERE id = $2 AND user_id = $3
+  RETURNING *;
