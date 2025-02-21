@@ -72,3 +72,15 @@ DELETE FROM muscle_masses
 -- name: DeleteBodyFatPerc :exec
 DELETE FROM body_fat_percents
   WHERE id = $1 AND user_id = $2;
+
+-- name: DeleteAllBodyWeights :exec
+DELETE FROM body_weights
+  WHERE user_id = $1;
+
+-- name: DeleteAllMuscleMasses :exec
+DELETE FROM muscle_masses
+  WHERE user_id = $1;
+
+-- name: DeleteAllBodyFatPercs :exec
+DELETE FROM body_fat_percents
+  WHERE user_id = $1;

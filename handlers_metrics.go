@@ -273,3 +273,29 @@ func (cfg *apiConfig) deleteMetricsHandler(w http.ResponseWriter, r *http.Reques
 		respondWithJSON(w, http.StatusNoContent, Metric{})
 	}
 }
+
+func (cfg *apiConfig) deleteAllMetricsHandler(w http.ResponseWriter, r *http.Request) {
+	metricType := r.PathValue("type")
+	userID := r.Context().Value(userIDKey).(uuid.UUID)
+
+	switch metricType {
+	case "body_weights":
+		if err := cfg.db.DeleteAllBodyWeights(r.Context(), userID); err != nil {
+			respondWithError(w, http.StatusInternalServerError, "error deleting body weight entries", err)
+			return
+		}
+		respondWithJSON(w, http.StatusNoContent, Metric{})
+	case "muscle_masses":
+		if err := cfg.db.DeleteAllMuscleMasses(r.Context(), userID); err != nil {
+			respondWithError(w, http.StatusInternalServerError, "error deleting muscle mass entries", err)
+			return
+		}
+		respondWithJSON(w, http.StatusNoContent, Metric{})
+	case "body_fat_percentages":
+		if err := cfg.db.DeleteAllBodyFatPercs(r.Context(), userID); err != nil {
+			respondWithError(w, http.StatusInternalServerError, "error deleting body fat percentage entries", err)
+			return
+		}
+		respondWithJSON(w, http.StatusNoContent, Metric{})
+	}
+}

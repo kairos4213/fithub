@@ -98,6 +98,36 @@ func (q *Queries) AddMuscleMass(ctx context.Context, arg AddMuscleMassParams) (M
 	return i, err
 }
 
+const deleteAllBodyFatPercs = `-- name: DeleteAllBodyFatPercs :exec
+DELETE FROM body_fat_percents
+  WHERE user_id = $1
+`
+
+func (q *Queries) DeleteAllBodyFatPercs(ctx context.Context, userID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteAllBodyFatPercs, userID)
+	return err
+}
+
+const deleteAllBodyWeights = `-- name: DeleteAllBodyWeights :exec
+DELETE FROM body_weights
+  WHERE user_id = $1
+`
+
+func (q *Queries) DeleteAllBodyWeights(ctx context.Context, userID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteAllBodyWeights, userID)
+	return err
+}
+
+const deleteAllMuscleMasses = `-- name: DeleteAllMuscleMasses :exec
+DELETE FROM muscle_masses
+  WHERE user_id = $1
+`
+
+func (q *Queries) DeleteAllMuscleMasses(ctx context.Context, userID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteAllMuscleMasses, userID)
+	return err
+}
+
 const deleteBodyFatPerc = `-- name: DeleteBodyFatPerc :exec
 DELETE FROM body_fat_percents
   WHERE id = $1 AND user_id = $2

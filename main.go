@@ -80,7 +80,7 @@ func main() {
 	// TODO: getMetricsHistoryHandler
 	mux.Handle("PUT /api/metrics/{type}/{id}", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.updateMetricsHandler)))
 	mux.Handle("DELETE /api/metrics/{type}/{id}", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.deleteMetricsHandler)))
-	// TODO: deleteAllMetricsHandler
+	mux.Handle("DELETE /api/metrics/{type}", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.deleteAllMetricsHandler)))
 
 	mux.HandleFunc("GET /api/healthz", readinessHandler)
 
