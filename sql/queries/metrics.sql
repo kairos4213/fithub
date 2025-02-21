@@ -60,3 +60,15 @@ UPDATE body_fat_percents
       updated_at = NOW()
   WHERE id = $2 AND user_id = $3
   RETURNING *;
+
+-- name: DeleteBodyWeight :exec
+DELETE FROM body_weights
+  WHERE id = $1 AND user_id = $2;
+
+-- name: DeleteMuscleMass :exec
+DELETE FROM muscle_masses
+  WHERE id = $1 AND user_id = $2;
+
+-- name: DeleteBodyFatPerc :exec
+DELETE FROM body_fat_percents
+  WHERE id = $1 AND user_id = $2;

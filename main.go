@@ -78,8 +78,8 @@ func main() {
 	mux.Handle("POST /api/metrics/{type}", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.addMetricsHandler)))
 	mux.Handle("GET /api/metrics", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.getAllUserMetrics)))
 	// TODO: getMetricsHistoryHandler
-	mux.Handle("PUT /api/metrics/{id}", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.updateMetricsHandler)))
-	// TODO: deleteMetricsHandler
+	mux.Handle("PUT /api/metrics/{type}/{id}", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.updateMetricsHandler)))
+	mux.Handle("DELETE /api/metrics/{type}/{id}", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.deleteMetricsHandler)))
 	// TODO: deleteAllMetricsHandler
 
 	mux.HandleFunc("GET /api/healthz", readinessHandler)
