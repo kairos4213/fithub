@@ -70,3 +70,15 @@ type User struct {
 	ProfileImage   sql.NullString
 	Preferences    pqtype.NullRawMessage
 }
+
+type Workout struct {
+	ID              uuid.UUID
+	UserID          uuid.UUID
+	Title           string
+	Description     sql.NullString
+	DurationMinutes int32
+	PlannedDate     time.Time
+	DateCompleted   sql.NullTime
+	CreatedAt       time.Time
+	UpdatedAt       time.Time
+}

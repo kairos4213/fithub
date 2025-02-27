@@ -24,4 +24,4 @@ CREATE TABLE body_fat_percents (
 );
 
 -- +goose Down
-DROP TABLE body_weights, muscle_mass, body_fat_percent;
+DROP TABLE body_weights, muscle_masses, body_fat_percents;

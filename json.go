@@ -33,6 +33,7 @@ func respondWithJSON(w http.ResponseWriter, statusCode int, payload interface{})
 	w.Write(data)
 }
 
+// TODO: fix the way reqParams is being implemented -- don't want to use any type
 func parseJSON(r *http.Request, reqParams any) error {
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&reqParams)
