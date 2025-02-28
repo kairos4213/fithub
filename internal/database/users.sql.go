@@ -23,7 +23,7 @@ INSERT INTO users (
   email,
   hashed_password
 ) VALUES (gen_random_uuid(), NOW(), NOW(), $1, $2, $3, $4, $5)
-RETURNING id, first_name, last_name, email
+RETURNING id, created_at, updated_at, first_name, middle_name, last_name, email, hashed_password, profile_image, preferences
 `
 
 type CreateUserParams struct {
@@ -34,14 +34,7 @@ type CreateUserParams struct {
 	HashedPassword string
 }
 
-type CreateUserRow struct {
-	ID        uuid.UUID
-	FirstName string
-	LastName  string
-	Email     string
-}
-
-func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (CreateUserRow, error) {
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
 	row := q.db.QueryRowContext(ctx, createUser,
 		arg.FirstName,
 		arg.MiddleName,
@@ -49,12 +42,18 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (CreateU
 		arg.Email,
 		arg.HashedPassword,
 	)
-	var i CreateUserRow
+	var i User
 	err := row.Scan(
 		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 		&i.FirstName,
+		&i.MiddleName,
 		&i.LastName,
 		&i.Email,
+		&i.HashedPassword,
+		&i.ProfileImage,
+		&i.Preferences,
 	)
 	return i, err
 }

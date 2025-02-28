@@ -13,10 +13,11 @@ import (
 )
 
 type User struct {
-	ID        uuid.UUID `json:"id,omitempty"`
-	FirstName string    `json:"first_name,omitempty"`
-	LastName  string    `json:"last_name,omitempty"`
-	Email     string    `json:"email,omitempty"`
+	ID         uuid.UUID `json:"id,omitempty"`
+	FirstName  string    `json:"first_name,omitempty"`
+	MiddleName string    `json:"middle_name,omitempty"`
+	LastName   string    `json:"last_name,omitempty"`
+	Email      string    `json:"email,omitempty"`
 }
 
 type response struct {
@@ -66,9 +67,15 @@ func (cfg *apiConfig) createUsersHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	middleName := sql.NullString{Valid: false}
+	if reqParams.MiddleName != "" {
+		middleName.Valid = true
+		middleName.String = strings.ToLower(reqParams.MiddleName)
+	}
+
 	user, err := cfg.db.CreateUser(r.Context(), database.CreateUserParams{
 		FirstName:      strings.ToLower(reqParams.FirstName),
-		MiddleName:     sql.NullString{String: strings.ToLower(reqParams.MiddleName)},
+		MiddleName:     middleName,
 		LastName:       strings.ToLower(reqParams.LastName),
 		Email:          strings.ToLower(reqParams.Email),
 		HashedPassword: hashedPassword,
@@ -102,10 +109,11 @@ func (cfg *apiConfig) createUsersHandler(w http.ResponseWriter, r *http.Request)
 
 	respondWithJSON(w, http.StatusCreated, response{
 		User: User{
-			ID:        user.ID,
-			FirstName: user.FirstName,
-			LastName:  user.LastName,
-			Email:     user.Email,
+			ID:         user.ID,
+			FirstName:  user.FirstName,
+			MiddleName: user.MiddleName.String,
+			LastName:   user.LastName,
+			Email:      user.Email,
 		},
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
@@ -201,6 +209,7 @@ func (cfg *apiConfig) updateUsersHandler(w http.ResponseWriter, r *http.Request)
 		ID: userID,
 	}
 
+	// TODO: refactor?
 	if reqParams.Password != nil {
 		hashedPassword, err := auth.HashPassword(*reqParams.Password)
 		if err != nil {

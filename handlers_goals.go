@@ -45,11 +45,17 @@ func (cfg *apiConfig) createGoalsHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	goalNotes := sql.NullString{Valid: false}
+	if reqParams.Notes != "" {
+		goalNotes.Valid = true
+		goalNotes.String = strings.ToLower(reqParams.Notes)
+	}
+
 	goal, err := cfg.db.CreateGoal(r.Context(), database.CreateGoalParams{
 		GoalName:    strings.ToLower(reqParams.Name),
 		Description: reqParams.Description,
 		GoalDate:    goalDate.UTC(),
-		Notes:       sql.NullString{String: strings.ToLower(reqParams.Notes)},
+		Notes:       goalNotes,
 		UserID:      userID,
 	})
 	if err != nil {
@@ -130,6 +136,7 @@ func (cfg *apiConfig) updateGoalsHandler(w http.ResponseWriter, r *http.Request)
 	}
 	updateGoalParams.GoalDate = goalDate
 
+	// TODO: refactor?
 	if reqParams.CompletionDate == "" {
 		updateGoalParams.CompletionDate = sql.NullTime{Valid: false}
 	} else {

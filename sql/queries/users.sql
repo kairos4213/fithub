@@ -9,7 +9,7 @@ INSERT INTO users (
   email,
   hashed_password
 ) VALUES (gen_random_uuid(), NOW(), NOW(), $1, $2, $3, $4, $5)
-RETURNING id, first_name, last_name, email;
+RETURNING *;
 
 -- name: GetUser :one
 SELECT * FROM users
