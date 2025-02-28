@@ -42,10 +42,16 @@ func (cfg *apiConfig) createWorkoutsHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	workoutDescription := sql.NullString{Valid: false}
+	if reqParams.Description != "" {
+		workoutDescription.Valid = true
+		workoutDescription.String = reqParams.Description
+	}
+
 	workout, err := cfg.db.CreateWorkout(r.Context(), database.CreateWorkoutParams{
 		UserID:          userID,
 		Title:           reqParams.Title,
-		Description:     sql.NullString{String: reqParams.Description},
+		Description:     workoutDescription,
 		DurationMinutes: reqParams.Duration,
 		PlannedDate:     plannedDate,
 	})
@@ -65,4 +71,30 @@ func (cfg *apiConfig) createWorkoutsHandler(w http.ResponseWriter, r *http.Reque
 		CreatedAt:     workout.CreatedAt,
 		UpdatedAt:     workout.UpdatedAt,
 	})
+}
+
+func (cfg *apiConfig) getAllUserWorkoutsHandler(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value(userIDKey).(uuid.UUID)
+
+	userWorkouts, err := cfg.db.GetAllUserWorkouts(r.Context(), userID)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "error retrieving user workouts", err)
+		return
+	}
+
+	response := []Workout{}
+	for _, workout := range userWorkouts {
+		response = append(response, Workout{
+			ID:            workout.ID,
+			UserID:        workout.ID,
+			Title:         workout.Title,
+			Description:   workout.Description.String,
+			Duration:      workout.DurationMinutes,
+			PlannedDate:   workout.PlannedDate,
+			DateCompleted: workout.DateCompleted.Time,
+			CreatedAt:     workout.CreatedAt,
+			UpdatedAt:     workout.UpdatedAt,
+		})
+	}
+	respondWithJSON(w, http.StatusOK, response)
 }

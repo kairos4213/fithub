@@ -18,3 +18,7 @@ INSERT INTO workouts (
       $4,
       $5
   ) RETURNING *;
+
+-- name: GetAllUserWorkouts :many
+SELECT * FROM workouts
+    WHERE user_id = $1;
