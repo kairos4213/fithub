@@ -38,3 +38,7 @@ UPDATE workouts
 -- name: DeleteWorkout :exec
 DELETE FROM workouts
   WHERE id = $1 AND user_id = $2;
+
+-- name: DeleteAllUserWorkouts :exec
+DELETE FROM workouts
+  WHERE user_id = $1;

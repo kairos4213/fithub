@@ -187,3 +187,14 @@ func (cfg *apiConfig) deleteWorkoutsHandler(w http.ResponseWriter, r *http.Reque
 
 	respondWithJSON(w, http.StatusNoContent, Workout{})
 }
+
+func (cfg *apiConfig) deleteAllUserWorkoutsHandler(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value(userIDKey).(uuid.UUID)
+
+	if err := cfg.db.DeleteAllUserWorkouts(r.Context(), userID); err != nil {
+		respondWithError(w, http.StatusInternalServerError, "error deleting user workouts", err)
+		return
+	}
+
+	respondWithJSON(w, http.StatusNoContent, []Workout{})
+}

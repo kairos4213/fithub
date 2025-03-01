@@ -63,7 +63,6 @@ func main() {
 	mux.HandleFunc("GET /api/users", apiConfig.loginUsersHandler)
 	mux.Handle("PUT /api/users", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.updateUsersHandler)))
 	mux.Handle("DELETE /api/users", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.deleteUsersHandler)))
-	// TODO: getUsersHandler
 
 	mux.HandleFunc("POST /api/refresh", apiConfig.refreshHandler)
 	mux.HandleFunc("POST /api/revoke", apiConfig.revokeHandler)
@@ -73,11 +72,9 @@ func main() {
 	mux.Handle("PUT /api/goals/{id}", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.updateGoalsHandler)))
 	mux.Handle("DELETE /api/goals/{id}", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.deleteGoalsHandler)))
 	mux.Handle("DELETE /api/goals", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.deleteAllGoalsHandler)))
-	// TODO: getGoalsHandler
 
 	mux.Handle("POST /api/metrics/{type}", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.addMetricsHandler)))
 	mux.Handle("GET /api/metrics", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.getAllUserMetrics)))
-	// TODO: getMetricsHistoryHandler
 	mux.Handle("PUT /api/metrics/{type}/{id}", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.updateMetricsHandler)))
 	mux.Handle("DELETE /api/metrics/{type}/{id}", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.deleteMetricsHandler)))
 	mux.Handle("DELETE /api/metrics/{type}", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.deleteAllMetricsHandler)))
@@ -86,8 +83,7 @@ func main() {
 	mux.Handle("GET /api/workouts", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.getAllUserWorkoutsHandler)))
 	mux.Handle("PUT /api/workouts/{id}", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.updateWorkoutsHandler)))
 	mux.Handle("DELETE /api/workouts/{id}", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.deleteWorkoutsHandler)))
-	// TODO: getWorkoutsHandler
-	// TODO: deleteAllWorkoutsHandler
+	mux.Handle("DELETE /api/workouts", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.deleteAllUserWorkoutsHandler)))
 
 	mux.HandleFunc("GET /api/healthz", readinessHandler)
 
