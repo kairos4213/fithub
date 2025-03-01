@@ -209,7 +209,6 @@ func (cfg *apiConfig) updateUsersHandler(w http.ResponseWriter, r *http.Request)
 		ID: userID,
 	}
 
-	// TODO: refactor?
 	if reqParams.Password != nil {
 		hashedPassword, err := auth.HashPassword(*reqParams.Password)
 		if err != nil {

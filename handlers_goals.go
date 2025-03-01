@@ -48,7 +48,7 @@ func (cfg *apiConfig) createGoalsHandler(w http.ResponseWriter, r *http.Request)
 	goalNotes := sql.NullString{Valid: false}
 	if reqParams.Notes != "" {
 		goalNotes.Valid = true
-		goalNotes.String = strings.ToLower(reqParams.Notes)
+		goalNotes.String = reqParams.Notes
 	}
 
 	goal, err := cfg.db.CreateGoal(r.Context(), database.CreateGoalParams{
@@ -107,13 +107,17 @@ func (cfg *apiConfig) getAllGoalsHandler(w http.ResponseWriter, r *http.Request)
 
 func (cfg *apiConfig) updateGoalsHandler(w http.ResponseWriter, r *http.Request) {
 	type requestParams struct {
-		ID             uuid.UUID `json:"goal_id"`
-		Name           string    `json:"goal_name"`
-		Description    string    `json:"description"`
-		GoalDate       string    `json:"goal_date"`
-		CompletionDate string    `json:"completion_date"`
-		Notes          string    `json:"notes"`
-		Status         string    `json:"status"`
+		Name           string `json:"goal_name"`
+		Description    string `json:"description"`
+		GoalDate       string `json:"goal_date"`
+		CompletionDate string `json:"completion_date"`
+		Notes          string `json:"notes"`
+		Status         string `json:"status"`
+	}
+	goalID, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "invalid goal id", err)
+		return
 	}
 
 	reqParams := requestParams{}
@@ -123,7 +127,7 @@ func (cfg *apiConfig) updateGoalsHandler(w http.ResponseWriter, r *http.Request)
 	}
 
 	updateGoalParams := database.UpdateGoalParams{
-		ID:          reqParams.ID,
+		ID:          goalID,
 		GoalName:    reqParams.Name,
 		Description: reqParams.Description,
 		Status:      reqParams.Status,
@@ -136,7 +140,6 @@ func (cfg *apiConfig) updateGoalsHandler(w http.ResponseWriter, r *http.Request)
 	}
 	updateGoalParams.GoalDate = goalDate
 
-	// TODO: refactor?
 	if reqParams.CompletionDate == "" {
 		updateGoalParams.CompletionDate = sql.NullTime{Valid: false}
 	} else {
