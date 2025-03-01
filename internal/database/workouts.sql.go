@@ -103,3 +103,51 @@ func (q *Queries) GetAllUserWorkouts(ctx context.Context, userID uuid.UUID) ([]W
 	}
 	return items, nil
 }
+
+const updateWorkout = `-- name: UpdateWorkout :one
+UPDATE workouts
+  SET 
+    updated_at = NOW(),
+    title = $1,
+    description = $2,
+    duration_minutes = $3,
+    planned_date = $4,
+    date_completed = $5
+  WHERE id = $6 AND user_id = $7
+  RETURNING id, user_id, title, description, duration_minutes, planned_date, date_completed, created_at, updated_at
+`
+
+type UpdateWorkoutParams struct {
+	Title           string
+	Description     sql.NullString
+	DurationMinutes int32
+	PlannedDate     time.Time
+	DateCompleted   sql.NullTime
+	ID              uuid.UUID
+	UserID          uuid.UUID
+}
+
+func (q *Queries) UpdateWorkout(ctx context.Context, arg UpdateWorkoutParams) (Workout, error) {
+	row := q.db.QueryRowContext(ctx, updateWorkout,
+		arg.Title,
+		arg.Description,
+		arg.DurationMinutes,
+		arg.PlannedDate,
+		arg.DateCompleted,
+		arg.ID,
+		arg.UserID,
+	)
+	var i Workout
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Title,
+		&i.Description,
+		&i.DurationMinutes,
+		&i.PlannedDate,
+		&i.DateCompleted,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}

@@ -84,8 +84,8 @@ func main() {
 
 	mux.Handle("POST /api/workouts", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.createWorkoutsHandler)))
 	mux.Handle("GET /api/workouts", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.getAllUserWorkoutsHandler)))
+	mux.Handle("PUT /api/workouts/{id}", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.updateWorkoutsHandler)))
 	// TODO: getWorkoutsHandler
-	// TODO: updateWorkoutsHandler
 	// TODO: deleteWorkoutsHandler
 	// TODO: deleteAllWorkoutsHandler
 

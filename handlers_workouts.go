@@ -86,7 +86,7 @@ func (cfg *apiConfig) getAllUserWorkoutsHandler(w http.ResponseWriter, r *http.R
 	for _, workout := range userWorkouts {
 		response = append(response, Workout{
 			ID:            workout.ID,
-			UserID:        workout.ID,
+			UserID:        workout.UserID,
 			Title:         workout.Title,
 			Description:   workout.Description.String,
 			Duration:      workout.DurationMinutes,
@@ -97,4 +97,74 @@ func (cfg *apiConfig) getAllUserWorkoutsHandler(w http.ResponseWriter, r *http.R
 		})
 	}
 	respondWithJSON(w, http.StatusOK, response)
+}
+
+func (cfg *apiConfig) updateWorkoutsHandler(w http.ResponseWriter, r *http.Request) {
+	type request struct {
+		Title         string `json:"title"`
+		Description   string `json:"description"`
+		Duration      int32  `json:"duration"`
+		PlannedDate   string `json:"planned_date"`
+		DateCompleted string `json:"date_completed"`
+	}
+
+	userID := r.Context().Value(userIDKey).(uuid.UUID)
+	workoutID, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "invalid workout id", err)
+		return
+	}
+
+	reqParams := request{}
+	if err := parseJSON(r, &reqParams); err != nil {
+		respondWithError(w, http.StatusBadRequest, "malformed request", err)
+		return
+	}
+
+	workoutDescription := sql.NullString{Valid: false}
+	if reqParams.Description != "" {
+		workoutDescription = sql.NullString{Valid: true, String: reqParams.Description}
+	}
+
+	plannedDate, err := time.Parse(time.DateOnly, reqParams.PlannedDate)
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "incorrect date format", err)
+		return
+	}
+
+	completionDate := sql.NullTime{Valid: false}
+	if reqParams.DateCompleted != "" {
+		dateCompleted, err := time.Parse(time.DateOnly, reqParams.DateCompleted)
+		if err != nil {
+			respondWithError(w, http.StatusBadRequest, "incorrect date format", err)
+			return
+		}
+		completionDate = sql.NullTime{Valid: true, Time: dateCompleted}
+	}
+
+	updatedWorkout, err := cfg.db.UpdateWorkout(r.Context(), database.UpdateWorkoutParams{
+		Title:           reqParams.Title,
+		Description:     workoutDescription,
+		DurationMinutes: reqParams.Duration,
+		PlannedDate:     plannedDate,
+		DateCompleted:   completionDate,
+		ID:              workoutID,
+		UserID:          userID,
+	})
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "error updating workout", err)
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, Workout{
+		ID:            updatedWorkout.ID,
+		UserID:        updatedWorkout.UserID,
+		Title:         updatedWorkout.Title,
+		Description:   updatedWorkout.Description.String,
+		Duration:      updatedWorkout.DurationMinutes,
+		PlannedDate:   updatedWorkout.PlannedDate,
+		DateCompleted: updatedWorkout.DateCompleted.Time,
+		CreatedAt:     updatedWorkout.CreatedAt,
+		UpdatedAt:     updatedWorkout.UpdatedAt,
+	})
 }
