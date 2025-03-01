@@ -168,3 +168,22 @@ func (cfg *apiConfig) updateWorkoutsHandler(w http.ResponseWriter, r *http.Reque
 		UpdatedAt:     updatedWorkout.UpdatedAt,
 	})
 }
+
+func (cfg *apiConfig) deleteWorkoutsHandler(w http.ResponseWriter, r *http.Request) {
+	workoutID, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "invalid workout id", err)
+		return
+	}
+	userID := r.Context().Value(userIDKey).(uuid.UUID)
+
+	err = cfg.db.DeleteWorkout(r.Context(), database.DeleteWorkoutParams{
+		ID: workoutID, UserID: userID,
+	})
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "error deleting workout", err)
+		return
+	}
+
+	respondWithJSON(w, http.StatusNoContent, Workout{})
+}

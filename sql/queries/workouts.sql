@@ -34,3 +34,7 @@ UPDATE workouts
     date_completed = $5
   WHERE id = $6 AND user_id = $7
   RETURNING *;
+
+-- name: DeleteWorkout :exec
+DELETE FROM workouts
+  WHERE id = $1 AND user_id = $2;
