@@ -57,10 +57,10 @@ func main() {
 	}
 
 	mux := http.NewServeMux()
-	mux.Handle("/app/", http.StripPrefix("/app", http.FileServer(http.Dir("."))))
+	mux.Handle("/app/", http.StripPrefix("/app", http.FileServer(http.Dir("./app/"))))
 
-	mux.HandleFunc("POST /api/users", apiConfig.createUsersHandler)
-	mux.HandleFunc("GET /api/users", apiConfig.loginUsersHandler)
+	mux.HandleFunc("POST /api/register", apiConfig.createUsersHandler)
+	mux.HandleFunc("POST /api/login", apiConfig.loginUsersHandler)
 	mux.Handle("PUT /api/users", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.updateUsersHandler)))
 	mux.Handle("DELETE /api/users", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.deleteUsersHandler)))
 
