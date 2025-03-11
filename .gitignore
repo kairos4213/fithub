@@ -1,3 +1,6 @@
 .env
 fithub
 *.pem
+*.toml
+tmp/
+

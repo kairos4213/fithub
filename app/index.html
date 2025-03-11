@@ -1,38 +1,47 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>FitHub</title>
+    <link href="styles.css" rel="stylesheet" />
+    <script src="app.js" defer></script>
+  </head>
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>FitHub</title>
-  <link href="styles.css" rel="stylesheet" />
-  <script src="app.js" defer></script>
-</head>
+  <body>
+    <div class="nav-bar">
+      <h1>FitHub</h1>
+      <button id="logout-button" type="button" onclick="logout()">
+        Logout
+      </button>
+    </div>
 
-<body>
-  <div class="nav-bar">
-    <h1>
-      FitHub
-    </h1>
-    <button type="button" onclick="logout()">Logout</button>
-  </div>
+    <div id="auth-section">
+      <h2>Login</h2>
+      <form id="login-form">
+        <input
+          class="input-area"
+          type="email"
+          id="email"
+          placeholder="Email"
+          required
+        />
+        <input
+          class="input-area"
+          type="password"
+          id="password"
+          placeholder="Password"
+          required
+        />
+        <div class="button-container">
+          <button type="submit">Login</button>
+          <button onclick="signup()" type="button">Signup</button>
+        </div>
+      </form>
+    </div>
 
-  <div id="auth-section">
-    <h2>Login</h2>
-    <form id="login-form">
-      <input class="input-area" type="email" id="email" placeholder="Email" required />
-      <input class="input-area" type="password" id="password" placeholder="Password" required />
-      <div class="button-container">
-        <button type="submit">Login</button>
-        <button onclick="signup()" type="button">Signup</button>
-      </div>
-    </form>
-  </div>
-
-  <div id="user-home" style="display: none;">
-    <h2>User Home</h2>
-
-  </div>
-</body>
-
+    <div id="user-home" style="display: none">
+      <h2>User Home</h2>
+    </div>
+  </body>
 </html>
