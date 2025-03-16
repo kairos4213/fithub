@@ -12,7 +12,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-type apiConfig struct {
+type api struct {
 	db         *database.Queries
 	privateKey []byte
 	publicKey  []byte
@@ -50,7 +50,7 @@ func main() {
 	}
 	dbQueries := database.New(db)
 
-	apiConfig := apiConfig{
+	api := api{
 		db:         dbQueries,
 		privateKey: privKey,
 		publicKey:  pubKey,
@@ -59,31 +59,31 @@ func main() {
 	mux := http.NewServeMux()
 	mux.Handle("/app/", http.StripPrefix("/app", http.FileServer(http.Dir("./app/"))))
 
-	mux.HandleFunc("POST /api/v1/register", apiConfig.createUsersHandler)
-	mux.HandleFunc("POST /api/v1/login", apiConfig.loginUsersHandler)
-	mux.Handle("PUT /api/v1/users", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.updateUsersHandler)))
-	mux.Handle("DELETE /api/v1/users", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.deleteUsersHandler)))
+	mux.HandleFunc("POST /api/v1/register", api.createUsersHandler)
+	mux.HandleFunc("POST /api/v1/login", api.loginUsersHandler)
+	mux.Handle("PUT /api/v1/users", api.authMiddleware(http.HandlerFunc(api.updateUsersHandler)))
+	mux.Handle("DELETE /api/v1/users", api.authMiddleware(http.HandlerFunc(api.deleteUsersHandler)))
 
-	mux.HandleFunc("POST /api/v1/refresh", apiConfig.refreshHandler)
-	mux.HandleFunc("POST /api/v1/revoke", apiConfig.revokeHandler)
+	mux.HandleFunc("POST /api/v1/refresh", api.refreshHandler)
+	mux.HandleFunc("POST /api/v1/revoke", api.revokeHandler)
 
-	mux.Handle("POST /api/v1/goals", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.createGoalsHandler)))
-	mux.Handle("GET /api/v1/goals", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.getAllGoalsHandler)))
-	mux.Handle("PUT /api/v1/goals/{id}", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.updateGoalsHandler)))
-	mux.Handle("DELETE /api/v1/goals/{id}", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.deleteGoalsHandler)))
-	mux.Handle("DELETE /api/v1/goals", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.deleteAllGoalsHandler)))
+	mux.Handle("POST /api/v1/goals", api.authMiddleware(http.HandlerFunc(api.createGoalsHandler)))
+	mux.Handle("GET /api/v1/goals", api.authMiddleware(http.HandlerFunc(api.getAllGoalsHandler)))
+	mux.Handle("PUT /api/v1/goals/{id}", api.authMiddleware(http.HandlerFunc(api.updateGoalsHandler)))
+	mux.Handle("DELETE /api/v1/goals/{id}", api.authMiddleware(http.HandlerFunc(api.deleteGoalsHandler)))
+	mux.Handle("DELETE /api/v1/goals", api.authMiddleware(http.HandlerFunc(api.deleteAllGoalsHandler)))
 
-	mux.Handle("POST /api/v1/metrics/{type}", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.addMetricsHandler)))
-	mux.Handle("GET /api/v1/metrics", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.getAllUserMetrics)))
-	mux.Handle("PUT /api/v1/metrics/{type}/{id}", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.updateMetricsHandler)))
-	mux.Handle("DELETE /api/v1/metrics/{type}/{id}", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.deleteMetricsHandler)))
-	mux.Handle("DELETE /api/v1/metrics/{type}", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.deleteAllMetricsHandler)))
+	mux.Handle("POST /api/v1/metrics/{type}", api.authMiddleware(http.HandlerFunc(api.addMetricsHandler)))
+	mux.Handle("GET /api/v1/metrics", api.authMiddleware(http.HandlerFunc(api.getAllUserMetrics)))
+	mux.Handle("PUT /api/v1/metrics/{type}/{id}", api.authMiddleware(http.HandlerFunc(api.updateMetricsHandler)))
+	mux.Handle("DELETE /api/v1/metrics/{type}/{id}", api.authMiddleware(http.HandlerFunc(api.deleteMetricsHandler)))
+	mux.Handle("DELETE /api/v1/metrics/{type}", api.authMiddleware(http.HandlerFunc(api.deleteAllMetricsHandler)))
 
-	mux.Handle("POST /api/v1/workouts", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.createWorkoutsHandler)))
-	mux.Handle("GET /api/v1/workouts", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.getAllUserWorkoutsHandler)))
-	mux.Handle("PUT /api/v1/workouts/{id}", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.updateWorkoutsHandler)))
-	mux.Handle("DELETE /api/v1/workouts/{id}", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.deleteWorkoutsHandler)))
-	mux.Handle("DELETE /api/v1/workouts", apiConfig.authMiddleware(http.HandlerFunc(apiConfig.deleteAllUserWorkoutsHandler)))
+	mux.Handle("POST /api/v1/workouts", api.authMiddleware(http.HandlerFunc(api.createWorkoutsHandler)))
+	mux.Handle("GET /api/v1/workouts", api.authMiddleware(http.HandlerFunc(api.getAllUserWorkoutsHandler)))
+	mux.Handle("PUT /api/v1/workouts/{id}", api.authMiddleware(http.HandlerFunc(api.updateWorkoutsHandler)))
+	mux.Handle("DELETE /api/v1/workouts/{id}", api.authMiddleware(http.HandlerFunc(api.deleteWorkoutsHandler)))
+	mux.Handle("DELETE /api/v1/workouts", api.authMiddleware(http.HandlerFunc(api.deleteAllUserWorkoutsHandler)))
 
 	mux.HandleFunc("GET /api/v1/healthz", readinessHandler)
 

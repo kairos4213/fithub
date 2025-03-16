@@ -21,7 +21,7 @@ type Workout struct {
 	UpdatedAt     time.Time
 }
 
-func (cfg *apiConfig) createWorkoutsHandler(w http.ResponseWriter, r *http.Request) {
+func (cfg *api) createWorkoutsHandler(w http.ResponseWriter, r *http.Request) {
 	type request struct {
 		Title       string `json:"title"`
 		Description string `json:"description"`
@@ -73,7 +73,7 @@ func (cfg *apiConfig) createWorkoutsHandler(w http.ResponseWriter, r *http.Reque
 	})
 }
 
-func (cfg *apiConfig) getAllUserWorkoutsHandler(w http.ResponseWriter, r *http.Request) {
+func (cfg *api) getAllUserWorkoutsHandler(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value(userIDKey).(uuid.UUID)
 
 	userWorkouts, err := cfg.db.GetAllUserWorkouts(r.Context(), userID)
@@ -99,7 +99,7 @@ func (cfg *apiConfig) getAllUserWorkoutsHandler(w http.ResponseWriter, r *http.R
 	respondWithJSON(w, http.StatusOK, response)
 }
 
-func (cfg *apiConfig) updateWorkoutsHandler(w http.ResponseWriter, r *http.Request) {
+func (cfg *api) updateWorkoutsHandler(w http.ResponseWriter, r *http.Request) {
 	type request struct {
 		Title         string `json:"title"`
 		Description   string `json:"description"`
@@ -169,7 +169,7 @@ func (cfg *apiConfig) updateWorkoutsHandler(w http.ResponseWriter, r *http.Reque
 	})
 }
 
-func (cfg *apiConfig) deleteWorkoutsHandler(w http.ResponseWriter, r *http.Request) {
+func (cfg *api) deleteWorkoutsHandler(w http.ResponseWriter, r *http.Request) {
 	workoutID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest, "invalid workout id", err)
@@ -188,7 +188,7 @@ func (cfg *apiConfig) deleteWorkoutsHandler(w http.ResponseWriter, r *http.Reque
 	respondWithJSON(w, http.StatusNoContent, Workout{})
 }
 
-func (cfg *apiConfig) deleteAllUserWorkoutsHandler(w http.ResponseWriter, r *http.Request) {
+func (cfg *api) deleteAllUserWorkoutsHandler(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value(userIDKey).(uuid.UUID)
 
 	if err := cfg.db.DeleteAllUserWorkouts(r.Context(), userID); err != nil {

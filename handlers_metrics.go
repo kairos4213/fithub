@@ -17,7 +17,7 @@ type Metric struct {
 	UserID      uuid.UUID `json:"user_id,omitempty"`
 }
 
-func (cfg *apiConfig) addMetricsHandler(w http.ResponseWriter, r *http.Request) {
+func (cfg *api) addMetricsHandler(w http.ResponseWriter, r *http.Request) {
 	type requestParams struct {
 		Measurement string `json:"measurement"`
 	}
@@ -88,7 +88,7 @@ func (cfg *apiConfig) addMetricsHandler(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
-func (cfg *apiConfig) getAllUserMetrics(w http.ResponseWriter, r *http.Request) {
+func (cfg *api) getAllUserMetrics(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value(userIDKey).(uuid.UUID)
 
 	bodyWeightsResp := []Metric{}
@@ -151,7 +151,7 @@ func (cfg *apiConfig) getAllUserMetrics(w http.ResponseWriter, r *http.Request) 
 	respondWithJSON(w, http.StatusOK, resp)
 }
 
-func (cfg *apiConfig) updateMetricsHandler(w http.ResponseWriter, r *http.Request) {
+func (cfg *api) updateMetricsHandler(w http.ResponseWriter, r *http.Request) {
 	type requestParams struct {
 		Measurement string `json:"measurement"`
 	}
@@ -230,7 +230,7 @@ func (cfg *apiConfig) updateMetricsHandler(w http.ResponseWriter, r *http.Reques
 	}
 }
 
-func (cfg *apiConfig) deleteMetricsHandler(w http.ResponseWriter, r *http.Request) {
+func (cfg *api) deleteMetricsHandler(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value(userIDKey).(uuid.UUID)
 	metricType := r.PathValue("type")
 	metricID, err := uuid.Parse(r.PathValue("id"))
@@ -274,7 +274,7 @@ func (cfg *apiConfig) deleteMetricsHandler(w http.ResponseWriter, r *http.Reques
 	}
 }
 
-func (cfg *apiConfig) deleteAllMetricsHandler(w http.ResponseWriter, r *http.Request) {
+func (cfg *api) deleteAllMetricsHandler(w http.ResponseWriter, r *http.Request) {
 	metricType := r.PathValue("type")
 	userID := r.Context().Value(userIDKey).(uuid.UUID)
 

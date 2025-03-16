@@ -23,7 +23,7 @@ type Goal struct {
 	UserID         uuid.UUID `json:"user_id,omitempty"`
 }
 
-func (cfg *apiConfig) createGoalsHandler(w http.ResponseWriter, r *http.Request) {
+func (cfg *api) createGoalsHandler(w http.ResponseWriter, r *http.Request) {
 	type requestParams struct {
 		Name        string `json:"name"`
 		Description string `json:"description"`
@@ -79,7 +79,7 @@ func (cfg *apiConfig) createGoalsHandler(w http.ResponseWriter, r *http.Request)
 	})
 }
 
-func (cfg *apiConfig) getAllGoalsHandler(w http.ResponseWriter, r *http.Request) {
+func (cfg *api) getAllGoalsHandler(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value(userIDKey).(uuid.UUID)
 	goals, err := cfg.db.GetAllUserGoals(r.Context(), userID)
 	if err != nil {
@@ -105,7 +105,7 @@ func (cfg *apiConfig) getAllGoalsHandler(w http.ResponseWriter, r *http.Request)
 	respondWithJSON(w, http.StatusOK, response)
 }
 
-func (cfg *apiConfig) updateGoalsHandler(w http.ResponseWriter, r *http.Request) {
+func (cfg *api) updateGoalsHandler(w http.ResponseWriter, r *http.Request) {
 	type requestParams struct {
 		Name           string `json:"goal_name"`
 		Description    string `json:"description"`
@@ -177,7 +177,7 @@ func (cfg *apiConfig) updateGoalsHandler(w http.ResponseWriter, r *http.Request)
 	})
 }
 
-func (cfg *apiConfig) deleteGoalsHandler(w http.ResponseWriter, r *http.Request) {
+func (cfg *api) deleteGoalsHandler(w http.ResponseWriter, r *http.Request) {
 	goalID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Error parsing goal id", err)
@@ -192,7 +192,7 @@ func (cfg *apiConfig) deleteGoalsHandler(w http.ResponseWriter, r *http.Request)
 	respondWithJSON(w, http.StatusNoContent, Goal{})
 }
 
-func (cfg *apiConfig) deleteAllGoalsHandler(w http.ResponseWriter, r *http.Request) {
+func (cfg *api) deleteAllGoalsHandler(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value(userIDKey).(uuid.UUID)
 
 	if err := cfg.db.DeleteAllUserGoals(r.Context(), userID); err != nil {

@@ -11,7 +11,7 @@ type contextKey string
 
 const userIDKey contextKey = "userID"
 
-func (cfg *apiConfig) authMiddleware(next http.Handler) http.Handler {
+func (cfg *api) authMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		accessToken, err := auth.GetBearerToken(r.Header)
 		if err != nil {

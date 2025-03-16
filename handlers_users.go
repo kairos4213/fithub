@@ -26,7 +26,7 @@ type response struct {
 	RefreshToken string `json:"refresh_token,omitempty"`
 }
 
-func (cfg *apiConfig) createUsersHandler(w http.ResponseWriter, r *http.Request) {
+func (cfg *api) createUsersHandler(w http.ResponseWriter, r *http.Request) {
 	type requestParams struct {
 		FirstName  string `json:"first_name"`
 		MiddleName string `json:"middle_name"`
@@ -120,7 +120,7 @@ func (cfg *apiConfig) createUsersHandler(w http.ResponseWriter, r *http.Request)
 	})
 }
 
-func (cfg *apiConfig) loginUsersHandler(w http.ResponseWriter, r *http.Request) {
+func (cfg *api) loginUsersHandler(w http.ResponseWriter, r *http.Request) {
 	type requestParams struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
@@ -188,7 +188,7 @@ func (cfg *apiConfig) loginUsersHandler(w http.ResponseWriter, r *http.Request) 
 	})
 }
 
-func (cfg *apiConfig) updateUsersHandler(w http.ResponseWriter, r *http.Request) {
+func (cfg *api) updateUsersHandler(w http.ResponseWriter, r *http.Request) {
 	// TODO: Split this handler into two separate handlers
 	// updateUsersHandlerPassword
 	// updateUsersHandlerInfo (handles all other user information)
@@ -238,7 +238,7 @@ func (cfg *apiConfig) updateUsersHandler(w http.ResponseWriter, r *http.Request)
 	}})
 }
 
-func (cfg *apiConfig) deleteUsersHandler(w http.ResponseWriter, r *http.Request) {
+func (cfg *api) deleteUsersHandler(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value(userIDKey).(uuid.UUID)
 
 	if err := cfg.db.DeleteUser(r.Context(), userID); err != nil {
