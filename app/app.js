@@ -1,65 +1,20 @@
-document.addEventListener("DOMContentLoaded", async () => {
-  const token = sessionStorage.getItem("token");
+import Store from "./services/store.js";
+import API from "./services/api.js";
+import { loginUser } from "./services/user.js";
+import Router from "./services/router.js";
 
-  if (token) {
-    document.getElementById("auth-section").style.display = "none";
-    document.getElementById("user-home").style.display = "block";
-    document.getElementById("logout-button").style.display = "block";
-    await getWorkouts();
-  } else {
-    document.getElementById("auth-section").style.display = "block";
-    document.getElementById("user-home").style.display = "none";
-    document.getElementById("logout-button").style.display = "none";
-  }
+window.app = {};
+app.store = Store;
+app.router = Router;
+
+const $ = () => document.querySelector.call(this, arguments);
+const $$ = () => document.querySelectorAll.call(this, arguments);
+HTMLElement.prototype.on = (a, b, c) => this.addEventListener(a, b, c);
+HTMLElement.prototype.off = (a, b) => this.removeEventListener(a, b);
+HTMLElement.prototype.$ = (s) => this.querySelector(s);
+HTMLElement.prototype.$ = (s) => this.querySelectorAll(s);
+
+window.addEventListener("DOMContentLoaded", () => {
+  app.router.init();
+  loginUser();
 });
-
-document
-  .getElementById("login-form")
-  .addEventListener("submit", async (event) => {
-    event.preventDefault();
-    await login();
-  });
-
-document
-  .getElementById("logout-button")
-  .addEventListener("onclick", async () => {
-    logout();
-  });
-
-async function login() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-
-  try {
-    const res = await fetch("/api/v1/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, password }),
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      throw new Error(`Failed to login: ${data.error}`);
-    }
-
-    if (data.access_token) {
-      sessionStorage.setItem("token", data.access_token);
-      document.getElementById("auth-section").style.display = "none";
-      document.getElementById("logout-button").style.display = "block";
-      document.getElementById("user-home").style.display = "block";
-      await getWorkouts();
-    } else {
-      alert("Login failed. Please check credentials.");
-    }
-  } catch (error) {
-    alert(`Error: ${error.message}`);
-  }
-}
-
-function logout() {
-  sessionStorage.removeItem("token");
-  document.getElementById("auth-section").style.display = "block";
-  document.getElementById("user-home").style.display = "none";
-  document.getElementById("logout-button").style.display = "none";
-}

@@ -39,6 +39,11 @@ func main() {
 		log.Fatal("PORT environment variable is not set")
 	}
 
+	filePathRoot := os.Getenv("FILEPATH_ROOT")
+	if filePathRoot == "" {
+		log.Fatal("FILEPATH_ROOT environment variable is not set")
+	}
+
 	dbURL := os.Getenv("DATABASE_URL")
 	if dbURL == "" {
 		log.Fatal("DATABASE_URL is not configured")
@@ -57,7 +62,7 @@ func main() {
 	}
 
 	mux := http.NewServeMux()
-	mux.Handle("/app/", http.StripPrefix("/app", http.FileServer(http.Dir("./app/"))))
+	mux.Handle("/app/", http.StripPrefix("/app", http.FileServer(http.Dir(filePathRoot))))
 
 	mux.HandleFunc("POST /api/v1/register", api.createUsersHandler)
 	mux.HandleFunc("POST /api/v1/login", api.loginUsersHandler)
