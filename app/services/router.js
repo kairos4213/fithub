@@ -22,23 +22,30 @@ const Router = {
     let pageElement = null;
     switch (route) {
       case "/app/":
-        pageElement = document.createElement("h2");
-        pageElement.textContent = "Home";
+        if (sessionStorage.getItem("token") != null) {
+          pageElement = document.createElement("home-page");
+        } else {
+          pageElement = document.createElement("landing-page");
+        }
         break;
       case "/app/login":
-        pageElement = document.createElement("h2");
-        pageElement.textContent = "Login";
+        pageElement = document.createElement("login-page");
+        break;
+      case "/app/register":
+        pageElement = document.createElement("register-page");
+        break;
+      case "/app/goals":
+        pageElement = document.createElement("goals-page");
         break;
       case "/app/goals/":
-        pageElement = document.createElement("h2");
-        pageElement.textContent = "Goals";
+        pageElement = document.createElement("goal-page");
         pageElement.dataset.goalId = route.substring(
           route.lastIndexOf("/") + 1,
         );
         break;
       default:
         pageElement = document.createElement("h2");
-        pageElement.textContent = "Where are you headed?";
+        pageElement.textContent = "This is not the page you were looking for";
     }
     if (pageElement) {
       document.querySelector("main").innerHTML = "";

@@ -9,12 +9,74 @@
   </head>
 
   <body>
-    <nav><h1><a href="index.html">FitHub</a><h1></nav>
-    <main>
-      <div>
-        <a href="login.html">Login</a>
-        <a href="">Register</a>
-      </div>
-    </main>
+    <header>
+      <nav>
+        <h1><a class="navlink" href="/app/">FitHub</a><h1>
+      </nav>
+    </header>
+
+    <main></main>
+
+    <template id="landing-page-template">
+      <a href="#" onclick="app.router.go('/app/login');
+      event.preventDefault()">Login</a>
+      <a href="#" onclick="app.router.go('/app/register');
+      event.preventDefault()">Register</a>
+    </template>
+
+    <template id="home-page-template">
+      <h2>Hi from the home page</h2>
+    </template>
+
+    <template id="login-form-template">
+        <h2>Login</h2>
+        <form id="login-form">
+          <input
+            class="input-area"
+            type="email"
+            id="email"
+            placeholder="Email"
+            required
+          />
+          <input
+            class="input-area"
+            type="password"
+            id="password"
+            placeholder="Password"
+            required
+          />
+          <div class="reg-container">
+            <button type="submit">Login</button>
+            <a href="#" onclick="app.router.go('/app/register');
+            event.preventDefault()">Register</a>
+          </div>
+        </form>
+    </template>
+
+    <template id="register-form-template">
+        <h2>Register</h2>
+        <form id="register-form">
+          <input
+            class="input-area"
+            type="email"
+            id="email"
+            placeholder="Email"
+            required
+          />
+          <input
+            class="input-area"
+            type="password"
+            id="password"
+            placeholder="Password"
+            required
+          />
+          <div class="reg-container">
+            <button type="submit">Register</button>
+            <a href="#" onclick="app.router.go('/app/login');
+            event.preventDefault()">Login</a>
+          </div>
+        </form>
+    </template>
   </body>
+
 </html>

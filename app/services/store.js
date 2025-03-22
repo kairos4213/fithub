@@ -1,7 +1,7 @@
 import API from "./api.js";
 
 const Store = {
-  user: null,
+  goals: [],
 };
 
 export default Store;

@@ -1,7 +1,11 @@
 import Store from "./services/store.js";
 import API from "./services/api.js";
-import { loginUser } from "./services/user.js";
 import Router from "./services/router.js";
+
+import LandingPage from "./components/landingPage.js";
+import LoginPage from "./components/loginPage.js";
+import RegisterPage from "./components/registerPage.js";
+import HomePage from "./components/homePage.js";
 
 window.app = {};
 app.store = Store;
@@ -16,5 +20,4 @@ HTMLElement.prototype.$ = (s) => this.querySelectorAll(s);
 
 window.addEventListener("DOMContentLoaded", () => {
   app.router.init();
-  loginUser();
 });

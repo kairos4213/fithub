@@ -1,8 +1,8 @@
 const API = {
   url: "/api/v1/",
   login: async () => {
-    // const email = document.getElementById("email").value;
-    // const password = document.getElementById("password").value;
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
 
     try {
       const res = await fetch(API.url + "login", {
@@ -11,8 +11,8 @@ const API = {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email: "j@gmail.com",
-          password: "some_password_that_is_good",
+          email,
+          password,
         }),
       });
 
@@ -23,7 +23,6 @@ const API = {
 
       if (data.access_token) {
         sessionStorage.setItem("token", data.access_token);
-        console.log("Login success. Token set. Now figure out the rest");
       } else {
         alert("Login failed, please check credentials");
       }
