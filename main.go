@@ -62,7 +62,9 @@ func main() {
 	}
 
 	mux := http.NewServeMux()
-	mux.Handle("/app/", http.StripPrefix("/app", http.FileServer(http.Dir(filePathRoot))))
+
+	appHandler := http.FileServer(http.Dir(filePathRoot))
+	mux.Handle("/app/", http.StripPrefix("/app", appHandler))
 
 	mux.HandleFunc("POST /api/v1/register", api.createUsersHandler)
 	mux.HandleFunc("POST /api/v1/login", api.loginUsersHandler)
