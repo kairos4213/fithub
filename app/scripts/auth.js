@@ -1,11 +1,10 @@
 const token = sessionStorage.getItem("token");
-const mainSection = document.getElementsByTagName("main")[0];
+const authSections = document.getElementsByClassName("auth-only");
+const landing = document.getElementById("landing");
 
-if (!token) {
-  window.location.href = "../index.html";
-  alert(
-    "You're not authorized to view this, please login or register to continue",
-  );
-} else {
-  mainSection.style.display = "block";
+if (token) {
+  for (let section of authSections) {
+    section.style.display = "block";
+  }
+  landing.remove();
 }

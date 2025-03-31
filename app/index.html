@@ -5,21 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>FitHub</title>
     <link href="styles.css" rel="stylesheet" />
-    <script type="module" src="app.js"></script>
+    <script type="module" src="./scripts/auth.js"></script>
   </head>
 
   <body>
     <header>
       <nav>
-        <h1><a class="navlink" href="/app/">FitHub</a><h1>
+        <h1><a class="navlink" href="/app/">FitHub</a></h1>
+        <div class="auth-only" style="display: none">
+          <a class="navlink" href="./workouts.html">Workouts</a>
+        </div>
       </nav>
     </header>
 
-    <main>
+    <div id="landing">
       <a href="./pages/login.html">Login</a>
       <a href="./pages/register.html">Register</a>
+    </div>
+
+    <main class="auth-only" style="display: none">
+      <h2>Welcome back, {user}</h2>
     </main>
-
   </body>
-
 </html>
