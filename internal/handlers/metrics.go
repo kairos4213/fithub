@@ -1,11 +1,13 @@
-package main
+package handlers
 
 import (
 	"net/http"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/kairos4213/fithub/internal/cntx"
 	"github.com/kairos4213/fithub/internal/database"
+	"github.com/kairos4213/fithub/internal/utils"
 )
 
 type Metric struct {
@@ -17,31 +19,31 @@ type Metric struct {
 	UserID      uuid.UUID `json:"user_id,omitempty"`
 }
 
-func (cfg *api) addMetricsHandler(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) AddMetric(w http.ResponseWriter, r *http.Request) {
 	type requestParams struct {
 		Measurement string `json:"measurement"`
 	}
-	userID := r.Context().Value(userIDKey).(uuid.UUID)
+	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 
 	reqParams := requestParams{}
-	if err := parseJSON(r, &reqParams); err != nil {
-		respondWithError(w, http.StatusBadRequest, "malformed request", err)
+	if err := utils.ParseJSON(r, &reqParams); err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "malformed request", err)
 		return
 	}
 
 	metricType := r.PathValue("type")
 	switch metricType {
 	case "body_weights":
-		bodyWeightEntry, err := cfg.db.AddBodyWeight(r.Context(), database.AddBodyWeightParams{
+		bodyWeightEntry, err := h.DB.AddBodyWeight(r.Context(), database.AddBodyWeightParams{
 			UserID:      userID,
 			Measurement: reqParams.Measurement,
 		})
 		if err != nil {
-			respondWithError(w, http.StatusInternalServerError, "Error saving body weight metric", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "Error saving body weight metric", err)
 			return
 		}
 
-		respondWithJSON(w, http.StatusCreated, Metric{
+		utils.RespondWithJSON(w, http.StatusCreated, Metric{
 			ID:          bodyWeightEntry.ID,
 			MetricType:  "body_weight",
 			Measurement: bodyWeightEntry.Measurement,
@@ -50,16 +52,16 @@ func (cfg *api) addMetricsHandler(w http.ResponseWriter, r *http.Request) {
 			UserID:      userID,
 		})
 	case "muscle_masses":
-		muscleMassEntry, err := cfg.db.AddMuscleMass(r.Context(), database.AddMuscleMassParams{
+		muscleMassEntry, err := h.DB.AddMuscleMass(r.Context(), database.AddMuscleMassParams{
 			UserID:      userID,
 			Measurement: reqParams.Measurement,
 		})
 		if err != nil {
-			respondWithError(w, http.StatusInternalServerError, "Error saving muscle mass metric", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "Error saving muscle mass metric", err)
 			return
 		}
 
-		respondWithJSON(w, http.StatusCreated, Metric{
+		utils.RespondWithJSON(w, http.StatusCreated, Metric{
 			ID:          userID,
 			MetricType:  "muscle_mass",
 			Measurement: muscleMassEntry.Measurement,
@@ -68,16 +70,16 @@ func (cfg *api) addMetricsHandler(w http.ResponseWriter, r *http.Request) {
 			UserID:      userID,
 		})
 	case "body_fat_percents":
-		bfPercentEntry, err := cfg.db.AddBodyFatPerc(r.Context(), database.AddBodyFatPercParams{
+		bfPercentEntry, err := h.DB.AddBodyFatPerc(r.Context(), database.AddBodyFatPercParams{
 			UserID:      userID,
 			Measurement: reqParams.Measurement,
 		})
 		if err != nil {
-			respondWithError(w, http.StatusInternalServerError, "Error saving body fat percentage", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "Error saving body fat percentage", err)
 			return
 		}
 
-		respondWithJSON(w, http.StatusCreated, Metric{
+		utils.RespondWithJSON(w, http.StatusCreated, Metric{
 			ID:          userID,
 			MetricType:  "body_fat_percentage",
 			Measurement: bfPercentEntry.Measurement,
@@ -88,16 +90,16 @@ func (cfg *api) addMetricsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (cfg *api) getAllUserMetrics(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value(userIDKey).(uuid.UUID)
+func (h *Handler) GetAllUserMetrics(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 
 	bodyWeightsResp := []Metric{}
 	muscleMassesResp := []Metric{}
 	bfPercentsResp := []Metric{}
 
-	bodyWeights, err := cfg.db.GetAllBodyWeights(r.Context(), userID)
+	bodyWeights, err := h.DB.GetAllBodyWeights(r.Context(), userID)
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Error retrieving body weights", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Error retrieving body weights", err)
 		return
 	}
 	for _, bodyWeight := range bodyWeights {
@@ -111,9 +113,9 @@ func (cfg *api) getAllUserMetrics(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	muscleMasses, err := cfg.db.GetAllMuscleMasses(r.Context(), userID)
+	muscleMasses, err := h.DB.GetAllMuscleMasses(r.Context(), userID)
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Error retrieving muscle mass metrics", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Error retrieving muscle mass metrics", err)
 		return
 	}
 	for _, muscleMass := range muscleMasses {
@@ -127,9 +129,9 @@ func (cfg *api) getAllUserMetrics(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	bfPercents, err := cfg.db.GetAllBodyFatPercs(r.Context(), userID)
+	bfPercents, err := h.DB.GetAllBodyFatPercs(r.Context(), userID)
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Error retrieving body fat percentages", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Error retrieving body fat percentages", err)
 		return
 	}
 	for _, bfPercent := range bfPercents {
@@ -148,40 +150,40 @@ func (cfg *api) getAllUserMetrics(w http.ResponseWriter, r *http.Request) {
 		"muscle_masses":        muscleMassesResp,
 		"body_fat_percentages": bfPercentsResp,
 	}
-	respondWithJSON(w, http.StatusOK, resp)
+	utils.RespondWithJSON(w, http.StatusOK, resp)
 }
 
-func (cfg *api) updateMetricsHandler(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) UpdateMetric(w http.ResponseWriter, r *http.Request) {
 	type requestParams struct {
 		Measurement string `json:"measurement"`
 	}
 	metricType := r.PathValue("type")
-	userID := r.Context().Value(userIDKey).(uuid.UUID)
+	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 	metricID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "error parsing metric id", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "error parsing metric id", err)
 		return
 	}
 
 	reqParams := requestParams{}
-	if err := parseJSON(r, &reqParams); err != nil {
-		respondWithError(w, http.StatusBadRequest, "malformed request", err)
+	if err := utils.ParseJSON(r, &reqParams); err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "malformed request", err)
 		return
 	}
 
 	switch metricType {
 	case "body_weights":
-		bodyWeightEntry, err := cfg.db.UpdateBodyWeight(r.Context(), database.UpdateBodyWeightParams{
+		bodyWeightEntry, err := h.DB.UpdateBodyWeight(r.Context(), database.UpdateBodyWeightParams{
 			ID:          metricID,
 			UserID:      userID,
 			Measurement: reqParams.Measurement,
 		})
 		if err != nil {
-			respondWithError(w, http.StatusInternalServerError, "error updating body weight entry", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "error updating body weight entry", err)
 			return
 		}
 
-		respondWithJSON(w, http.StatusAccepted, Metric{
+		utils.RespondWithJSON(w, http.StatusAccepted, Metric{
 			ID:          bodyWeightEntry.ID,
 			MetricType:  "body_weight",
 			Measurement: bodyWeightEntry.Measurement,
@@ -190,17 +192,17 @@ func (cfg *api) updateMetricsHandler(w http.ResponseWriter, r *http.Request) {
 			UserID:      bodyWeightEntry.UserID,
 		})
 	case "muscle_masses":
-		muscleMassEntry, err := cfg.db.UpdateMuscleMass(r.Context(), database.UpdateMuscleMassParams{
+		muscleMassEntry, err := h.DB.UpdateMuscleMass(r.Context(), database.UpdateMuscleMassParams{
 			ID:          metricID,
 			UserID:      userID,
 			Measurement: reqParams.Measurement,
 		})
 		if err != nil {
-			respondWithError(w, http.StatusInternalServerError, "error updating body weight entry", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "error updating body weight entry", err)
 			return
 		}
 
-		respondWithJSON(w, http.StatusAccepted, Metric{
+		utils.RespondWithJSON(w, http.StatusAccepted, Metric{
 			ID:          muscleMassEntry.ID,
 			MetricType:  "body_weight",
 			Measurement: muscleMassEntry.Measurement,
@@ -209,17 +211,17 @@ func (cfg *api) updateMetricsHandler(w http.ResponseWriter, r *http.Request) {
 			UserID:      muscleMassEntry.UserID,
 		})
 	case "body_fat_percentages":
-		bfPercentEntry, err := cfg.db.UpdateBodyFatPerc(r.Context(), database.UpdateBodyFatPercParams{
+		bfPercentEntry, err := h.DB.UpdateBodyFatPerc(r.Context(), database.UpdateBodyFatPercParams{
 			ID:          metricID,
 			UserID:      userID,
 			Measurement: reqParams.Measurement,
 		})
 		if err != nil {
-			respondWithError(w, http.StatusInternalServerError, "error updating body weight entry", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "error updating body weight entry", err)
 			return
 		}
 
-		respondWithJSON(w, http.StatusAccepted, Metric{
+		utils.RespondWithJSON(w, http.StatusAccepted, Metric{
 			ID:          bfPercentEntry.ID,
 			MetricType:  "body_fat_percentage",
 			Measurement: bfPercentEntry.Measurement,
@@ -230,72 +232,72 @@ func (cfg *api) updateMetricsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (cfg *api) deleteMetricsHandler(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value(userIDKey).(uuid.UUID)
+func (h *Handler) DeleteMetric(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 	metricType := r.PathValue("type")
 	metricID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "error parsing metric id", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "error parsing metric id", err)
 		return
 	}
 
 	switch metricType {
 	case "body_weights":
-		err := cfg.db.DeleteBodyWeight(r.Context(), database.DeleteBodyWeightParams{
+		err := h.DB.DeleteBodyWeight(r.Context(), database.DeleteBodyWeightParams{
 			ID:     metricID,
 			UserID: userID,
 		})
 		if err != nil {
-			respondWithError(w, http.StatusInternalServerError, "error deleting body weight entry", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "error deleting body weight entry", err)
 			return
 		}
 
-		respondWithJSON(w, http.StatusNoContent, Metric{})
+		utils.RespondWithJSON(w, http.StatusNoContent, Metric{})
 	case "muscle_masses":
-		err := cfg.db.DeleteMuscleMass(r.Context(), database.DeleteMuscleMassParams{
+		err := h.DB.DeleteMuscleMass(r.Context(), database.DeleteMuscleMassParams{
 			ID:     metricID,
 			UserID: userID,
 		})
 		if err != nil {
-			respondWithError(w, http.StatusInternalServerError, "error deleting muscle mass entry", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "error deleting muscle mass entry", err)
 			return
 		}
-		respondWithJSON(w, http.StatusNoContent, Metric{})
+		utils.RespondWithJSON(w, http.StatusNoContent, Metric{})
 	case "body_fat_percentages":
-		err := cfg.db.DeleteBodyFatPerc(r.Context(), database.DeleteBodyFatPercParams{
+		err := h.DB.DeleteBodyFatPerc(r.Context(), database.DeleteBodyFatPercParams{
 			ID:     metricID,
 			UserID: userID,
 		})
 		if err != nil {
-			respondWithError(w, http.StatusInternalServerError, "error deleting body fat percentage entry", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "error deleting body fat percentage entry", err)
 			return
 		}
-		respondWithJSON(w, http.StatusNoContent, Metric{})
+		utils.RespondWithJSON(w, http.StatusNoContent, Metric{})
 	}
 }
 
-func (cfg *api) deleteAllMetricsHandler(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) DeleteAllUserMetrics(w http.ResponseWriter, r *http.Request) {
 	metricType := r.PathValue("type")
-	userID := r.Context().Value(userIDKey).(uuid.UUID)
+	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 
 	switch metricType {
 	case "body_weights":
-		if err := cfg.db.DeleteAllBodyWeights(r.Context(), userID); err != nil {
-			respondWithError(w, http.StatusInternalServerError, "error deleting body weight entries", err)
+		if err := h.DB.DeleteAllBodyWeights(r.Context(), userID); err != nil {
+			utils.RespondWithError(w, http.StatusInternalServerError, "error deleting body weight entries", err)
 			return
 		}
-		respondWithJSON(w, http.StatusNoContent, Metric{})
+		utils.RespondWithJSON(w, http.StatusNoContent, Metric{})
 	case "muscle_masses":
-		if err := cfg.db.DeleteAllMuscleMasses(r.Context(), userID); err != nil {
-			respondWithError(w, http.StatusInternalServerError, "error deleting muscle mass entries", err)
+		if err := h.DB.DeleteAllMuscleMasses(r.Context(), userID); err != nil {
+			utils.RespondWithError(w, http.StatusInternalServerError, "error deleting muscle mass entries", err)
 			return
 		}
-		respondWithJSON(w, http.StatusNoContent, Metric{})
+		utils.RespondWithJSON(w, http.StatusNoContent, Metric{})
 	case "body_fat_percentages":
-		if err := cfg.db.DeleteAllBodyFatPercs(r.Context(), userID); err != nil {
-			respondWithError(w, http.StatusInternalServerError, "error deleting body fat percentage entries", err)
+		if err := h.DB.DeleteAllBodyFatPercs(r.Context(), userID); err != nil {
+			utils.RespondWithError(w, http.StatusInternalServerError, "error deleting body fat percentage entries", err)
 			return
 		}
-		respondWithJSON(w, http.StatusNoContent, Metric{})
+		utils.RespondWithJSON(w, http.StatusNoContent, Metric{})
 	}
 }

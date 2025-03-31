@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"database/sql"
@@ -6,7 +6,9 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/kairos4213/fithub/internal/cntx"
 	"github.com/kairos4213/fithub/internal/database"
+	"github.com/kairos4213/fithub/internal/utils"
 )
 
 type Workout struct {
@@ -21,24 +23,24 @@ type Workout struct {
 	UpdatedAt     time.Time
 }
 
-func (cfg *api) createWorkoutsHandler(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) CreateWorkout(w http.ResponseWriter, r *http.Request) {
 	type request struct {
 		Title       string `json:"title"`
 		Description string `json:"description"`
 		Duration    int32  `json:"duration"`
 		PlannedDate string `json:"planned_date"`
 	}
-	userID := r.Context().Value(userIDKey).(uuid.UUID)
+	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 
 	reqParams := request{}
-	if err := parseJSON(r, &reqParams); err != nil {
-		respondWithError(w, http.StatusBadRequest, "malformed request", err)
+	if err := utils.ParseJSON(r, &reqParams); err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "malformed request", err)
 		return
 	}
 
 	plannedDate, err := time.Parse(time.DateOnly, reqParams.PlannedDate)
 	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "not a valid date", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "not a valid date", err)
 		return
 	}
 
@@ -48,7 +50,7 @@ func (cfg *api) createWorkoutsHandler(w http.ResponseWriter, r *http.Request) {
 		workoutDescription.String = reqParams.Description
 	}
 
-	workout, err := cfg.db.CreateWorkout(r.Context(), database.CreateWorkoutParams{
+	workout, err := h.DB.CreateWorkout(r.Context(), database.CreateWorkoutParams{
 		UserID:          userID,
 		Title:           reqParams.Title,
 		Description:     workoutDescription,
@@ -56,11 +58,11 @@ func (cfg *api) createWorkoutsHandler(w http.ResponseWriter, r *http.Request) {
 		PlannedDate:     plannedDate,
 	})
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "error creating workout", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "error creating workout", err)
 		return
 	}
 
-	respondWithJSON(w, http.StatusCreated, Workout{
+	utils.RespondWithJSON(w, http.StatusCreated, Workout{
 		ID:            workout.ID,
 		UserID:        workout.UserID,
 		Title:         workout.Title,
@@ -73,12 +75,12 @@ func (cfg *api) createWorkoutsHandler(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (cfg *api) getAllUserWorkoutsHandler(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value(userIDKey).(uuid.UUID)
+func (h *Handler) GetAllUserWorkouts(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 
-	userWorkouts, err := cfg.db.GetAllUserWorkouts(r.Context(), userID)
+	userWorkouts, err := h.DB.GetAllUserWorkouts(r.Context(), userID)
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "error retrieving user workouts", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "error retrieving user workouts", err)
 		return
 	}
 
@@ -96,10 +98,10 @@ func (cfg *api) getAllUserWorkoutsHandler(w http.ResponseWriter, r *http.Request
 			UpdatedAt:     workout.UpdatedAt,
 		})
 	}
-	respondWithJSON(w, http.StatusOK, response)
+	utils.RespondWithJSON(w, http.StatusOK, response)
 }
 
-func (cfg *api) updateWorkoutsHandler(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) UpdateWorkout(w http.ResponseWriter, r *http.Request) {
 	type request struct {
 		Title         string `json:"title"`
 		Description   string `json:"description"`
@@ -108,16 +110,16 @@ func (cfg *api) updateWorkoutsHandler(w http.ResponseWriter, r *http.Request) {
 		DateCompleted string `json:"date_completed"`
 	}
 
-	userID := r.Context().Value(userIDKey).(uuid.UUID)
+	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 	workoutID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "invalid workout id", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "invalid workout id", err)
 		return
 	}
 
 	reqParams := request{}
-	if err := parseJSON(r, &reqParams); err != nil {
-		respondWithError(w, http.StatusBadRequest, "malformed request", err)
+	if err := utils.ParseJSON(r, &reqParams); err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "malformed request", err)
 		return
 	}
 
@@ -128,7 +130,7 @@ func (cfg *api) updateWorkoutsHandler(w http.ResponseWriter, r *http.Request) {
 
 	plannedDate, err := time.Parse(time.DateOnly, reqParams.PlannedDate)
 	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "incorrect date format", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "incorrect date format", err)
 		return
 	}
 
@@ -136,13 +138,13 @@ func (cfg *api) updateWorkoutsHandler(w http.ResponseWriter, r *http.Request) {
 	if reqParams.DateCompleted != "" {
 		dateCompleted, err := time.Parse(time.DateOnly, reqParams.DateCompleted)
 		if err != nil {
-			respondWithError(w, http.StatusBadRequest, "incorrect date format", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "incorrect date format", err)
 			return
 		}
 		completionDate = sql.NullTime{Valid: true, Time: dateCompleted}
 	}
 
-	updatedWorkout, err := cfg.db.UpdateWorkout(r.Context(), database.UpdateWorkoutParams{
+	updatedWorkout, err := h.DB.UpdateWorkout(r.Context(), database.UpdateWorkoutParams{
 		Title:           reqParams.Title,
 		Description:     workoutDescription,
 		DurationMinutes: reqParams.Duration,
@@ -152,11 +154,11 @@ func (cfg *api) updateWorkoutsHandler(w http.ResponseWriter, r *http.Request) {
 		UserID:          userID,
 	})
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "error updating workout", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "error updating workout", err)
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, Workout{
+	utils.RespondWithJSON(w, http.StatusOK, Workout{
 		ID:            updatedWorkout.ID,
 		UserID:        updatedWorkout.UserID,
 		Title:         updatedWorkout.Title,
@@ -169,32 +171,32 @@ func (cfg *api) updateWorkoutsHandler(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (cfg *api) deleteWorkoutsHandler(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) DeleteWorkout(w http.ResponseWriter, r *http.Request) {
 	workoutID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "invalid workout id", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "invalid workout id", err)
 		return
 	}
-	userID := r.Context().Value(userIDKey).(uuid.UUID)
+	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 
-	err = cfg.db.DeleteWorkout(r.Context(), database.DeleteWorkoutParams{
+	err = h.DB.DeleteWorkout(r.Context(), database.DeleteWorkoutParams{
 		ID: workoutID, UserID: userID,
 	})
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "error deleting workout", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "error deleting workout", err)
 		return
 	}
 
-	respondWithJSON(w, http.StatusNoContent, Workout{})
+	utils.RespondWithJSON(w, http.StatusNoContent, Workout{})
 }
 
-func (cfg *api) deleteAllUserWorkoutsHandler(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value(userIDKey).(uuid.UUID)
+func (h *Handler) DeleteAllUserWorkouts(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 
-	if err := cfg.db.DeleteAllUserWorkouts(r.Context(), userID); err != nil {
-		respondWithError(w, http.StatusInternalServerError, "error deleting user workouts", err)
+	if err := h.DB.DeleteAllUserWorkouts(r.Context(), userID); err != nil {
+		utils.RespondWithError(w, http.StatusInternalServerError, "error deleting user workouts", err)
 		return
 	}
 
-	respondWithJSON(w, http.StatusNoContent, []Workout{})
+	utils.RespondWithJSON(w, http.StatusNoContent, []Workout{})
 }

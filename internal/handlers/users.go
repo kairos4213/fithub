@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"database/sql"
@@ -9,7 +9,9 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/kairos4213/fithub/internal/auth"
+	"github.com/kairos4213/fithub/internal/cntx"
 	"github.com/kairos4213/fithub/internal/database"
+	"github.com/kairos4213/fithub/internal/utils"
 )
 
 type User struct {
@@ -26,7 +28,7 @@ type response struct {
 	RefreshToken string `json:"refresh_token,omitempty"`
 }
 
-func (cfg *api) createUsersHandler(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	type requestParams struct {
 		FirstName  string `json:"first_name"`
 		MiddleName string `json:"middle_name"`
@@ -36,34 +38,34 @@ func (cfg *api) createUsersHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	reqParams := requestParams{}
-	if err := parseJSON(r, &reqParams); err != nil {
-		respondWithError(w, http.StatusBadRequest, "malformed request", err)
+	if err := utils.ParseJSON(r, &reqParams); err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "malformed request", err)
 		return
 	}
 
 	if reqParams.FirstName == "" {
-		respondWithError(w, http.StatusBadRequest, "Missing First Name", errors.New("malformed request"))
+		utils.RespondWithError(w, http.StatusBadRequest, "Missing First Name", errors.New("malformed request"))
 		return
 	}
 
 	if reqParams.LastName == "" {
-		respondWithError(w, http.StatusBadRequest, "Missing Last Name", errors.New("malformed request"))
+		utils.RespondWithError(w, http.StatusBadRequest, "Missing Last Name", errors.New("malformed request"))
 		return
 	}
 
 	if reqParams.Email == "" {
-		respondWithError(w, http.StatusBadRequest, "Missing Email", errors.New("malformed request"))
+		utils.RespondWithError(w, http.StatusBadRequest, "Missing Email", errors.New("malformed request"))
 		return
 	}
 
 	if len(reqParams.Password) < 10 {
-		respondWithError(w, http.StatusBadRequest, "Password must be at least 10 characters", errors.New("malformed request"))
+		utils.RespondWithError(w, http.StatusBadRequest, "Password must be at least 10 characters", errors.New("malformed request"))
 		return
 	}
 
 	hashedPassword, err := auth.HashPassword(reqParams.Password)
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Couldn't hash password", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Couldn't hash password", err)
 		return
 	}
 
@@ -73,7 +75,7 @@ func (cfg *api) createUsersHandler(w http.ResponseWriter, r *http.Request) {
 		middleName.String = strings.ToLower(reqParams.MiddleName)
 	}
 
-	user, err := cfg.db.CreateUser(r.Context(), database.CreateUserParams{
+	user, err := h.DB.CreateUser(r.Context(), database.CreateUserParams{
 		FirstName:      strings.ToLower(reqParams.FirstName),
 		MiddleName:     middleName,
 		LastName:       strings.ToLower(reqParams.LastName),
@@ -81,33 +83,33 @@ func (cfg *api) createUsersHandler(w http.ResponseWriter, r *http.Request) {
 		HashedPassword: hashedPassword,
 	})
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Error creating user in database", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Error creating user in database", err)
 		return
 	}
 
-	accessToken, err := auth.MakeJWT(user.ID, cfg.privateKey)
+	accessToken, err := auth.MakeJWT(user.ID, h.PrivateKey)
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Couldn't create access token", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Couldn't create access token", err)
 		return
 	}
 
 	refreshToken, err := auth.MakeRefreshToken()
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Couldn't create refresh token", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Couldn't create refresh token", err)
 		return
 	}
 
-	err = cfg.db.CreateRefreshToken(r.Context(), database.CreateRefreshTokenParams{
+	err = h.DB.CreateRefreshToken(r.Context(), database.CreateRefreshTokenParams{
 		Token:     refreshToken,
 		UserID:    user.ID,
 		ExpiresAt: time.Now().UTC().AddDate(0, 0, 60),
 	})
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Error storing refresh token", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Error storing refresh token", err)
 		return
 	}
 
-	respondWithJSON(w, http.StatusCreated, response{
+	utils.RespondWithJSON(w, http.StatusCreated, response{
 		User: User{
 			ID:         user.ID,
 			FirstName:  user.FirstName,
@@ -120,63 +122,63 @@ func (cfg *api) createUsersHandler(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (cfg *api) loginUsersHandler(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) LoginUser(w http.ResponseWriter, r *http.Request) {
 	type requestParams struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
 	}
 
 	reqParams := requestParams{}
-	if err := parseJSON(r, &reqParams); err != nil {
-		respondWithError(w, http.StatusBadRequest, "Malformed request", err)
+	if err := utils.ParseJSON(r, &reqParams); err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Malformed request", err)
 		return
 	}
 
 	if reqParams.Email == "" {
-		respondWithError(w, http.StatusBadRequest, "Missing Email", errors.New("malformed request"))
+		utils.RespondWithError(w, http.StatusBadRequest, "Missing Email", errors.New("malformed request"))
 		return
 	}
 
 	if reqParams.Password == "" {
-		respondWithError(w, http.StatusBadRequest, "Missing Password", errors.New("malformed request"))
+		utils.RespondWithError(w, http.StatusBadRequest, "Missing Password", errors.New("malformed request"))
 		return
 	}
 
-	user, err := cfg.db.GetUser(r.Context(), reqParams.Email)
+	user, err := h.DB.GetUser(r.Context(), reqParams.Email)
 	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Incorrect email or password", err)
+		utils.RespondWithError(w, http.StatusUnauthorized, "Incorrect email or password", err)
 		return
 	}
 
 	err = auth.CheckPasswordHash(reqParams.Password, user.HashedPassword)
 	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Incorrect email or password", err)
+		utils.RespondWithError(w, http.StatusUnauthorized, "Incorrect email or password", err)
 		return
 	}
 
-	accessToken, err := auth.MakeJWT(user.ID, cfg.privateKey)
+	accessToken, err := auth.MakeJWT(user.ID, h.PrivateKey)
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Couldn't create access token", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Couldn't create access token", err)
 		return
 	}
 
 	refreshToken, err := auth.MakeRefreshToken()
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Couldn't create refresh token", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Couldn't create refresh token", err)
 		return
 	}
 
-	err = cfg.db.CreateRefreshToken(r.Context(), database.CreateRefreshTokenParams{
+	err = h.DB.CreateRefreshToken(r.Context(), database.CreateRefreshTokenParams{
 		Token:     refreshToken,
 		UserID:    user.ID,
 		ExpiresAt: time.Now().UTC().AddDate(0, 0, 60),
 	})
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Error storing refresh token", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Error storing refresh token", err)
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, response{
+	utils.RespondWithJSON(w, http.StatusOK, response{
 		User: User{
 			ID:        user.ID,
 			FirstName: user.FirstName,
@@ -188,7 +190,7 @@ func (cfg *api) loginUsersHandler(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (cfg *api) updateUsersHandler(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	// TODO: Split this handler into two separate handlers
 	// updateUsersHandlerPassword
 	// updateUsersHandlerInfo (handles all other user information)
@@ -197,11 +199,11 @@ func (cfg *api) updateUsersHandler(w http.ResponseWriter, r *http.Request) {
 		Password *string `json:"password,omitempty"`
 	}
 
-	userID := r.Context().Value(userIDKey).(uuid.UUID)
+	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 
 	reqParams := requestParams{}
-	if err := parseJSON(r, &reqParams); err != nil {
-		respondWithError(w, http.StatusBadRequest, "malformed request", err)
+	if err := utils.ParseJSON(r, &reqParams); err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "malformed request", err)
 		return
 	}
 
@@ -212,7 +214,7 @@ func (cfg *api) updateUsersHandler(w http.ResponseWriter, r *http.Request) {
 	if reqParams.Password != nil {
 		hashedPassword, err := auth.HashPassword(*reqParams.Password)
 		if err != nil {
-			respondWithError(w, http.StatusInternalServerError, "Error hashing password", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "Error hashing password", err)
 			return
 		}
 		userParams.HashedPassword.String = hashedPassword
@@ -224,13 +226,13 @@ func (cfg *api) updateUsersHandler(w http.ResponseWriter, r *http.Request) {
 		userParams.Email.Valid = true
 	}
 
-	updatedUser, err := cfg.db.UpdateUser(r.Context(), userParams)
+	updatedUser, err := h.DB.UpdateUser(r.Context(), userParams)
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Error updating user", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Error updating user", err)
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, response{User: User{
+	utils.RespondWithJSON(w, http.StatusOK, response{User: User{
 		ID:        updatedUser.ID,
 		FirstName: updatedUser.FirstName,
 		LastName:  updatedUser.LastName,
@@ -238,13 +240,13 @@ func (cfg *api) updateUsersHandler(w http.ResponseWriter, r *http.Request) {
 	}})
 }
 
-func (cfg *api) deleteUsersHandler(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value(userIDKey).(uuid.UUID)
+func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 
-	if err := cfg.db.DeleteUser(r.Context(), userID); err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Error deleting user profile", err)
+	if err := h.DB.DeleteUser(r.Context(), userID); err != nil {
+		utils.RespondWithError(w, http.StatusInternalServerError, "Error deleting user profile", err)
 		return
 	}
 
-	respondWithJSON(w, http.StatusNoContent, User{})
+	utils.RespondWithJSON(w, http.StatusNoContent, User{})
 }

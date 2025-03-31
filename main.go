@@ -9,14 +9,10 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/kairos4213/fithub/internal/database"
+	"github.com/kairos4213/fithub/internal/handlers"
+	"github.com/kairos4213/fithub/internal/middleware"
 	_ "github.com/lib/pq"
 )
-
-type api struct {
-	db         *database.Queries
-	privateKey []byte
-	publicKey  []byte
-}
 
 func main() {
 	privKey, err := os.ReadFile("private_key.pem")
@@ -55,10 +51,11 @@ func main() {
 	}
 	dbQueries := database.New(db)
 
-	api := api{
-		db:         dbQueries,
-		privateKey: privKey,
-		publicKey:  pubKey,
+	mw := middleware.Middleware{PublicKey: pubKey}
+
+	handler := handlers.Handler{
+		DB:         dbQueries,
+		PrivateKey: privKey,
 	}
 
 	mux := http.NewServeMux()
@@ -66,37 +63,37 @@ func main() {
 	appHandler := http.FileServer(http.Dir(filePathRoot))
 	mux.Handle("/app/", http.StripPrefix("/app", appHandler))
 
-	mux.HandleFunc("POST /api/v1/register", api.createUsersHandler)
-	mux.HandleFunc("POST /api/v1/login", api.loginUsersHandler)
-	mux.Handle("PUT /api/v1/users", api.authMiddleware(http.HandlerFunc(api.updateUsersHandler)))
-	mux.Handle("DELETE /api/v1/users", api.authMiddleware(http.HandlerFunc(api.deleteUsersHandler)))
+	mux.HandleFunc("POST /api/v1/register", handler.CreateUser)
+	mux.HandleFunc("POST /api/v1/login", handler.LoginUser)
+	mux.Handle("PUT /api/v1/users", mw.Auth(http.HandlerFunc(handler.UpdateUser)))
+	mux.Handle("DELETE /api/v1/users", mw.Auth(http.HandlerFunc(handler.DeleteUser)))
 
-	mux.HandleFunc("POST /api/v1/refresh", api.refreshHandler)
-	mux.HandleFunc("POST /api/v1/revoke", api.revokeHandler)
+	mux.HandleFunc("POST /api/v1/refresh", handler.RefreshToken)
+	mux.HandleFunc("POST /api/v1/revoke", handler.RevokeToken)
 
-	mux.Handle("POST /api/v1/goals", api.authMiddleware(http.HandlerFunc(api.createGoalsHandler)))
-	mux.Handle("GET /api/v1/goals", api.authMiddleware(http.HandlerFunc(api.getAllGoalsHandler)))
-	mux.Handle("PUT /api/v1/goals/{id}", api.authMiddleware(http.HandlerFunc(api.updateGoalsHandler)))
-	mux.Handle("DELETE /api/v1/goals/{id}", api.authMiddleware(http.HandlerFunc(api.deleteGoalsHandler)))
-	mux.Handle("DELETE /api/v1/goals", api.authMiddleware(http.HandlerFunc(api.deleteAllGoalsHandler)))
+	mux.Handle("POST /api/v1/goals", mw.Auth(http.HandlerFunc(handler.CreateGoal)))
+	mux.Handle("GET /api/v1/goals", mw.Auth(http.HandlerFunc(handler.GetAllUserGoals)))
+	mux.Handle("PUT /api/v1/goals/{id}", mw.Auth(http.HandlerFunc(handler.UpdateGoal)))
+	mux.Handle("DELETE /api/v1/goals/{id}", mw.Auth(http.HandlerFunc(handler.DeleteGoal)))
+	mux.Handle("DELETE /api/v1/goals", mw.Auth(http.HandlerFunc(handler.DeleteAllUserGoals)))
 
-	mux.Handle("POST /api/v1/metrics/{type}", api.authMiddleware(http.HandlerFunc(api.addMetricsHandler)))
-	mux.Handle("GET /api/v1/metrics", api.authMiddleware(http.HandlerFunc(api.getAllUserMetrics)))
-	mux.Handle("PUT /api/v1/metrics/{type}/{id}", api.authMiddleware(http.HandlerFunc(api.updateMetricsHandler)))
-	mux.Handle("DELETE /api/v1/metrics/{type}/{id}", api.authMiddleware(http.HandlerFunc(api.deleteMetricsHandler)))
-	mux.Handle("DELETE /api/v1/metrics/{type}", api.authMiddleware(http.HandlerFunc(api.deleteAllMetricsHandler)))
+	mux.Handle("POST /api/v1/metrics/{type}", mw.Auth(http.HandlerFunc(handler.AddMetric)))
+	mux.Handle("GET /api/v1/metrics", mw.Auth(http.HandlerFunc(handler.GetAllUserMetrics)))
+	mux.Handle("PUT /api/v1/metrics/{type}/{id}", mw.Auth(http.HandlerFunc(handler.UpdateMetric)))
+	mux.Handle("DELETE /api/v1/metrics/{type}/{id}", mw.Auth(http.HandlerFunc(handler.DeleteMetric)))
+	mux.Handle("DELETE /api/v1/metrics/{type}", mw.Auth(http.HandlerFunc(handler.DeleteAllUserMetrics)))
 
-	mux.Handle("POST /api/v1/workouts", api.authMiddleware(http.HandlerFunc(api.createWorkoutsHandler)))
-	mux.Handle("GET /api/v1/workouts", api.authMiddleware(http.HandlerFunc(api.getAllUserWorkoutsHandler)))
-	mux.Handle("PUT /api/v1/workouts/{id}", api.authMiddleware(http.HandlerFunc(api.updateWorkoutsHandler)))
-	mux.Handle("DELETE /api/v1/workouts/{id}", api.authMiddleware(http.HandlerFunc(api.deleteWorkoutsHandler)))
-	mux.Handle("DELETE /api/v1/workouts", api.authMiddleware(http.HandlerFunc(api.deleteAllUserWorkoutsHandler)))
+	mux.Handle("POST /api/v1/workouts", mw.Auth(http.HandlerFunc(handler.CreateWorkout)))
+	mux.Handle("GET /api/v1/workouts", mw.Auth(http.HandlerFunc(handler.GetAllUserWorkouts)))
+	mux.Handle("PUT /api/v1/workouts/{id}", mw.Auth(http.HandlerFunc(handler.UpdateWorkout)))
+	mux.Handle("DELETE /api/v1/workouts/{id}", mw.Auth(http.HandlerFunc(handler.DeleteWorkout)))
+	mux.Handle("DELETE /api/v1/workouts", mw.Auth(http.HandlerFunc(handler.DeleteAllUserWorkouts)))
 
-	mux.HandleFunc("GET /api/v1/healthz", readinessHandler)
+	mux.HandleFunc("GET /api/v1/healthz", handlers.Readiness)
 
 	server := &http.Server{
 		Addr:         ":" + port,
-		Handler:      mux,
+		Handler:      mw.Log(mux),
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}

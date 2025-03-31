@@ -1,4 +1,4 @@
-package main
+package utils
 
 import (
 	"encoding/json"
@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func respondWithError(w http.ResponseWriter, statusCode int, msg string, err error) {
+func RespondWithError(w http.ResponseWriter, statusCode int, msg string, err error) {
 	if err != nil {
 		log.Println(err)
 	}
@@ -16,12 +16,12 @@ func respondWithError(w http.ResponseWriter, statusCode int, msg string, err err
 	type errorResponse struct {
 		Error string `json:"error"`
 	}
-	respondWithJSON(w, statusCode, errorResponse{
+	RespondWithJSON(w, statusCode, errorResponse{
 		Error: msg,
 	})
 }
 
-func respondWithJSON(w http.ResponseWriter, statusCode int, payload any) {
+func RespondWithJSON(w http.ResponseWriter, statusCode int, payload any) {
 	w.Header().Set("Content-Type", "application/json")
 	data, err := json.Marshal(payload)
 	if err != nil {
@@ -34,7 +34,7 @@ func respondWithJSON(w http.ResponseWriter, statusCode int, payload any) {
 }
 
 // TODO: fix the way reqParams is being implemented -- don't want to use any type
-func parseJSON(r *http.Request, reqParams any) error {
+func ParseJSON(r *http.Request, reqParams any) error {
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&reqParams)
 	if err != nil {

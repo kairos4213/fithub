@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"database/sql"
@@ -7,7 +7,9 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/kairos4213/fithub/internal/cntx"
 	"github.com/kairos4213/fithub/internal/database"
+	"github.com/kairos4213/fithub/internal/utils"
 )
 
 type Goal struct {
@@ -23,7 +25,7 @@ type Goal struct {
 	UserID         uuid.UUID `json:"user_id,omitempty"`
 }
 
-func (cfg *api) createGoalsHandler(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) CreateGoal(w http.ResponseWriter, r *http.Request) {
 	type requestParams struct {
 		Name        string `json:"name"`
 		Description string `json:"description"`
@@ -31,17 +33,17 @@ func (cfg *api) createGoalsHandler(w http.ResponseWriter, r *http.Request) {
 		Notes       string `json:"notes"`
 	}
 
-	userID := r.Context().Value(userIDKey).(uuid.UUID)
+	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 
 	reqParams := requestParams{}
-	if err := parseJSON(r, &reqParams); err != nil {
-		respondWithError(w, http.StatusBadRequest, "malformed request", err)
+	if err := utils.ParseJSON(r, &reqParams); err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "malformed request", err)
 		return
 	}
 
 	goalDate, err := time.Parse(time.DateOnly, reqParams.GoalDate)
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Error parsing date", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Error parsing date", err)
 		return
 	}
 
@@ -51,7 +53,7 @@ func (cfg *api) createGoalsHandler(w http.ResponseWriter, r *http.Request) {
 		goalNotes.String = reqParams.Notes
 	}
 
-	goal, err := cfg.db.CreateGoal(r.Context(), database.CreateGoalParams{
+	goal, err := h.DB.CreateGoal(r.Context(), database.CreateGoalParams{
 		GoalName:    strings.ToLower(reqParams.Name),
 		Description: reqParams.Description,
 		GoalDate:    goalDate.UTC(),
@@ -60,14 +62,14 @@ func (cfg *api) createGoalsHandler(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		if strings.Contains(err.Error(), `pq: duplicate key value violates unique constraint "goals_name_user_id_key"`) {
-			respondWithError(w, http.StatusBadRequest, "Cannot have duplicate goal names", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "Cannot have duplicate goal names", err)
 			return
 		}
-		respondWithError(w, http.StatusInternalServerError, "Error saving goal", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Error saving goal", err)
 		return
 	}
 
-	respondWithJSON(w, http.StatusCreated, Goal{
+	utils.RespondWithJSON(w, http.StatusCreated, Goal{
 		ID:          goal.ID,
 		CreatedAt:   goal.CreatedAt,
 		UpdatedAt:   goal.UpdatedAt,
@@ -79,11 +81,11 @@ func (cfg *api) createGoalsHandler(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (cfg *api) getAllGoalsHandler(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value(userIDKey).(uuid.UUID)
-	goals, err := cfg.db.GetAllUserGoals(r.Context(), userID)
+func (h *Handler) GetAllUserGoals(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
+	goals, err := h.DB.GetAllUserGoals(r.Context(), userID)
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Error getting goals", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Error getting goals", err)
 		return
 	}
 
@@ -102,10 +104,10 @@ func (cfg *api) getAllGoalsHandler(w http.ResponseWriter, r *http.Request) {
 			UserID:         goal.UserID,
 		})
 	}
-	respondWithJSON(w, http.StatusOK, response)
+	utils.RespondWithJSON(w, http.StatusOK, response)
 }
 
-func (cfg *api) updateGoalsHandler(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) UpdateGoal(w http.ResponseWriter, r *http.Request) {
 	type requestParams struct {
 		Name           string `json:"goal_name"`
 		Description    string `json:"description"`
@@ -116,13 +118,13 @@ func (cfg *api) updateGoalsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	goalID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "invalid goal id", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "invalid goal id", err)
 		return
 	}
 
 	reqParams := requestParams{}
-	if err := parseJSON(r, &reqParams); err != nil {
-		respondWithError(w, http.StatusBadRequest, "malformed request", err)
+	if err := utils.ParseJSON(r, &reqParams); err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "malformed request", err)
 		return
 	}
 
@@ -135,7 +137,7 @@ func (cfg *api) updateGoalsHandler(w http.ResponseWriter, r *http.Request) {
 
 	goalDate, err := time.Parse(time.DateOnly, reqParams.GoalDate)
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Error parsing date", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Error parsing date", err)
 		return
 	}
 	updateGoalParams.GoalDate = goalDate
@@ -145,7 +147,7 @@ func (cfg *api) updateGoalsHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		completionDate, err := time.Parse(time.DateOnly, reqParams.CompletionDate)
 		if err != nil {
-			respondWithError(w, http.StatusInternalServerError, "Error parsing date", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "Error parsing date", err)
 			return
 		}
 		updateGoalParams.CompletionDate = sql.NullTime{Time: completionDate, Valid: true}
@@ -157,13 +159,13 @@ func (cfg *api) updateGoalsHandler(w http.ResponseWriter, r *http.Request) {
 		updateGoalParams.Notes = sql.NullString{String: reqParams.Notes, Valid: true}
 	}
 
-	goal, err := cfg.db.UpdateGoal(r.Context(), updateGoalParams)
+	goal, err := h.DB.UpdateGoal(r.Context(), updateGoalParams)
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Error updating goal", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Error updating goal", err)
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, Goal{
+	utils.RespondWithJSON(w, http.StatusOK, Goal{
 		ID:             goal.ID,
 		CreatedAt:      goal.CreatedAt,
 		UpdatedAt:      goal.UpdatedAt,
@@ -177,28 +179,28 @@ func (cfg *api) updateGoalsHandler(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (cfg *api) deleteGoalsHandler(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) DeleteGoal(w http.ResponseWriter, r *http.Request) {
 	goalID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Error parsing goal id", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Error parsing goal id", err)
 		return
 	}
 
-	if err := cfg.db.DeleteGoal(r.Context(), goalID); err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Error deleting goal", err)
+	if err := h.DB.DeleteGoal(r.Context(), goalID); err != nil {
+		utils.RespondWithError(w, http.StatusInternalServerError, "Error deleting goal", err)
 		return
 	}
 
-	respondWithJSON(w, http.StatusNoContent, Goal{})
+	utils.RespondWithJSON(w, http.StatusNoContent, Goal{})
 }
 
-func (cfg *api) deleteAllGoalsHandler(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value(userIDKey).(uuid.UUID)
+func (h *Handler) DeleteAllUserGoals(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 
-	if err := cfg.db.DeleteAllUserGoals(r.Context(), userID); err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Error deleting goals", err)
+	if err := h.DB.DeleteAllUserGoals(r.Context(), userID); err != nil {
+		utils.RespondWithError(w, http.StatusInternalServerError, "Error deleting goals", err)
 		return
 	}
 
-	respondWithJSON(w, http.StatusNoContent, Goal{})
+	utils.RespondWithJSON(w, http.StatusNoContent, Goal{})
 }
