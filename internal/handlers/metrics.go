@@ -11,21 +11,18 @@ import (
 )
 
 type Metric struct {
-	ID          uuid.UUID `json:"metric_id,omitempty"`
-	MetricType  string    `json:"metric_type,omitempty"`
-	Measurement string    `json:"measurement,omitempty"`
-	CreatedAt   time.Time `json:"created_at,omitempty"`
-	UpdatedAt   time.Time `json:"updated_at,omitempty"`
-	UserID      uuid.UUID `json:"user_id,omitempty"`
+	ID          string `json:"metric_id,omitempty"`
+	MetricType  string `json:"metric_type,omitempty"`
+	Measurement string `json:"measurement,omitempty"`
+	CreatedAt   string `json:"created_at,omitempty"`
+	UpdatedAt   string `json:"updated_at,omitempty"`
+	UserID      string `json:"user_id,omitempty"`
 }
 
 func (h *Handler) AddMetric(w http.ResponseWriter, r *http.Request) {
-	type requestParams struct {
-		Measurement string `json:"measurement"`
-	}
 	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 
-	reqParams := requestParams{}
+	reqParams := Metric{}
 	if err := utils.ParseJSON(r, &reqParams); err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "malformed request", err)
 		return
@@ -44,12 +41,12 @@ func (h *Handler) AddMetric(w http.ResponseWriter, r *http.Request) {
 		}
 
 		utils.RespondWithJSON(w, http.StatusCreated, Metric{
-			ID:          bodyWeightEntry.ID,
+			ID:          bodyWeightEntry.ID.String(),
 			MetricType:  "body_weight",
 			Measurement: bodyWeightEntry.Measurement,
-			CreatedAt:   bodyWeightEntry.CreatedAt,
-			UpdatedAt:   bodyWeightEntry.UpdatedAt,
-			UserID:      userID,
+			CreatedAt:   bodyWeightEntry.CreatedAt.Format(time.RFC822),
+			UpdatedAt:   bodyWeightEntry.UpdatedAt.Format(time.RFC822),
+			UserID:      userID.String(),
 		})
 	case "muscle_masses":
 		muscleMassEntry, err := h.DB.AddMuscleMass(r.Context(), database.AddMuscleMassParams{
@@ -62,12 +59,12 @@ func (h *Handler) AddMetric(w http.ResponseWriter, r *http.Request) {
 		}
 
 		utils.RespondWithJSON(w, http.StatusCreated, Metric{
-			ID:          userID,
+			ID:          muscleMassEntry.ID.String(),
 			MetricType:  "muscle_mass",
 			Measurement: muscleMassEntry.Measurement,
-			CreatedAt:   muscleMassEntry.CreatedAt,
-			UpdatedAt:   muscleMassEntry.UpdatedAt,
-			UserID:      userID,
+			CreatedAt:   muscleMassEntry.CreatedAt.Format(time.RFC822),
+			UpdatedAt:   muscleMassEntry.UpdatedAt.Format(time.RFC822),
+			UserID:      userID.String(),
 		})
 	case "body_fat_percents":
 		bfPercentEntry, err := h.DB.AddBodyFatPerc(r.Context(), database.AddBodyFatPercParams{
@@ -80,12 +77,12 @@ func (h *Handler) AddMetric(w http.ResponseWriter, r *http.Request) {
 		}
 
 		utils.RespondWithJSON(w, http.StatusCreated, Metric{
-			ID:          userID,
+			ID:          bfPercentEntry.ID.String(),
 			MetricType:  "body_fat_percentage",
 			Measurement: bfPercentEntry.Measurement,
-			CreatedAt:   bfPercentEntry.CreatedAt,
-			UpdatedAt:   bfPercentEntry.UpdatedAt,
-			UserID:      userID,
+			CreatedAt:   bfPercentEntry.CreatedAt.Format(time.RFC822),
+			UpdatedAt:   bfPercentEntry.UpdatedAt.Format(time.RFC822),
+			UserID:      userID.String(),
 		})
 	}
 }
@@ -104,12 +101,12 @@ func (h *Handler) GetAllUserMetrics(w http.ResponseWriter, r *http.Request) {
 	}
 	for _, bodyWeight := range bodyWeights {
 		bodyWeightsResp = append(bodyWeightsResp, Metric{
-			ID:          bodyWeight.ID,
+			ID:          bodyWeight.ID.String(),
 			MetricType:  "body_weight",
 			Measurement: bodyWeight.Measurement,
-			CreatedAt:   bodyWeight.CreatedAt,
-			UpdatedAt:   bodyWeight.UpdatedAt,
-			UserID:      bodyWeight.UserID,
+			CreatedAt:   bodyWeight.CreatedAt.Format(time.RFC822),
+			UpdatedAt:   bodyWeight.UpdatedAt.Format(time.RFC822),
+			UserID:      userID.String(),
 		})
 	}
 
@@ -120,12 +117,12 @@ func (h *Handler) GetAllUserMetrics(w http.ResponseWriter, r *http.Request) {
 	}
 	for _, muscleMass := range muscleMasses {
 		muscleMassesResp = append(muscleMassesResp, Metric{
-			ID:          muscleMass.ID,
+			ID:          muscleMass.ID.String(),
 			MetricType:  "muscle_mass",
 			Measurement: muscleMass.Measurement,
-			CreatedAt:   muscleMass.CreatedAt,
-			UpdatedAt:   muscleMass.UpdatedAt,
-			UserID:      muscleMass.UserID,
+			CreatedAt:   muscleMass.CreatedAt.Format(time.RFC822),
+			UpdatedAt:   muscleMass.UpdatedAt.Format(time.RFC822),
+			UserID:      userID.String(),
 		})
 	}
 
@@ -136,12 +133,12 @@ func (h *Handler) GetAllUserMetrics(w http.ResponseWriter, r *http.Request) {
 	}
 	for _, bfPercent := range bfPercents {
 		bfPercentsResp = append(bfPercentsResp, Metric{
-			ID:          bfPercent.ID,
+			ID:          bfPercent.ID.String(),
 			MetricType:  "body_fat_percentage",
 			Measurement: bfPercent.Measurement,
-			CreatedAt:   bfPercent.CreatedAt,
-			UpdatedAt:   bfPercent.UpdatedAt,
-			UserID:      userID,
+			CreatedAt:   bfPercent.CreatedAt.Format(time.RFC822),
+			UpdatedAt:   bfPercent.UpdatedAt.Format(time.RFC822),
+			UserID:      userID.String(),
 		})
 	}
 
@@ -154,9 +151,6 @@ func (h *Handler) GetAllUserMetrics(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) UpdateMetric(w http.ResponseWriter, r *http.Request) {
-	type requestParams struct {
-		Measurement string `json:"measurement"`
-	}
 	metricType := r.PathValue("type")
 	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 	metricID, err := uuid.Parse(r.PathValue("id"))
@@ -165,7 +159,7 @@ func (h *Handler) UpdateMetric(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	reqParams := requestParams{}
+	reqParams := Metric{}
 	if err := utils.ParseJSON(r, &reqParams); err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "malformed request", err)
 		return
@@ -184,12 +178,12 @@ func (h *Handler) UpdateMetric(w http.ResponseWriter, r *http.Request) {
 		}
 
 		utils.RespondWithJSON(w, http.StatusAccepted, Metric{
-			ID:          bodyWeightEntry.ID,
+			ID:          bodyWeightEntry.ID.String(),
 			MetricType:  "body_weight",
 			Measurement: bodyWeightEntry.Measurement,
-			CreatedAt:   bodyWeightEntry.CreatedAt,
-			UpdatedAt:   bodyWeightEntry.UpdatedAt,
-			UserID:      bodyWeightEntry.UserID,
+			CreatedAt:   bodyWeightEntry.CreatedAt.Format(time.RFC822),
+			UpdatedAt:   bodyWeightEntry.UpdatedAt.Format(time.RFC822),
+			UserID:      userID.String(),
 		})
 	case "muscle_masses":
 		muscleMassEntry, err := h.DB.UpdateMuscleMass(r.Context(), database.UpdateMuscleMassParams{
@@ -203,12 +197,12 @@ func (h *Handler) UpdateMetric(w http.ResponseWriter, r *http.Request) {
 		}
 
 		utils.RespondWithJSON(w, http.StatusAccepted, Metric{
-			ID:          muscleMassEntry.ID,
+			ID:          muscleMassEntry.ID.String(),
 			MetricType:  "body_weight",
 			Measurement: muscleMassEntry.Measurement,
-			CreatedAt:   muscleMassEntry.CreatedAt,
-			UpdatedAt:   muscleMassEntry.UpdatedAt,
-			UserID:      muscleMassEntry.UserID,
+			CreatedAt:   muscleMassEntry.CreatedAt.Format(time.RFC822),
+			UpdatedAt:   muscleMassEntry.UpdatedAt.Format(time.RFC822),
+			UserID:      userID.String(),
 		})
 	case "body_fat_percentages":
 		bfPercentEntry, err := h.DB.UpdateBodyFatPerc(r.Context(), database.UpdateBodyFatPercParams{
@@ -222,12 +216,12 @@ func (h *Handler) UpdateMetric(w http.ResponseWriter, r *http.Request) {
 		}
 
 		utils.RespondWithJSON(w, http.StatusAccepted, Metric{
-			ID:          bfPercentEntry.ID,
+			ID:          bfPercentEntry.ID.String(),
 			MetricType:  "body_fat_percentage",
 			Measurement: bfPercentEntry.Measurement,
-			CreatedAt:   bfPercentEntry.CreatedAt,
-			UpdatedAt:   bfPercentEntry.UpdatedAt,
-			UserID:      bfPercentEntry.UserID,
+			CreatedAt:   bfPercentEntry.CreatedAt.Format(time.RFC822),
+			UpdatedAt:   bfPercentEntry.UpdatedAt.Format(time.RFC822),
+			UserID:      bfPercentEntry.UserID.String(),
 		})
 	}
 }

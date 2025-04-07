@@ -2,7 +2,9 @@ package handlers
 
 import (
 	"database/sql"
+	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/google/uuid"
@@ -12,27 +14,21 @@ import (
 )
 
 type Workout struct {
-	ID            uuid.UUID
-	UserID        uuid.UUID
-	Title         string
-	Description   string
-	Duration      int32
-	PlannedDate   time.Time
-	DateCompleted time.Time
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
+	ID            string `json:"id,omitempty"`
+	UserID        string `json:"user_id,omitempty"`
+	Title         string `json:"title,omitempty"`
+	Description   string `json:"description,omitempty"`
+	Duration      string `json:"duration,omitempty"`
+	PlannedDate   string `json:"planned_date,omitempty"`
+	DateCompleted string `json:"date_completed,omitempty"`
+	CreatedAt     string `json:"created_at,omitempty"`
+	UpdatedAt     string `json:"updated_at,omitempty"`
 }
 
 func (h *Handler) CreateWorkout(w http.ResponseWriter, r *http.Request) {
-	type request struct {
-		Title       string `json:"title"`
-		Description string `json:"description"`
-		Duration    int32  `json:"duration"`
-		PlannedDate string `json:"planned_date"`
-	}
 	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 
-	reqParams := request{}
+	reqParams := Workout{}
 	if err := utils.ParseJSON(r, &reqParams); err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "malformed request", err)
 		return
@@ -50,11 +46,16 @@ func (h *Handler) CreateWorkout(w http.ResponseWriter, r *http.Request) {
 		workoutDescription.String = reqParams.Description
 	}
 
+	workoutDuration, err := strconv.Atoi(reqParams.Duration)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "not a valid time duration", err)
+	}
+
 	workout, err := h.DB.CreateWorkout(r.Context(), database.CreateWorkoutParams{
 		UserID:          userID,
 		Title:           reqParams.Title,
 		Description:     workoutDescription,
-		DurationMinutes: reqParams.Duration,
+		DurationMinutes: int32(workoutDuration),
 		PlannedDate:     plannedDate,
 	})
 	if err != nil {
@@ -63,15 +64,15 @@ func (h *Handler) CreateWorkout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.RespondWithJSON(w, http.StatusCreated, Workout{
-		ID:            workout.ID,
-		UserID:        workout.UserID,
+		ID:            workout.ID.String(),
+		UserID:        workout.UserID.String(),
 		Title:         workout.Title,
 		Description:   workout.Description.String,
-		Duration:      workout.DurationMinutes,
-		PlannedDate:   workout.PlannedDate,
-		DateCompleted: workout.DateCompleted.Time,
-		CreatedAt:     workout.CreatedAt,
-		UpdatedAt:     workout.UpdatedAt,
+		Duration:      strconv.FormatInt(int64(workout.DurationMinutes), 10),
+		PlannedDate:   workout.PlannedDate.Format(time.DateOnly),
+		DateCompleted: workout.DateCompleted.Time.Format(time.DateOnly),
+		CreatedAt:     workout.CreatedAt.Format(time.RFC822),
+		UpdatedAt:     workout.UpdatedAt.Format(time.RFC822),
 	})
 }
 
@@ -86,30 +87,23 @@ func (h *Handler) GetAllUserWorkouts(w http.ResponseWriter, r *http.Request) {
 
 	response := []Workout{}
 	for _, workout := range userWorkouts {
+		log.Printf("workout duration: %v", workout.DurationMinutes)
 		response = append(response, Workout{
-			ID:            workout.ID,
-			UserID:        workout.UserID,
+			ID:            workout.ID.String(),
+			UserID:        workout.UserID.String(),
 			Title:         workout.Title,
 			Description:   workout.Description.String,
-			Duration:      workout.DurationMinutes,
-			PlannedDate:   workout.PlannedDate,
-			DateCompleted: workout.DateCompleted.Time,
-			CreatedAt:     workout.CreatedAt,
-			UpdatedAt:     workout.UpdatedAt,
+			Duration:      strconv.FormatInt(int64(workout.DurationMinutes), 10),
+			PlannedDate:   workout.PlannedDate.Format(time.DateOnly),
+			DateCompleted: workout.DateCompleted.Time.Format(time.DateOnly),
+			CreatedAt:     workout.CreatedAt.Format(time.RFC822),
+			UpdatedAt:     workout.UpdatedAt.Format(time.RFC822),
 		})
 	}
 	utils.RespondWithJSON(w, http.StatusOK, response)
 }
 
 func (h *Handler) UpdateWorkout(w http.ResponseWriter, r *http.Request) {
-	type request struct {
-		Title         string `json:"title"`
-		Description   string `json:"description"`
-		Duration      int32  `json:"duration"`
-		PlannedDate   string `json:"planned_date"`
-		DateCompleted string `json:"date_completed"`
-	}
-
 	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 	workoutID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
@@ -117,7 +111,7 @@ func (h *Handler) UpdateWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	reqParams := request{}
+	reqParams := Workout{}
 	if err := utils.ParseJSON(r, &reqParams); err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "malformed request", err)
 		return
@@ -126,6 +120,11 @@ func (h *Handler) UpdateWorkout(w http.ResponseWriter, r *http.Request) {
 	workoutDescription := sql.NullString{Valid: false}
 	if reqParams.Description != "" {
 		workoutDescription = sql.NullString{Valid: true, String: reqParams.Description}
+	}
+
+	workoutDuration, err := strconv.Atoi(reqParams.Duration)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "invalid time duration", err)
 	}
 
 	plannedDate, err := time.Parse(time.DateOnly, reqParams.PlannedDate)
@@ -147,7 +146,7 @@ func (h *Handler) UpdateWorkout(w http.ResponseWriter, r *http.Request) {
 	updatedWorkout, err := h.DB.UpdateWorkout(r.Context(), database.UpdateWorkoutParams{
 		Title:           reqParams.Title,
 		Description:     workoutDescription,
-		DurationMinutes: reqParams.Duration,
+		DurationMinutes: int32(workoutDuration),
 		PlannedDate:     plannedDate,
 		DateCompleted:   completionDate,
 		ID:              workoutID,
@@ -159,15 +158,15 @@ func (h *Handler) UpdateWorkout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.RespondWithJSON(w, http.StatusOK, Workout{
-		ID:            updatedWorkout.ID,
-		UserID:        updatedWorkout.UserID,
+		ID:            updatedWorkout.ID.String(),
+		UserID:        updatedWorkout.UserID.String(),
 		Title:         updatedWorkout.Title,
 		Description:   updatedWorkout.Description.String,
-		Duration:      updatedWorkout.DurationMinutes,
-		PlannedDate:   updatedWorkout.PlannedDate,
-		DateCompleted: updatedWorkout.DateCompleted.Time,
-		CreatedAt:     updatedWorkout.CreatedAt,
-		UpdatedAt:     updatedWorkout.UpdatedAt,
+		Duration:      strconv.FormatInt(int64(updatedWorkout.DurationMinutes), 10),
+		PlannedDate:   updatedWorkout.PlannedDate.Format(time.DateOnly),
+		DateCompleted: updatedWorkout.DateCompleted.Time.Format(time.DateOnly),
+		CreatedAt:     updatedWorkout.CreatedAt.Format(time.RFC822),
+		UpdatedAt:     updatedWorkout.UpdatedAt.Format(time.RFC822),
 	})
 }
 

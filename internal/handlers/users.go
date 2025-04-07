@@ -15,11 +15,12 @@ import (
 )
 
 type User struct {
-	ID         uuid.UUID `json:"id,omitempty"`
-	FirstName  string    `json:"first_name,omitempty"`
-	MiddleName string    `json:"middle_name,omitempty"`
-	LastName   string    `json:"last_name,omitempty"`
-	Email      string    `json:"email,omitempty"`
+	ID         string `json:"id,omitempty"`
+	FirstName  string `json:"first_name,omitempty"`
+	MiddleName string `json:"middle_name,omitempty"`
+	LastName   string `json:"last_name,omitempty"`
+	Email      string `json:"email,omitempty"`
+	Password   string `json:"password,omitempty"`
 }
 
 type response struct {
@@ -29,15 +30,7 @@ type response struct {
 }
 
 func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
-	type requestParams struct {
-		FirstName  string `json:"first_name"`
-		MiddleName string `json:"middle_name"`
-		LastName   string `json:"last_name"`
-		Email      string `json:"email"`
-		Password   string `json:"password"`
-	}
-
-	reqParams := requestParams{}
+	reqParams := User{}
 	if err := utils.ParseJSON(r, &reqParams); err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "malformed request", err)
 		return
@@ -111,7 +104,7 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	utils.RespondWithJSON(w, http.StatusCreated, response{
 		User: User{
-			ID:         user.ID,
+			ID:         user.ID.String(),
 			FirstName:  user.FirstName,
 			MiddleName: user.MiddleName.String,
 			LastName:   user.LastName,
@@ -123,12 +116,7 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) LoginUser(w http.ResponseWriter, r *http.Request) {
-	type requestParams struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
-	}
-
-	reqParams := requestParams{}
+	reqParams := User{}
 	if err := utils.ParseJSON(r, &reqParams); err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "Malformed request", err)
 		return
@@ -180,7 +168,7 @@ func (h *Handler) LoginUser(w http.ResponseWriter, r *http.Request) {
 
 	utils.RespondWithJSON(w, http.StatusOK, response{
 		User: User{
-			ID:        user.ID,
+			ID:        user.ID.String(),
 			FirstName: user.FirstName,
 			LastName:  user.LastName,
 			Email:     user.Email,
@@ -194,14 +182,9 @@ func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	// TODO: Split this handler into two separate handlers
 	// updateUsersHandlerPassword
 	// updateUsersHandlerInfo (handles all other user information)
-	type requestParams struct {
-		Email    *string `json:"email,omitempty"`
-		Password *string `json:"password,omitempty"`
-	}
-
 	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 
-	reqParams := requestParams{}
+	reqParams := User{}
 	if err := utils.ParseJSON(r, &reqParams); err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "malformed request", err)
 		return
@@ -211,8 +194,8 @@ func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		ID: userID,
 	}
 
-	if reqParams.Password != nil {
-		hashedPassword, err := auth.HashPassword(*reqParams.Password)
+	if reqParams.Password != "" {
+		hashedPassword, err := auth.HashPassword(reqParams.Password)
 		if err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, "Error hashing password", err)
 			return
@@ -221,8 +204,8 @@ func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		userParams.HashedPassword.Valid = true
 	}
 
-	if reqParams.Email != nil {
-		userParams.Email.String = *reqParams.Email
+	if reqParams.Email != "" {
+		userParams.Email.String = reqParams.Email
 		userParams.Email.Valid = true
 	}
 
@@ -233,7 +216,7 @@ func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.RespondWithJSON(w, http.StatusOK, response{User: User{
-		ID:        updatedUser.ID,
+		ID:        updatedUser.ID.String(),
 		FirstName: updatedUser.FirstName,
 		LastName:  updatedUser.LastName,
 		Email:     updatedUser.Email,

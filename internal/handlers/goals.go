@@ -13,29 +13,22 @@ import (
 )
 
 type Goal struct {
-	ID             uuid.UUID `json:"goal_id,omitempty"`
-	CreatedAt      time.Time `json:"created_at,omitempty"`
-	UpdatedAt      time.Time `json:"updated_at,omitempty"`
-	Name           string    `json:"name,omitempty"`
-	Description    string    `json:"description,omitempty"`
-	GoalDate       time.Time `json:"goal_date,omitempty"`
-	CompletionDate time.Time `json:"completion_date,omitempty"`
-	Notes          string    `json:"notes,omitempty"`
-	Status         string    `json:"status,omitempty"`
-	UserID         uuid.UUID `json:"user_id,omitempty"`
+	ID             string `json:"goal_id,omitempty"`
+	CreatedAt      string `json:"created_at,omitempty"`
+	UpdatedAt      string `json:"updated_at,omitempty"`
+	Name           string `json:"name,omitempty"`
+	Description    string `json:"description,omitempty"`
+	GoalDate       string `json:"goal_date,omitempty"`
+	CompletionDate string `json:"completion_date,omitempty"`
+	Notes          string `json:"notes,omitempty"`
+	Status         string `json:"status,omitempty"`
+	UserID         string `json:"user_id,omitempty"`
 }
 
 func (h *Handler) CreateGoal(w http.ResponseWriter, r *http.Request) {
-	type requestParams struct {
-		Name        string `json:"name"`
-		Description string `json:"description"`
-		GoalDate    string `json:"goal_date"`
-		Notes       string `json:"notes"`
-	}
-
 	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 
-	reqParams := requestParams{}
+	reqParams := Goal{}
 	if err := utils.ParseJSON(r, &reqParams); err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "malformed request", err)
 		return
@@ -70,14 +63,14 @@ func (h *Handler) CreateGoal(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.RespondWithJSON(w, http.StatusCreated, Goal{
-		ID:          goal.ID,
-		CreatedAt:   goal.CreatedAt,
-		UpdatedAt:   goal.UpdatedAt,
+		ID:          goal.ID.String(),
+		CreatedAt:   goal.CreatedAt.Format(time.RFC822),
+		UpdatedAt:   goal.UpdatedAt.Format(time.RFC822),
 		Name:        goal.GoalName,
 		Description: goal.Description,
-		GoalDate:    goal.GoalDate,
+		GoalDate:    goal.GoalDate.Format(time.DateOnly),
 		Notes:       goal.Notes.String,
-		UserID:      goal.UserID,
+		UserID:      goal.UserID.String(),
 	})
 }
 
@@ -92,37 +85,29 @@ func (h *Handler) GetAllUserGoals(w http.ResponseWriter, r *http.Request) {
 	response := []Goal{}
 	for _, goal := range goals {
 		response = append(response, Goal{
-			ID:             goal.ID,
-			CreatedAt:      goal.CreatedAt,
-			UpdatedAt:      goal.UpdatedAt,
+			ID:             goal.ID.String(),
+			CreatedAt:      goal.CreatedAt.Format(time.RFC822),
+			UpdatedAt:      goal.UpdatedAt.Format(time.RFC822),
 			Name:           goal.GoalName,
 			Description:    goal.Description,
-			GoalDate:       goal.GoalDate,
-			CompletionDate: goal.CompletionDate.Time,
+			GoalDate:       goal.GoalDate.String(),
+			CompletionDate: goal.CompletionDate.Time.Format(time.DateOnly),
 			Notes:          goal.Notes.String,
 			Status:         goal.Status,
-			UserID:         goal.UserID,
+			UserID:         goal.UserID.String(),
 		})
 	}
 	utils.RespondWithJSON(w, http.StatusOK, response)
 }
 
 func (h *Handler) UpdateGoal(w http.ResponseWriter, r *http.Request) {
-	type requestParams struct {
-		Name           string `json:"goal_name"`
-		Description    string `json:"description"`
-		GoalDate       string `json:"goal_date"`
-		CompletionDate string `json:"completion_date"`
-		Notes          string `json:"notes"`
-		Status         string `json:"status"`
-	}
 	goalID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "invalid goal id", err)
 		return
 	}
 
-	reqParams := requestParams{}
+	reqParams := Goal{}
 	if err := utils.ParseJSON(r, &reqParams); err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "malformed request", err)
 		return
@@ -166,16 +151,16 @@ func (h *Handler) UpdateGoal(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.RespondWithJSON(w, http.StatusOK, Goal{
-		ID:             goal.ID,
-		CreatedAt:      goal.CreatedAt,
-		UpdatedAt:      goal.UpdatedAt,
+		ID:             goal.ID.String(),
+		CreatedAt:      goal.CreatedAt.Format(time.RFC822),
+		UpdatedAt:      goal.UpdatedAt.Format(time.RFC822),
 		Name:           goal.GoalName,
 		Description:    goal.Description,
-		GoalDate:       goal.GoalDate,
-		CompletionDate: goal.CompletionDate.Time,
+		GoalDate:       goal.GoalDate.Format(time.DateOnly),
+		CompletionDate: goal.CompletionDate.Time.Format(time.DateOnly),
 		Notes:          goal.Notes.String,
 		Status:         goal.Status,
-		UserID:         goal.UserID,
+		UserID:         goal.UserID.String(),
 	})
 }
 
