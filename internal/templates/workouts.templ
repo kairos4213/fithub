@@ -1,0 +1,17 @@
+package templates
+
+import "github.com/kairos4213/fithub/internal/database"
+import "fmt"
+
+templ Workouts(workouts []database.Workout) {
+<h2>Workouts Page</h2>
+<div>
+  for _, workout := range workouts {
+  <h3>{ workout.Title }</h3>
+  <p>{ workout.Description.String }</p>
+  <p>{ fmt.Sprintf("%v", workout.DurationMinutes) }</p>
+  <p>{ fmt.Sprintf("%v", workout.PlannedDate) }</p>
+  <p>{ fmt.Sprintf("%v", workout.DateCompleted.Time) }</p>
+  }
+</div>
+}

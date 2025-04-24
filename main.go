@@ -60,8 +60,15 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	appHandler := http.FileServer(http.Dir(filePathRoot))
-	mux.Handle("/app/", http.StripPrefix("/app", appHandler))
+	fileServer := http.FileServer(http.Dir("./static"))
+	mux.Handle("GET /static/", http.StripPrefix("/static/", fileServer))
+
+	mux.HandleFunc("GET /", handler.Index)
+
+	mux.HandleFunc("GET /login", handler.Login)
+	mux.HandleFunc("POST /login", handler.Login)
+
+	mux.Handle("GET /workouts", mw.Auth(http.HandlerFunc(handler.Workouts)))
 
 	mux.HandleFunc("POST /api/v1/register", handler.CreateUser)
 	mux.HandleFunc("POST /api/v1/login", handler.LoginUser)
