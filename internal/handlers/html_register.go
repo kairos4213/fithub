@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -9,32 +11,35 @@ import (
 	"github.com/kairos4213/fithub/internal/templates"
 )
 
-func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-type", "text/html")
-
-	if r.Method == "GET" {
-		contents := templates.LoginPage()
-		templates.Layout(contents, "FitHub | Login").Render(r.Context(), w)
+func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet {
+		contents := templates.RegisterPage()
+		templates.Layout(contents, "FitHub | Register").Render(r.Context(), w)
 		return
 	}
 
-	if r.Method == "POST" {
+	if r.Method == http.MethodPost {
+		firstName := r.FormValue("first_name")
+		lastName := r.FormValue("last_name")
 		email := r.FormValue("email")
 		password := r.FormValue("password")
 
-		if email == "" || password == "" {
-			http.Error(w, "email or password cannot be blank", http.StatusBadRequest)
-			return
-		}
+		log.Default().Printf("%v, %v, %v, %v", firstName, lastName, email, password)
 
-		user, err := h.DB.GetUser(r.Context(), email)
+		hashedPassword, err := auth.HashPassword(password)
 		if err != nil {
-			http.Error(w, "User does not exist", http.StatusUnauthorized)
+			http.Error(w, "Error hashing password", http.StatusInternalServerError)
 			return
 		}
 
-		if err = auth.CheckPasswordHash(password, user.HashedPassword); err != nil {
-			http.Error(w, "Incorrect password", http.StatusUnauthorized)
+		user, err := h.DB.CreateUser(r.Context(), database.CreateUserParams{
+			FirstName:      firstName,
+			LastName:       lastName,
+			Email:          email,
+			HashedPassword: hashedPassword,
+		})
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Error creating user: %v", err), http.StatusInternalServerError)
 			return
 		}
 
@@ -68,6 +73,8 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 			Secure:   true,
 			SameSite: http.SameSiteDefaultMode,
 		})
-		http.Redirect(w, r, "/workouts", http.StatusOK)
+		w.Header().Set("Content-type", "text/html")
+		w.Header().Set("HX-Redirect", "/workouts")
+		w.WriteHeader(http.StatusCreated)
 	}
 }

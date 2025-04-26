@@ -29,7 +29,7 @@ func RegisterPage() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<h2>Register</h2><form id=\"register-form\"><input class=\"input-area\" type=\"text\" id=\"first_name\" placeholder=\"First Name\" required> <input class=\"input-area\" type=\"last_name\" id=\"last_name\" placeholder=\"Last Name\" required> <input class=\"input-area\" type=\"email\" id=\"email\" placeholder=\"Email\" required> <input class=\"input-area\" type=\"password\" id=\"password\" placeholder=\"Password\" required> <button type=\"submit\">Register</button></form><a href=\"/login\">Login</a>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<form hx-post=\"/register\" hx-target=\"main\" id=\"register-form\"><fieldset><legend>Register</legend> <input class=\"input-area\" type=\"text\" name=\"first_name\" placeholder=\"First Name\" required> <input class=\"input-area\" type=\"text\" name=\"last_name\" placeholder=\"Last Name\" required> <input class=\"input-area\" type=\"email\" name=\"email\" placeholder=\"Email\" required> <input class=\"input-area\" type=\"password\" name=\"password\" placeholder=\"Password\" required> <button type=\"submit\">Register</button></fieldset></form><a href=\"/login\">Login</a>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
