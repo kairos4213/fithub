@@ -14,6 +14,6 @@ func (mw *Middleware) Log(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r)
 
-		log.Printf("Completed %s in %v", r.URL.Path, time.Since(start))
+		log.Printf("Completed %s %s in %v", r.Method, r.URL.Path, time.Since(start))
 	})
 }

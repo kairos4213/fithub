@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
@@ -56,7 +55,14 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		w.Header().Set("Authorization", fmt.Sprintf("Bearer %v", accessToken))
+		http.SetCookie(w, &http.Cookie{
+			Name:     "token",
+			Value:    accessToken,
+			Path:     "/",
+			HttpOnly: true,
+			Secure:   true,
+			SameSite: http.SameSiteDefaultMode,
+		})
 		http.Redirect(w, r, "/workouts", http.StatusFound)
 	}
 }
