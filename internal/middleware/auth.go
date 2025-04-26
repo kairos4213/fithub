@@ -11,19 +11,40 @@ import (
 
 func (mw *Middleware) Auth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		accessToken, err := auth.GetBearerToken(r.Header)
-		if err != nil {
-			utils.RespondWithError(w, http.StatusUnauthorized, "Missing JWT", err)
-			return
+		header := w.Header().Get("Content-Type")
+		if header == "application/json" {
+			accessToken, err := auth.GetBearerToken(r.Header)
+			if err != nil {
+				utils.RespondWithError(w, http.StatusUnauthorized, "Missing JWT", err)
+				return
+			}
+
+			userID, err := auth.ValidateJWT(accessToken, mw.PublicKey)
+			if err != nil {
+				utils.RespondWithError(w, http.StatusUnauthorized, "Invalid JWT", err)
+				return
+			}
+
+			ctx := context.WithValue(r.Context(), cntx.UserIDKey, userID)
+			next.ServeHTTP(w, r.WithContext(ctx))
 		}
 
-		userID, err := auth.ValidateJWT(accessToken, mw.PublicKey)
-		if err != nil {
-			utils.RespondWithError(w, http.StatusUnauthorized, "Invalid JWT", err)
-			return
-		}
+		if header == "text/html" {
+			cookie, err := r.Cookie("token")
+			if err != nil {
+				// return html error response
+				return
+			}
 
-		ctx := context.WithValue(r.Context(), cntx.UserIDKey, userID)
-		next.ServeHTTP(w, r.WithContext(ctx))
+			accessToken := cookie.Value
+			userID, err := auth.ValidateJWT(accessToken, mw.PublicKey)
+			if err != nil {
+				// return html error response
+				return
+			}
+
+			ctx := context.WithValue(r.Context(), cntx.UserIDKey, userID)
+			next.ServeHTTP(w, r.WithContext(ctx))
+		}
 	})
 }
