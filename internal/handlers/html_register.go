@@ -12,6 +12,8 @@ import (
 )
 
 func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-type", "text/html")
+
 	if r.Method == http.MethodGet {
 		contents := templates.RegisterPage()
 		templates.Layout(contents, "FitHub | Register").Render(r.Context(), w)
@@ -74,7 +76,7 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 			SameSite: http.SameSiteDefaultMode,
 		})
 		w.Header().Set("Content-type", "text/html")
-		w.Header().Set("HX-Redirect", "/workouts")
+		w.Header().Set("HX-Location", `{"path": "/workouts"}`)
 		w.WriteHeader(http.StatusCreated)
 	}
 }

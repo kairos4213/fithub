@@ -11,7 +11,7 @@ import (
 
 func (mw *Middleware) Auth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		header := w.Header().Get("Content-Type")
+		header := r.Header.Get("Accept")
 		if header == "application/json" {
 			accessToken, err := auth.GetBearerToken(r.Header)
 			if err != nil {
@@ -27,24 +27,23 @@ func (mw *Middleware) Auth(next http.Handler) http.Handler {
 
 			ctx := context.WithValue(r.Context(), cntx.UserIDKey, userID)
 			next.ServeHTTP(w, r.WithContext(ctx))
+			return
 		}
 
-		if header == "text/html" {
-			cookie, err := r.Cookie("token")
-			if err != nil {
-				// return html error response
-				return
-			}
-
-			accessToken := cookie.Value
-			userID, err := auth.ValidateJWT(accessToken, mw.PublicKey)
-			if err != nil {
-				// return html error response
-				return
-			}
-
-			ctx := context.WithValue(r.Context(), cntx.UserIDKey, userID)
-			next.ServeHTTP(w, r.WithContext(ctx))
+		cookie, err := r.Cookie("token")
+		if err != nil {
+			// return html error response
+			return
 		}
+
+		accessToken := cookie.Value
+		userID, err := auth.ValidateJWT(accessToken, mw.PublicKey)
+		if err != nil {
+			// return html error response
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), cntx.UserIDKey, userID)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

@@ -71,7 +71,7 @@ func main() {
 	mux.HandleFunc("GET /register", handler.Register)
 	mux.HandleFunc("POST /register", handler.Register)
 
-	mux.Handle("GET /workouts", mw.Auth(http.HandlerFunc(handler.Workouts)))
+	mux.Handle("GET /workouts", mw.Auth(http.HandlerFunc(handler.GetUserWorkouts)))
 
 	mux.HandleFunc("POST /api/v1/register", handler.CreateUser)
 	mux.HandleFunc("POST /api/v1/login", handler.LoginUser)

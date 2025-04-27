@@ -10,8 +10,6 @@ import (
 )
 
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-type", "text/html")
-
 	if r.Method == "GET" {
 		contents := templates.LoginPage()
 		templates.Layout(contents, "FitHub | Login").Render(r.Context(), w)
@@ -68,6 +66,8 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 			Secure:   true,
 			SameSite: http.SameSiteDefaultMode,
 		})
-		http.Redirect(w, r, "/workouts", http.StatusOK)
+		w.Header().Set("Content-type", "text/html")
+		w.Header().Set("HX-Location", `{"path": "/workouts"}`)
+		w.WriteHeader(http.StatusAccepted)
 	}
 }
