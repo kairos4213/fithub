@@ -12,6 +12,10 @@ templ LoginPage() {
 	<a href="/register">Register</a>
 }
 
-templ LoginError() {
-	<p>Invalid email or password</p>
+templ LoginError(err string) {
+	<h2>{ err }</h2>
+	<div>
+		<a href="/login">Login</a>
+		<a href="/register">Register</a>
+	</div>
 }

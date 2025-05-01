@@ -6,6 +6,7 @@ import (
 
 	"github.com/kairos4213/fithub/internal/auth"
 	"github.com/kairos4213/fithub/internal/cntx"
+	"github.com/kairos4213/fithub/internal/templates"
 	"github.com/kairos4213/fithub/internal/utils"
 )
 
@@ -32,20 +33,20 @@ func (mw *Middleware) Auth(next http.Handler) http.Handler {
 
 		cookie, err := r.Cookie("access_token")
 		if err != nil {
-			// TODO: Make an unauthorized / please login page
 			w.Header().Set("Content-type", "text/html")
-			w.Header().Set("HX-Location", `{"path": "/"}`)
 			w.WriteHeader(http.StatusUnauthorized)
+			contents := templates.Error("Please login")
+			templates.Layout(contents, "FitHub", false).Render(r.Context(), w)
 			return
 		}
 
 		accessToken := cookie.Value
 		userID, err := auth.ValidateJWT(accessToken, mw.PublicKey)
 		if err != nil {
-			// TODO: Make an unauthorized / please login page
 			w.Header().Set("Content-type", "text/html")
-			w.Header().Set("HX-Location", `{"path": "/"}`)
 			w.WriteHeader(http.StatusUnauthorized)
+			contents := templates.Error("You are not authorized to view this page")
+			templates.Layout(contents, "FitHub", false).Render(r.Context(), w)
 			return
 		}
 
