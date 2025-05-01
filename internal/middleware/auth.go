@@ -30,16 +30,22 @@ func (mw *Middleware) Auth(next http.Handler) http.Handler {
 			return
 		}
 
-		cookie, err := r.Cookie("token")
+		cookie, err := r.Cookie("access_token")
 		if err != nil {
-			// return html error response
+			// TODO: Make an unauthorized / please login page
+			w.Header().Set("Content-type", "text/html")
+			w.Header().Set("HX-Location", `{"path": "/"}`)
+			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 
 		accessToken := cookie.Value
 		userID, err := auth.ValidateJWT(accessToken, mw.PublicKey)
 		if err != nil {
-			// return html error response
+			// TODO: Make an unauthorized / please login page
+			w.Header().Set("Content-type", "text/html")
+			w.Header().Set("HX-Location", `{"path": "/"}`)
+			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 

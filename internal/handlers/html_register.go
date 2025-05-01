@@ -16,7 +16,7 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == http.MethodGet {
 		contents := templates.RegisterPage()
-		templates.Layout(contents, "FitHub | Register").Render(r.Context(), w)
+		templates.Layout(contents, "FitHub | Register", false).Render(r.Context(), w)
 		return
 	}
 
@@ -68,7 +68,7 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 		}
 
 		http.SetCookie(w, &http.Cookie{
-			Name:     "token",
+			Name:     "access_token",
 			Value:    accessToken,
 			Path:     "/",
 			HttpOnly: true,

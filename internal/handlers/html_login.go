@@ -12,7 +12,7 @@ import (
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		contents := templates.LoginPage()
-		templates.Layout(contents, "FitHub | Login").Render(r.Context(), w)
+		templates.Layout(contents, "FitHub | Login", false).Render(r.Context(), w)
 		return
 	}
 
@@ -59,7 +59,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		}
 
 		http.SetCookie(w, &http.Cookie{
-			Name:     "token",
+			Name:     "access_token",
 			Value:    accessToken,
 			Path:     "/",
 			HttpOnly: true,

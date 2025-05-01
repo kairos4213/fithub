@@ -23,7 +23,7 @@ func (h *Handler) Workouts(w http.ResponseWriter, r *http.Request) {
 	}
 
 	contents := templates.Workouts(workouts)
-	err = templates.Layout(contents, "FitHub").Render(r.Context(), w)
+	err = templates.Layout(contents, "FitHub", true).Render(r.Context(), w)
 	if err != nil {
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
 		return

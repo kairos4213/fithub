@@ -18,5 +18,5 @@ func (h *Handler) GetUserWorkouts(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/html")
 	contents := templates.Workouts(workouts)
-	templates.Layout(contents, "Fithub | Workouts").Render(r.Context(), w)
+	templates.Layout(contents, "Fithub | Workouts", true).Render(r.Context(), w)
 }

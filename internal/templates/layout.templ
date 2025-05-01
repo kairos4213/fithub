@@ -1,12 +1,12 @@
 package templates
 
-templ Layout(contents templ.Component, title string) {
+templ Layout(contents templ.Component, title string, isLoggedIn bool) {
 <!DOCTYPE html>
 <html lang="en">
 @head(title)
 
 <body hx-boost="true" style="background-color: darkseagreen; color: white;">
-  @header()
+  @header(isLoggedIn)
   <main>
     @contents
   </main>
@@ -31,13 +31,17 @@ templ footer() {
 <footer>This is the page footer</footer>
 }
 
-templ header() {
+templ header(isLoggedIn bool) {
 <header>
+  if isLoggedIn {
   <nav>
     <ul>
       <li><a href="/">Home</a></li>
       <li><a href="/workouts">Workouts</a></li>
     </ul>
   </nav>
+  } else {
+  <h1><a href="/">FitHub</a></h1>
+  }
 </header>
 }
