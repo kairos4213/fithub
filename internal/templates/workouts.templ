@@ -1,17 +1,40 @@
 package templates
 
-import "github.com/kairos4213/fithub/internal/database"
-import "fmt"
+import (
+	"fmt"
+	"github.com/kairos4213/fithub/internal/database"
+	"strings"
+	"time"
+)
 
 templ Workouts(workouts []database.Workout) {
 	<h2>Workouts Page</h2>
 	<div>
-		for _, workout := range workouts {
-			<h3>{ workout.Title }</h3>
-			<p>{ workout.Description.String }</p>
-			<p>{ fmt.Sprintf("%v", workout.DurationMinutes) }</p>
-			<p>{ fmt.Sprintf("%v", workout.PlannedDate) }</p>
-			<p>{ fmt.Sprintf("%v", workout.DateCompleted.Time) }</p>
-		}
+		<table>
+			<thead>
+				<tr>
+					<th>Title</th>
+					<th>Description</th>
+					<th>Planned Duration</th>
+					<th>Date Scheduled</th>
+					<th>Completion Date</th>
+				</tr>
+			</thead>
+			<tbody>
+				for _, workout := range workouts {
+					<tr>
+						<td>{ workout.Title }</td>
+						<td>{ workout.Description.String }</td>
+						<td>{ fmt.Sprintf("%v", workout.DurationMinutes) }</td>
+						<td>{ fmt.Sprintf("%v", strings.TrimSuffix(workout.PlannedDate.Format(time.RFC1123), " 00:00:00 +0000")) }</td>
+						if !workout.DateCompleted.Valid {
+							<td>N/a</td>
+						} else {
+							<td>{ fmt.Sprintf("%v", workout.DateCompleted.Time.Format(time.RFC1123)) }</td>
+						}
+					</tr>
+				}
+			</tbody>
+		</table>
 	</div>
 }
