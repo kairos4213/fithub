@@ -1,48 +1,45 @@
 package templates
 
 templ Layout(contents templ.Component, title string, isLoggedIn bool) {
-<!DOCTYPE html>
-<html lang="en">
-@head(title)
-
-<body hx-boost="true" style="background-color: darkseagreen; color: white;">
-  @header(isLoggedIn)
-  <main>
-    @contents
-  </main>
-  <br />
-  @footer()
-</body>
-
-</html>
+	<!DOCTYPE html>
+	<html lang="en">
+		@head(title)
+		<body hx-boost="true" style="background-color: darkseagreen; color: white;">
+			@header(isLoggedIn)
+			<main>
+				@contents
+			</main>
+			<br/>
+			@footer()
+		</body>
+	</html>
 }
 
 templ head(title string) {
-
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>{ title }</title>
-  <link href="styles.css" rel="stylesheet" />
-  <script src="/static/js/htmx@2.0.4.min.js"></script>
-</head>
+	<head>
+		<meta charset="UTF-8"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1"/>
+		<title>{ title }</title>
+		<link href="styles.css" rel="stylesheet"/>
+		<script src="/static/js/htmx@2.0.4.min.js"></script>
+	</head>
 }
 
 templ footer() {
-<footer>This is the page footer</footer>
+	<footer>This is the page footer</footer>
 }
 
 templ header(isLoggedIn bool) {
-<header>
-  if isLoggedIn {
-  <nav>
-    <ul>
-      <li><a href="/">Home</a></li>
-      <li><a href="/workouts">Workouts</a></li>
-    </ul>
-  </nav>
-  } else {
-  <h1><a href="/">FitHub</a></h1>
-  }
-</header>
+	<header>
+		if isLoggedIn {
+			<nav>
+				<ul>
+					<li><a href="/workouts">Workouts</a></li>
+					<li><a href="/metrics">Metrics</a></li>
+				</ul>
+			</nav>
+		} else {
+			<h1><a href="/">FitHub</a></h1>
+		}
+	</header>
 }

@@ -9,32 +9,42 @@ import (
 
 templ Workouts(workouts []database.Workout) {
 	<h2>Workouts Page</h2>
-	<div>
-		<table>
-			<thead>
+	<table>
+		<thead>
+			<tr>
+				<th>Title</th>
+				<th>Description</th>
+				<th>Planned Duration</th>
+				<th>Date Scheduled</th>
+				<th>Completion Date</th>
+			</tr>
+		</thead>
+		<tbody>
+			for _, workout := range workouts {
 				<tr>
-					<th>Title</th>
-					<th>Description</th>
-					<th>Planned Duration</th>
-					<th>Date Scheduled</th>
-					<th>Completion Date</th>
+					<td>{ workout.Title }</td>
+					<td>{ workout.Description.String }</td>
+					<td>{ fmt.Sprintf("%v", workout.DurationMinutes) }</td>
+					<td>{ fmt.Sprintf("%v", strings.TrimSuffix(workout.PlannedDate.Format(time.RFC1123), " 00:00:00 +0000")) }</td>
+					if !workout.DateCompleted.Valid {
+						<td>N/a</td>
+					} else {
+						<td>{ fmt.Sprintf("%v", workout.DateCompleted.Time.Format(time.RFC1123)) }</td>
+					}
+					<td><a href={ templ.URL(fmt.Sprintf("/workouts/%v", workout.ID)) }>Edit</a></td>
 				</tr>
-			</thead>
-			<tbody>
-				for _, workout := range workouts {
-					<tr>
-						<td>{ workout.Title }</td>
-						<td>{ workout.Description.String }</td>
-						<td>{ fmt.Sprintf("%v", workout.DurationMinutes) }</td>
-						<td>{ fmt.Sprintf("%v", strings.TrimSuffix(workout.PlannedDate.Format(time.RFC1123), " 00:00:00 +0000")) }</td>
-						if !workout.DateCompleted.Valid {
-							<td>N/a</td>
-						} else {
-							<td>{ fmt.Sprintf("%v", workout.DateCompleted.Time.Format(time.RFC1123)) }</td>
-						}
-					</tr>
-				}
-			</tbody>
-		</table>
-	</div>
+			}
+		</tbody>
+	</table>
+	<a href="/workouts/new">Create Workout</a>
+}
+
+templ CreateWorkout() {
+	<form hx-post="/workouts/new" hx-target="main" id="new_workout">
+		<fieldset>
+			<legend>New Workout</legend>
+			<input class="input-area" type="text" name="title" placeholder="Title" required/>
+			<input class="input-area" type="text" name="description" placeholder="Description"/>
+		</fieldset>
+	</form>
 }

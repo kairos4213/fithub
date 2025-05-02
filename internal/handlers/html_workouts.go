@@ -20,3 +20,13 @@ func (h *Handler) GetUserWorkouts(w http.ResponseWriter, r *http.Request) {
 	contents := templates.Workouts(workouts)
 	templates.Layout(contents, "Fithub | Workouts", true).Render(r.Context(), w)
 }
+
+func (h *Handler) NewUserWorkout(w http.ResponseWriter, r *http.Request) {
+	// userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
+
+	if r.Method == "GET" {
+		contents := templates.CreateWorkout()
+		templates.Layout(contents, "FitHub | New Workout", true).Render(r.Context(), w)
+		return
+	}
+}
