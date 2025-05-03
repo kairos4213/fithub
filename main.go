@@ -74,6 +74,8 @@ func main() {
 	mux.Handle("GET /workouts", mw.Auth(http.HandlerFunc(handler.GetUserWorkouts)))
 	mux.Handle("GET /workouts/new", mw.Auth(http.HandlerFunc(handler.NewUserWorkout)))
 
+	mux.Handle("GET /metrics", mw.Auth(http.HandlerFunc(handler.GetAllMetrics)))
+
 	mux.HandleFunc("POST /api/v1/register", handler.CreateUser)
 	mux.HandleFunc("POST /api/v1/login", handler.LoginUser)
 	mux.Handle("PUT /api/v1/users", mw.Auth(http.HandlerFunc(handler.UpdateUser)))
