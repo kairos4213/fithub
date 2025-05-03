@@ -68,6 +68,8 @@ func main() {
 	mux.HandleFunc("GET /login", handler.Login)
 	mux.HandleFunc("POST /login", handler.Login)
 
+	mux.HandleFunc("POST /logout", handler.Logout)
+
 	mux.HandleFunc("GET /register", handler.Register)
 	mux.HandleFunc("POST /register", handler.Register)
 

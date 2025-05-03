@@ -37,6 +37,7 @@ templ header(isLoggedIn bool) {
 					<li><a href="/workouts">Workouts</a></li>
 					<li><a href="/metrics">Metrics</a></li>
 				</ul>
+				<button hx-post="/logout">Logout</button>
 			</nav>
 		} else {
 			<h1><a href="/">FitHub</a></h1>

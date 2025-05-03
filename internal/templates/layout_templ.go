@@ -166,7 +166,7 @@ func header(isLoggedIn bool) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if isLoggedIn {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<nav><ul><li><a href=\"/workouts\">Workouts</a></li><li><a href=\"/metrics\">Metrics</a></li></ul></nav>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<nav><ul><li><a href=\"/workouts\">Workouts</a></li><li><a href=\"/metrics\">Metrics</a></li></ul><button hx-post=\"/logout\">Logout</button></nav>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

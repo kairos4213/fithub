@@ -12,9 +12,8 @@ import (
 )
 
 func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-type", "text/html")
-
 	if r.Method == http.MethodGet {
+		w.Header().Set("Content-type", "text/html")
 		contents := templates.RegisterPage()
 		templates.Layout(contents, "FitHub | Register", false).Render(r.Context(), w)
 		return
