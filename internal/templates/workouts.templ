@@ -8,35 +8,40 @@ import (
 )
 
 templ Workouts(workouts []database.Workout) {
-	<h2>Workouts Page</h2>
-	<table>
-		<thead>
-			<tr>
-				<th>Title</th>
-				<th>Description</th>
-				<th>Planned Duration</th>
-				<th>Date Scheduled</th>
-				<th>Completion Date</th>
-			</tr>
-		</thead>
-		<tbody>
-			for _, workout := range workouts {
+	if len(workouts) == 0 {
+		<p>No workouts scheduled</p>
+		<a href="/workouts/new">Create Workout</a>
+	} else {
+		<h2>Workouts Page</h2>
+		<table>
+			<thead>
 				<tr>
-					<td>{ workout.Title }</td>
-					<td>{ workout.Description.String }</td>
-					<td>{ fmt.Sprintf("%v", workout.DurationMinutes) }</td>
-					<td>{ fmt.Sprintf("%v", strings.TrimSuffix(workout.PlannedDate.Format(time.RFC1123), " 00:00:00 +0000")) }</td>
-					if !workout.DateCompleted.Valid {
-						<td>N/a</td>
-					} else {
-						<td>{ fmt.Sprintf("%v", workout.DateCompleted.Time.Format(time.RFC1123)) }</td>
-					}
-					<td><a href={ templ.URL(fmt.Sprintf("/workouts/%v", workout.ID)) }>Edit</a></td>
+					<th>Title</th>
+					<th>Description</th>
+					<th>Planned Duration</th>
+					<th>Date Scheduled</th>
+					<th>Completion Date</th>
 				</tr>
-			}
-		</tbody>
-	</table>
-	<a href="/workouts/new">Create Workout</a>
+			</thead>
+			<tbody>
+				for _, workout := range workouts {
+					<tr>
+						<td>{ workout.Title }</td>
+						<td>{ workout.Description.String }</td>
+						<td>{ fmt.Sprintf("%v", workout.DurationMinutes) }</td>
+						<td>{ fmt.Sprintf("%v", strings.TrimSuffix(workout.PlannedDate.Format(time.RFC1123), " 00:00:00 +0000")) }</td>
+						if !workout.DateCompleted.Valid {
+							<td>N/a</td>
+						} else {
+							<td>{ fmt.Sprintf("%v", workout.DateCompleted.Time.Format(time.RFC1123)) }</td>
+						}
+						<td><a href={ templ.URL(fmt.Sprintf("/workouts/%v", workout.ID)) }>Edit</a></td>
+					</tr>
+				}
+			</tbody>
+		</table>
+		<a href="/workouts/new">Create Workout</a>
+	}
 }
 
 templ CreateWorkout() {

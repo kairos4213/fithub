@@ -26,7 +26,8 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 
 		hashedPassword, err := auth.HashPassword(password)
 		if err != nil {
-			http.Error(w, "Error hashing password", http.StatusInternalServerError)
+			regErr := templates.RegErr{Generic: "Server issue!"}
+			templates.RegisterPage(regErr).Render(r.Context(), w)
 			return
 		}
 
@@ -38,7 +39,7 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 		})
 		if err != nil {
 			if strings.Contains(err.Error(), "users_email_key") {
-				regErr := templates.RegErr{Email: "Email must be unique"}
+				regErr := templates.RegErr{Email: "Email already exists"}
 				templates.RegisterPage(regErr).Render(r.Context(), w)
 				return
 			}
