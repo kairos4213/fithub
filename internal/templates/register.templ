@@ -1,20 +1,35 @@
 package templates
 
-templ RegisterPage() {
+type RegErr struct {
+	FirstName string
+	LastName  string
+	Email     string
+	Password  string
+	Default   string
+}
+
+templ RegisterPage(err RegErr) {
 	<form hx-post="/register" hx-target="main" id="register-form">
 		<fieldset>
 			<legend>Register</legend>
-			<input class="input-area" type="text" name="first_name" placeholder="First Name" required/>
-			<input class="input-area" type="text" name="last_name" placeholder="Last Name" required/>
-			<input class="input-area" type="email" name="email" placeholder="Email" required/>
-			<input class="input-area" type="password" name="password" placeholder="Password" required/>
+			<p>
+				<input class="input-area" type="text" name="first_name" placeholder="First Name" required/>
+				<span class="error">{ err.FirstName }</span>
+			</p>
+			<p>
+				<input class="input-area" type="text" name="last_name" placeholder="Last Name" required/>
+				<span class="error">{ err.LastName }</span>
+			</p>
+			<p>
+				<input class="input-area" type="email" name="email" placeholder="Email" required/>
+				<span class="error">{ err.Email }</span>
+			</p>
+			<p>
+				<input class="input-area" type="password" name="password" placeholder="Password" required/>
+				<span class="error">{ err.Password }</span>
+			</p>
 			<button type="submit">Register</button>
 		</fieldset>
 	</form>
 	<a href="/login">Login</a>
-}
-
-templ RegisterError() {
-	<h1>Registration failed</h1>
-	<p>There was an error registering your account</p>
 }

@@ -1,9 +1,8 @@
 package handlers
 
 import (
-	"fmt"
-	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/kairos4213/fithub/internal/auth"
@@ -14,7 +13,7 @@ import (
 func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		w.Header().Set("Content-type", "text/html")
-		contents := templates.RegisterPage()
+		contents := templates.RegisterPage(templates.RegErr{})
 		templates.Layout(contents, "FitHub | Register", false).Render(r.Context(), w)
 		return
 	}
@@ -24,8 +23,6 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 		lastName := r.FormValue("last_name")
 		email := r.FormValue("email")
 		password := r.FormValue("password")
-
-		log.Default().Printf("%v, %v, %v, %v", firstName, lastName, email, password)
 
 		hashedPassword, err := auth.HashPassword(password)
 		if err != nil {
@@ -40,8 +37,11 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 			HashedPassword: hashedPassword,
 		})
 		if err != nil {
-			http.Error(w, fmt.Sprintf("Error creating user: %v", err), http.StatusInternalServerError)
-			return
+			if strings.Contains(err.Error(), "users_email_key") {
+				regErr := templates.RegErr{Email: "Email must be unique"}
+				templates.RegisterPage(regErr).Render(r.Context(), w)
+				return
+			}
 		}
 
 		accessToken, err := auth.MakeJWT(user.ID, h.PrivateKey)
