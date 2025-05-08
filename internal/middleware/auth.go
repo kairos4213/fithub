@@ -35,7 +35,7 @@ func (mw *Middleware) Auth(next http.Handler) http.Handler {
 		if err != nil {
 			w.Header().Set("Content-type", "text/html")
 			w.WriteHeader(http.StatusUnauthorized)
-			contents := templates.LoginError("Please login")
+			contents := templates.LoginPage(templates.LoginErr{})
 			templates.Layout(contents, "FitHub", false).Render(r.Context(), w)
 			return
 		}
@@ -45,7 +45,7 @@ func (mw *Middleware) Auth(next http.Handler) http.Handler {
 		if err != nil {
 			w.Header().Set("Content-type", "text/html")
 			w.WriteHeader(http.StatusUnauthorized)
-			contents := templates.LoginError("You are not authorized to view this page")
+			contents := templates.LoginPage(templates.LoginErr{})
 			templates.Layout(contents, "FitHub", false).Render(r.Context(), w)
 			return
 		}

@@ -10,9 +10,8 @@ import (
 )
 
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
-	// TODO: handle redirecting already logged in users
 	if r.Method == "GET" {
-		contents := templates.LoginPage()
+		contents := templates.LoginPage(templates.LoginErr{})
 		templates.Layout(contents, "FitHub | Login", false).Render(r.Context(), w)
 		return
 	}
@@ -21,19 +20,16 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		email := r.FormValue("email")
 		password := r.FormValue("password")
 
-		if email == "" || password == "" {
-			http.Error(w, "email or password cannot be blank", http.StatusBadRequest)
-			return
-		}
-
 		user, err := h.DB.GetUser(r.Context(), email)
 		if err != nil {
-			http.Error(w, "User does not exist", http.StatusUnauthorized)
+			loginErr := templates.LoginErr{Default: "Invalid email or password"}
+			templates.LoginPage(loginErr).Render(r.Context(), w)
 			return
 		}
 
 		if err = auth.CheckPasswordHash(password, user.HashedPassword); err != nil {
-			http.Error(w, "Incorrect password", http.StatusUnauthorized)
+			loginErr := templates.LoginErr{Default: "Invalid email or password"}
+			templates.LoginPage(loginErr).Render(r.Context(), w)
 			return
 		}
 

@@ -5,31 +5,36 @@ type RegErr struct {
 	LastName  string
 	Email     string
 	Password  string
-	Default   string
+	Generic   string
 }
 
 templ RegisterPage(err RegErr) {
-	<form hx-post="/register" hx-target="main" id="register-form">
-		<fieldset>
-			<legend>Register</legend>
-			<p>
-				<input class="input-area" type="text" name="first_name" placeholder="First Name" required/>
-				<span class="error">{ err.FirstName }</span>
-			</p>
-			<p>
-				<input class="input-area" type="text" name="last_name" placeholder="Last Name" required/>
-				<span class="error">{ err.LastName }</span>
-			</p>
-			<p>
-				<input class="input-area" type="email" name="email" placeholder="Email" required/>
-				<span class="error">{ err.Email }</span>
-			</p>
-			<p>
-				<input class="input-area" type="password" name="password" placeholder="Password" required/>
-				<span class="error">{ err.Password }</span>
-			</p>
-			<button type="submit">Register</button>
-		</fieldset>
-	</form>
-	<a href="/login">Login</a>
+	if err.Generic != "" {
+		<h2>It looks like we're having some issues on our end!</h2>
+		<p>Please check back later to see if it's been resolved!</p>
+	} else {
+		<form hx-post="/register" hx-target="main" id="register-form">
+			<fieldset>
+				<legend>Register</legend>
+				<p>
+					<input class="input-area" type="text" name="first_name" placeholder="First Name" required/>
+					<span class="error">{ err.FirstName }</span>
+				</p>
+				<p>
+					<input class="input-area" type="text" name="last_name" placeholder="Last Name" required/>
+					<span class="error">{ err.LastName }</span>
+				</p>
+				<p>
+					<input class="input-area" type="email" name="email" placeholder="Email" required/>
+					<span class="error">{ err.Email }</span> // TODO: look into input validation before submit event
+				</p>
+				<p>
+					<input class="input-area" type="password" name="password" placeholder="Password" required/>
+					<span class="error">{ err.Password }</span>
+				</p>
+				<button type="submit">Register</button>
+			</fieldset>
+		</form>
+		<a href="/login">Login</a>
+	}
 }

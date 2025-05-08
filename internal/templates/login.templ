@@ -1,21 +1,18 @@
 package templates
 
-templ LoginPage() {
+type LoginErr struct {
+	Default string
+}
+
+templ LoginPage(err LoginErr) {
 	<form hx-post="/login" hx-target="main" id="login-form">
 		<fieldset>
 			<legend>Login</legend>
 			<input class="input-area" type="email" name="email" placeholder="Email" required/>
 			<input class="input-area" type="password" name="password" placeholder="Password" required/>
 			<button type="submit">Login</button>
+			<span class="error">{ err.Default }</span>
 		</fieldset>
 	</form>
 	<a href="/register">Register</a>
-}
-
-templ LoginError(err string) {
-	<h2>{ err }</h2>
-	<div>
-		<a href="/login">Login</a>
-		<a href="/register">Register</a>
-	</div>
 }
