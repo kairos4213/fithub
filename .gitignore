@@ -3,4 +3,4 @@ fithub
 *.pem
 *.toml
 tmp/
-
+node_modules/

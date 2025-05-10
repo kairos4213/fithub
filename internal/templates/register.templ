@@ -17,20 +17,20 @@ templ RegisterPage(err RegErr) {
 			<fieldset>
 				<legend>Register</legend>
 				<p>
-					<input class="input-area" type="text" name="first_name" placeholder="First Name" required/>
-					<span class="error">{ err.FirstName }</span>
+					<input class="" type="text" name="first_name" placeholder="First Name" required/>
+					<span class="">{ err.FirstName }</span>
 				</p>
 				<p>
-					<input class="input-area" type="text" name="last_name" placeholder="Last Name" required/>
-					<span class="error">{ err.LastName }</span>
+					<input class="" type="text" name="last_name" placeholder="Last Name" required/>
+					<span class="">{ err.LastName }</span>
 				</p>
 				<p>
-					<input class="input-area" type="email" name="email" placeholder="Email" required/>
-					<span class="error">{ err.Email }</span> // TODO: look into input validation before submit event
+					<input class="" type="email" name="email" placeholder="Email" required/>
+					<span class="text-red-500">{ err.Email }</span> // TODO: look into input validation before submit event
 				</p>
 				<p>
-					<input class="input-area" type="password" name="password" placeholder="Password" required/>
-					<span class="error">{ err.Password }</span>
+					<input class="" type="password" name="password" placeholder="Password" required/>
+					<span class="">{ err.Password }</span>
 				</p>
 				<button type="submit">Register</button>
 			</fieldset>

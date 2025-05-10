@@ -4,7 +4,7 @@ templ Layout(contents templ.Component, title string, isLoggedIn bool) {
 	<!DOCTYPE html>
 	<html lang="en">
 		@head(title)
-		<body hx-boost="true" style="background-color: darkseagreen; color: white;">
+		<body hx-boost="true" class="bg-emerald-300">
 			@header(isLoggedIn)
 			<main>
 				@contents
@@ -20,7 +20,7 @@ templ head(title string) {
 		<meta charset="UTF-8"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1"/>
 		<title>{ title }</title>
-		<link href="styles.css" rel="stylesheet"/>
+		<link href="/static/css/output.css" rel="stylesheet"/>
 		<script src="/static/js/htmx@2.0.4.min.js"></script>
 	</head>
 }
