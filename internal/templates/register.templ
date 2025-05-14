@@ -1,40 +1,42 @@
 package templates
 
 type RegErr struct {
-	FirstName string
-	LastName  string
-	Email     string
-	Password  string
-	Generic   string
+FirstName string
+LastName string
+Email string
+Password string
+Generic string
 }
 
 templ RegisterPage(err RegErr) {
-	if err.Generic != "" {
-		<h2>It looks like we're having some issues on our end!</h2>
-		<p>Please check back later to see if it's been resolved!</p>
-	} else {
-		<form hx-post="/register" hx-target="main" id="register-form">
-			<fieldset>
-				<legend>Register</legend>
-				<p>
-					<input class="" type="text" name="first_name" placeholder="First Name" required/>
-					<span class="">{ err.FirstName }</span>
-				</p>
-				<p>
-					<input class="" type="text" name="last_name" placeholder="Last Name" required/>
-					<span class="">{ err.LastName }</span>
-				</p>
-				<p>
-					<input class="" type="email" name="email" placeholder="Email" required/>
-					<span class="text-red-500">{ err.Email }</span> // TODO: look into input validation before submit event
-				</p>
-				<p>
-					<input class="" type="password" name="password" placeholder="Password" required/>
-					<span class="">{ err.Password }</span>
-				</p>
-				<button type="submit">Register</button>
-			</fieldset>
-		</form>
-		<a href="/login">Login</a>
-	}
+if err.Generic != "" {
+<h2>It looks like we're having some issues on our end!</h2>
+<p>Please check back later to see if it's been resolved!</p>
+} else {
+<form hx-post="/register" hx-target="main" id="register-form" class="mx-3">
+  <fieldset>
+    <legend>Register Form</legend>
+    <p>
+      <input class="" type="text" name="first_name" placeholder="First Name" required />
+      <span class="">{ err.FirstName }</span>
+    </p>
+    <p>
+      <input class="" type="text" name="last_name" placeholder="Last Name" required />
+      <span class="">{ err.LastName }</span>
+    </p>
+    <p>
+      <input class="" type="email" name="email" placeholder="Email" required />
+      <span class="text-red-500">{ err.Email }</span> // TODO: look into input validation before submit event
+    </p>
+    <p>
+      <input class="" type="password" name="password" placeholder="Password" required />
+      <span class="">{ err.Password }</span>
+    </p>
+    <button type="submit" class="hover:text-slate-800 hover:bg-stone-300 hover:cursor-pointer">Register</button>
+  </fieldset>
+</form>
+<p class="pt-2 mx-3">
+  Already a member? <a href="/login" class="hover:text-slate-800 hover:bg-stone-300">Login Here</a>
+</p>
+}
 }

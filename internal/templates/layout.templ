@@ -1,46 +1,48 @@
 package templates
 
 templ Layout(contents templ.Component, title string, isLoggedIn bool) {
-	<!DOCTYPE html>
-	<html lang="en">
-		@head(title)
-		<body hx-boost="true" class="bg-emerald-300">
-			@header(isLoggedIn)
-			<main>
-				@contents
-			</main>
-			<br/>
-			@footer()
-		</body>
-	</html>
+<!DOCTYPE html>
+<html lang="en">
+@head(title)
+
+<body hx-boost="true" class="dark:bg-slate-800 text-stone-300">
+  @header(isLoggedIn)
+  <main>
+    @contents
+  </main>
+  <br />
+  @footer()
+</body>
+
+</html>
 }
 
 templ head(title string) {
-	<head>
-		<meta charset="UTF-8"/>
-		<meta name="viewport" content="width=device-width, initial-scale=1"/>
-		<title>{ title }</title>
-		<link href="/static/css/output.css" rel="stylesheet"/>
-		<script src="/static/js/htmx@2.0.4.min.js"></script>
-	</head>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{ title }</title>
+  <link href="/static/css/output.css" rel="stylesheet" />
+  <script src="/static/js/htmx@2.0.4.min.js"></script>
+</head>
 }
 
 templ footer() {
-	<footer>This is the page footer</footer>
+<footer class="mx-10">This is the page footer</footer>
 }
 
 templ header(isLoggedIn bool) {
-	<header>
-		if isLoggedIn {
-			<nav>
-				<ul>
-					<li><a href="/workouts">Workouts</a></li>
-					<li><a href="/metrics">Metrics</a></li>
-				</ul>
-				<button hx-post="/logout">Logout</button>
-			</nav>
-		} else {
-			<h1><a href="/">FitHub</a></h1>
-		}
-	</header>
+<header class="mx-2 pb-5">
+  <a href="/" class="text-2xl hover:text-slate-800 hover:bg-stone-300">FitHub</a>
+  if isLoggedIn {
+  <nav class="">
+    <ul>
+      <li class="hover:text-slate-800 hover:bg-stone-300"><a href="/workouts">Workouts</a></li>
+      <li class="hover:text-slate-800 hover:bg-stone-300"><a href="/metrics">Metrics</a></li>
+    </ul>
+    <button hx-post="/logout" class="hover:text-slate-800 hover:bg-stone-300">Logout</button>
+  </nav>
+  }
+</header>
 }

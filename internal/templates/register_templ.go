@@ -43,14 +43,14 @@ func RegisterPage(err RegErr) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<form hx-post=\"/register\" hx-target=\"main\" id=\"register-form\"><fieldset><legend>Register</legend><p><input class=\"\" type=\"text\" name=\"first_name\" placeholder=\"First Name\" required> <span class=\"\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<form hx-post=\"/register\" hx-target=\"main\" id=\"register-form\" class=\"mx-3\"><fieldset><legend>Register Form</legend><p><input class=\"\" type=\"text\" name=\"first_name\" placeholder=\"First Name\" required> <span class=\"\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var2 string
 			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(err.FirstName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/register.templ`, Line: 21, Col: 35}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/register.templ`, Line: 21, Col: 36}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 			if templ_7745c5c3_Err != nil {
@@ -63,7 +63,7 @@ func RegisterPage(err RegErr) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(err.LastName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/register.templ`, Line: 25, Col: 34}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/register.templ`, Line: 25, Col: 35}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -76,7 +76,7 @@ func RegisterPage(err RegErr) templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(err.Email)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/register.templ`, Line: 29, Col: 43}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/register.templ`, Line: 29, Col: 44}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -89,13 +89,13 @@ func RegisterPage(err RegErr) templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(err.Password)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/register.templ`, Line: 33, Col: 34}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/register.templ`, Line: 33, Col: 35}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</span></p><button type=\"submit\">Register</button></fieldset></form><a href=\"/login\">Login</a>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</span></p><button type=\"submit\" class=\"hover:text-slate-800 hover:bg-stone-300 hover:cursor-pointer\">Register</button></fieldset></form><p class=\"pt-2 mx-3\">Already a member? <a href=\"/login\" class=\"hover:text-slate-800 hover:bg-stone-300\">Login Here</a></p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
