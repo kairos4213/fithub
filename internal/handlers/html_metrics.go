@@ -33,17 +33,24 @@ func (h *Handler) GetAllMetrics(w http.ResponseWriter, r *http.Request) {
 	templates.Layout(contents, "Fithub | Metrics", true).Render(r.Context(), w)
 }
 
+func (h *Handler) GetLogMetricsForm(w http.ResponseWriter, r *http.Request) {
+	metricType := r.PathValue("type")
+	switch metricType {
+	case "bodyweights":
+		templates.LogBWForm().Render(r.Context(), w)
+	case "muscleMasses":
+		templates.LogMMForm().Render(r.Context(), w)
+	case "bfPercents":
+		templates.LogBFForm().Render(r.Context(), w)
+	}
+}
+
 func (h *Handler) LogMetrics(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 
 	metricType := r.PathValue("type")
 	switch metricType {
 	case "bodyweights":
-		if r.Method == "GET" {
-			templates.LogBWForm().Render(r.Context(), w)
-			return
-		}
-
 		entry := r.FormValue("bodyweight")
 		_, err := h.DB.AddBodyWeight(r.Context(), database.AddBodyWeightParams{UserID: userID, Measurement: entry})
 		if err != nil {
@@ -58,11 +65,6 @@ func (h *Handler) LogMetrics(w http.ResponseWriter, r *http.Request) {
 		}
 		templates.BodyweightsSect(bodyweights).Render(r.Context(), w)
 	case "muscleMasses":
-		if r.Method == "GET" {
-			templates.LogMMForm().Render(r.Context(), w)
-			return
-		}
-
 		entry := r.FormValue("muscleMass")
 		_, err := h.DB.AddMuscleMass(r.Context(), database.AddMuscleMassParams{UserID: userID, Measurement: entry})
 		if err != nil {
@@ -75,11 +77,6 @@ func (h *Handler) LogMetrics(w http.ResponseWriter, r *http.Request) {
 		}
 		templates.MuscleMassesSect(muscleMasses).Render(r.Context(), w)
 	case "bfPercents":
-		if r.Method == "GET" {
-			templates.LogBFForm().Render(r.Context(), w)
-			return
-		}
-
 		entry := r.FormValue("bfPercent")
 		_, err := h.DB.AddBodyFatPerc(r.Context(), database.AddBodyFatPercParams{UserID: userID, Measurement: entry})
 		if err != nil {

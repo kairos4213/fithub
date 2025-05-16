@@ -77,7 +77,7 @@ func main() {
 	mux.Handle("GET /workouts/new", mw.Auth(http.HandlerFunc(handler.NewUserWorkout)))
 
 	mux.Handle("GET /metrics", mw.Auth(http.HandlerFunc(handler.GetAllMetrics)))
-	mux.Handle("GET /metrics/{type}", mw.Auth(http.HandlerFunc(handler.LogMetrics)))
+	mux.Handle("GET /metrics/{type}", mw.Auth(http.HandlerFunc(handler.GetLogMetricsForm)))
 	mux.Handle("POST /metrics/{type}", mw.Auth(http.HandlerFunc(handler.LogMetrics)))
 
 	mux.HandleFunc("POST /api/v1/register", handler.CreateUser)
