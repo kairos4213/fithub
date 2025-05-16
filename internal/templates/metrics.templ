@@ -1,102 +1,141 @@
 package templates
 
 import (
-	"fmt"
-	"github.com/kairos4213/fithub/internal/database"
-	"strings"
-	"time"
+"fmt"
+"github.com/kairos4213/fithub/internal/database"
+"strings"
+"time"
 )
 
 templ Metrics(
-	bodyweights []database.BodyWeight,
-	muscleMasses []database.MuscleMass,
-	bfPercents []database.BodyFatPercent,
+bodyweights []database.BodyWeight,
+muscleMasses []database.MuscleMass,
+bfPercents []database.BodyFatPercent,
 ) {
-	@bodyweightsSect(bodyweights)
-	@muscleMassesSect(muscleMasses)
-	@bfPercentsSect(bfPercents)
+@BodyweightsSect(bodyweights)
+@MuscleMassesSect(muscleMasses)
+@BfPercentsSect(bfPercents)
 }
 
-templ bodyweightsSect(bodyweights []database.BodyWeight) {
-	<section>
-		<h2>Bodyweight Measurements</h2>
-		if len(bodyweights) == 0 {
-			<p>No bodyweight measurements have been logged</p>
-			<a href="/metrics/bodyweights/new">Log Bodyweight</a>
-		} else {
-			<table>
-				<thead>
-					<tr>
-						<th>Measurement</th>
-						<th>Date</th>
-					</tr>
-				</thead>
-				<tbody>
-					for _, bodyweight := range bodyweights {
-						<tr>
-							<td>{ bodyweight.Measurement }</td>
-							<td>{ fmt.Sprintf("%v", strings.TrimSuffix(bodyweight.UpdatedAt.Format(time.RFC1123), " 00:00:00 +0000")) }</td>
-							<td><a href={ templ.URL(fmt.Sprintf("/metrics/bodyweights/%v", bodyweight.ID)) }>Edit</a></td>
-						</tr>
-					}
-				</tbody>
-			</table>
-		}
-	</section>
+templ BodyweightsSect(bodyweights []database.BodyWeight) {
+<section id="bodyweights" class="mb-5">
+  <h2>Bodyweight Measurements</h2>
+  if len(bodyweights) == 0 {
+  <p>No bodyweight measurements have been logged</p>
+  <button hx-get="/metrics/bodyweights" hx-target="#bodyweights">Log Bodyweight</button>
+  } else {
+  <table>
+    <thead>
+      <tr>
+        <th>Measurement</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      for _, bodyweight := range bodyweights {
+      <tr>
+        <td>{ bodyweight.Measurement }</td>
+        <td>{ fmt.Sprintf("%v", strings.TrimSuffix(bodyweight.UpdatedAt.Format(time.RFC1123), " 00:00:00 +0000")) }</td>
+        <td class="p-1"><a href={ templ.URL(fmt.Sprintf("/metrics/bodyweights/%v", bodyweight.ID)) }>Edit</a></td>
+      </tr>
+      }
+    </tbody>
+  </table>
+  }
+</section>
 }
 
-templ muscleMassesSect(musclesMasses []database.MuscleMass) {
-	<section>
-		<h2>Muscle Mass Measurements</h2>
-		if len(musclesMasses) == 0 {
-			<p>No muscle mass measurements have been logged</p>
-			<a href="/metrics/musclesMasses/new">Log Muscle Mass</a>
-		} else {
-			<table>
-				<thead>
-					<tr>
-						<th>Measurement</th>
-						<th>Date</th>
-					</tr>
-				</thead>
-				<tbody>
-					for _, muscleMass := range musclesMasses {
-						<tr>
-							<td>{ muscleMass.Measurement }</td>
-							<td>{ fmt.Sprintf("%v", strings.TrimSuffix(muscleMass.UpdatedAt.Format(time.RFC1123), " 00:00:00 +0000")) }</td>
-							<td><a href={ templ.URL(fmt.Sprintf("/metrics/muscleMasses/%v", muscleMass.ID)) }>Edit</a></td>
-						</tr>
-					}
-				</tbody>
-			</table>
-		}
-	</section>
+templ MuscleMassesSect(musclesMasses []database.MuscleMass) {
+<section id="muscleMasses" class="mb-5">
+  <h2>Muscle Mass Measurements</h2>
+  if len(musclesMasses) == 0 {
+  <p>No muscle mass measurements have been logged</p>
+  <button hx-get="/metrics/muscleMasses" hx-target="#muscleMasses">
+    Log Muscle
+    Mass
+  </button>
+  } else {
+  <table>
+    <thead>
+      <tr>
+        <th>Measurement</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      for _, muscleMass := range musclesMasses {
+      <tr>
+        <td>{ muscleMass.Measurement }</td>
+        <td>{ fmt.Sprintf("%v", strings.TrimSuffix(muscleMass.UpdatedAt.Format(time.RFC1123), " 00:00:00 +0000")) }</td>
+        <td class="p-1"><a href={ templ.URL(fmt.Sprintf("/metrics/muscleMasses/%v", muscleMass.ID)) }>Edit</a></td>
+      </tr>
+      }
+    </tbody>
+  </table>
+  }
+</section>
 }
 
-templ bfPercentsSect(bfPercents []database.BodyFatPercent) {
-	<section>
-		<h2>Body Fat Percentage Measurements</h2>
-		if len(bfPercents) == 0 {
-			<p>No body fat percentage measurements have been logged</p>
-			<a href="/metrics/bfPercents/new">Log Body Fat Percentage</a>
-		} else {
-			<table>
-				<thead>
-					<tr>
-						<th>Measurement</th>
-						<th>Date</th>
-					</tr>
-				</thead>
-				<tbody>
-					for _, bfPercent := range bfPercents {
-						<tr>
-							<td>{ bfPercent.Measurement }</td>
-							<td>{ fmt.Sprintf("%v", strings.TrimSuffix(bfPercent.UpdatedAt.Format(time.RFC1123), " 00:00:00 +0000")) }</td>
-							<td><a href={ templ.URL(fmt.Sprintf("/metrics/bfPercents/%v", bfPercent.ID)) }>Edit</a></td>
-						</tr>
-					}
-				</tbody>
-			</table>
-		}
-	</section>
+templ BfPercentsSect(bfPercents []database.BodyFatPercent) {
+<section id="bfPercents" class="mb-5">
+  <h2>Body Fat Percentage Measurements</h2>
+  if len(bfPercents) == 0 {
+  <p>No body fat percentage measurements have been logged</p>
+  <button hx-get="/metrics/bfPercents" hx-target="#bfPercents">
+    Log Body Fat
+    Percentage
+  </button>
+  } else {
+  <table>
+    <thead>
+      <tr>
+        <th>Measurement</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      for _, bfPercent := range bfPercents {
+      <tr>
+        <td>{ bfPercent.Measurement }</td>
+        <td>{ fmt.Sprintf("%v", strings.TrimSuffix(bfPercent.UpdatedAt.Format(time.RFC1123), " 00:00:00 +0000")) }</td>
+        <td class="p-1"><a href={ templ.URL(fmt.Sprintf("/metrics/bfPercents/%v", bfPercent.ID)) }>Edit</a></td>
+      </tr>
+      }
+    </tbody>
+  </table>
+  }
+</section>
+}
+
+templ LogBWForm() {
+<form hx-post="/metrics/bodyweights" hx-target="#bodyweights" class="mx-3">
+  <fieldset>
+    <legend>Log Bodyweight Form</legend>
+    <input class="" type="text" name="bodyweight" placeholder="Enter Bodyweight" required />
+    <button type="submit" class="hover:text-slate-800 hover:bg-stone-300 hover:cursor-pointer">Log</button>
+    <!-- <span class="">{ err.Default }</span> -->
+  </fieldset>
+</form>
+}
+
+templ LogMMForm() {
+<form hx-post="/metrics/muscleMasses" hx-target="#muscleMasses" class="mx-3">
+  <fieldset>
+    <legend>Log Muscle Mass Form</legend>
+    <input class="" type="text" name="muscleMass" placeholder="Enter Muscle Mass" required />
+    <button type="submit" class="hover:text-slate-800 hover:bg-stone-300 hover:cursor-pointer">Log</button>
+    <!-- <span class="">{ err.Default }</span> -->
+  </fieldset>
+</form>
+}
+
+templ LogBFForm() {
+<form hx-post="/metrics/bfPercents" hx-target="#bfPercents" class="mx-3">
+  <fieldset>
+    <legend>Log Body Fat Percentage Form</legend>
+    <input class="" type="text" name="bfPercent" placeholder="Enter Body Fat Percentage" required />
+    <button type="submit" class="hover:text-slate-800 hover:bg-stone-300 hover:cursor-pointer">Log</button>
+    <!-- <span class="">{ err.Default }</span> -->
+  </fieldset>
+</form>
 }

@@ -60,7 +60,7 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	fileServer := http.FileServer(http.Dir("./static"))
+	fileServer := http.FileServer(http.Dir(filePathRoot))
 	mux.Handle("GET /static/", http.StripPrefix("/static/", fileServer))
 
 	mux.HandleFunc("GET /", handler.Index)
@@ -77,6 +77,8 @@ func main() {
 	mux.Handle("GET /workouts/new", mw.Auth(http.HandlerFunc(handler.NewUserWorkout)))
 
 	mux.Handle("GET /metrics", mw.Auth(http.HandlerFunc(handler.GetAllMetrics)))
+	mux.Handle("GET /metrics/{type}", mw.Auth(http.HandlerFunc(handler.LogMetrics)))
+	mux.Handle("POST /metrics/{type}", mw.Auth(http.HandlerFunc(handler.LogMetrics)))
 
 	mux.HandleFunc("POST /api/v1/register", handler.CreateUser)
 	mux.HandleFunc("POST /api/v1/login", handler.LoginUser)

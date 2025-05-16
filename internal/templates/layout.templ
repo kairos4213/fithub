@@ -7,10 +7,9 @@ templ Layout(contents templ.Component, title string, isLoggedIn bool) {
 
 <body hx-boost="true" class="dark:bg-slate-800 text-stone-300">
   @header(isLoggedIn)
-  <main>
+  <main class="mx-20">
     @contents
   </main>
-  <br />
   @footer()
 </body>
 
@@ -29,7 +28,7 @@ templ head(title string) {
 }
 
 templ footer() {
-<footer class="mx-10">This is the page footer</footer>
+<footer class="mx-5">This is the page footer</footer>
 }
 
 templ header(isLoggedIn bool) {
