@@ -29,7 +29,7 @@ func Index() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"hero bg-base-200 min-h-screen\"><div class=\"hero-content text-center\"><div class=\"max-w-md\"><h1 class=\"text-5xl font-bold\">Welcome to FitHub!</h1><p class=\"py-6\">Hit one of the buttons below to enter the hub</p><a href=\"/login\" class=\"btn btn-primary btn-outline\">Login</a> <a href=\"/register\" class=\"btn btn-secondary btn-outline\">Register</a></div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<section class=\"hero bg-base-200 min-h-screen\"><div class=\"hero-content text-center\"><div class=\"max-w-md\"><h1 class=\"text-5xl font-bold\">Welcome to FitHub!</h1><p class=\"py-6\">Hit one of the buttons below to enter the hub</p><a href=\"/login\" class=\"btn btn-primary btn-outline\">Login</a> <a href=\"/register\" class=\"btn btn-secondary btn-outline\">Register</a></div></div></section>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
