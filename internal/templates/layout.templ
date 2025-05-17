@@ -1,47 +1,77 @@
 package templates
 
+import "time"
+
 templ Layout(contents templ.Component, title string, isLoggedIn bool) {
-<!DOCTYPE html>
-<html lang="en">
-@head(title)
-
-<body hx-boost="true" class="dark:bg-slate-800 text-stone-300">
-  @header(isLoggedIn)
-  <main class="mx-20">
-    @contents
-  </main>
-  @footer()
-</body>
-
-</html>
+	<!DOCTYPE html>
+	<html lang="en">
+		@head(title)
+		<body hx-boost="true">
+			@header(isLoggedIn)
+			<main>
+				@contents
+			</main>
+			@footer()
+		</body>
+	</html>
 }
 
 templ head(title string) {
-
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>{ title }</title>
-  <link href="/static/css/output.css" rel="stylesheet" />
-  <script src="/static/js/htmx@2.0.4.min.js"></script>
-</head>
+	<head>
+		<meta charset="UTF-8"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1"/>
+		<title>{ title }</title>
+		<link href="/static/css/output.css" rel="stylesheet"/>
+		<script src="/static/js/htmx@2.0.4.min.js"></script>
+	</head>
 }
 
 templ footer() {
-<footer class="mx-5">This is the page footer</footer>
+	<footer
+		class="footer sm:footer-horizontal footer-center bg-base-300
+  text-base-content p-4"
+	>
+		<aside>
+			<p>
+				Copyright © { time.Now().Format("2006") } - All rights reserved by
+				FitHub Ltd
+			</p>
+		</aside>
+	</footer>
 }
 
 templ header(isLoggedIn bool) {
-<header class="mx-2 pb-5">
-  <a href="/" class="text-2xl hover:text-slate-800 hover:bg-stone-300">FitHub</a>
-  if isLoggedIn {
-  <nav class="">
-    <ul>
-      <li class="hover:text-slate-800 hover:bg-stone-300"><a href="/workouts">Workouts</a></li>
-      <li class="hover:text-slate-800 hover:bg-stone-300"><a href="/metrics">Metrics</a></li>
-    </ul>
-    <button hx-post="/logout" class="hover:text-slate-800 hover:bg-stone-300">Logout</button>
-  </nav>
-  }
-</header>
+	if isLoggedIn {
+		<header class="navbar bg-base-100 shadow-sm">
+			<div class="navbar-start">
+				<div class="dropdown">
+					<div tabindex="0" role="button" class="btn btn-ghost lg:hidden">
+						<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16"></path>
+						</svg> // TODO: Download hamburger icon image
+					</div>
+					<ul
+						tabindex="0"
+						class="menu menu-sm dropdown-content bg-base-100
+          rounded-box z-1 mt-3 w-52 p-2 shadow"
+					>
+						<li><a href="/workouts">Workouts</a></li>
+						<li><a href="/metrics">Metrics</a></li>
+					</ul>
+				</div>
+				<a href="/" class="btn btn-ghost text-xl">FitHub</a>
+			</div>
+			<div class="navbar-center hidden lg:flex">
+				<ul class="menu menu-horizontal px-1">
+					<li><a href="/workouts">Workouts</a></li>
+					<li><a href="/metrics">Metrics</a></li>
+				</ul>
+			</div>
+			<div class="navbar-end">
+				<button hx-post="/logout" class="btn btn-warning">Logout</button>
+			</div>
+		</header>
+	} else {
+		<a href="/" class="btn btn-ghost text-xl">FitHub</a>
+	}
 }
