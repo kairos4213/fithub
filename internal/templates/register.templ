@@ -13,30 +13,34 @@ templ RegisterPage(err RegErr) {
 		<h2>It looks like we're having some issues on our end!</h2>
 		<p>Please check back later to see if it's been resolved!</p>
 	} else {
-		<form hx-post="/register" hx-target="main" id="register-form" class="mx-3">
-			<fieldset>
-				<legend>Register Form</legend>
-				<p>
-					<input class="" type="text" name="first_name" placeholder="First Name" required/>
-					<span class="">{ err.FirstName }</span>
+		<section class="container mx-auto p-10 h-screen">
+			<form hx-post="/register" hx-target="main" class="justify-self-center">
+				<h1 class="text-5xl">FitHub</h1>
+				<fieldset
+					class="fieldset bg-base-200 border-base-300 rounded-box w-xs
+        border p-4"
+				>
+					<legend class="fieldset-legend text-lg">Register</legend>
+					<input class="input" type="text" name="first_name" placeholder="First Name" required/>
+					<input class="input" type="text" name="last_name" placeholder="Last Name" required/>
+					<p>
+						<input class="input" type="email" name="email" placeholder="Email" required/>
+						if err.Email != "" {
+							<span class="alert alert-error alert-soft mt-1">{ err.Email }</span> // TODO: look into input validation
+						}
+					</p>
+					<p>
+						<input class="input" type="password" name="password" placeholder="Password" required/>
+						if err.Password != "" {
+							<span class="alert alert-error alert-soft">{ err.Password }</span>
+						}
+					</p>
+					<button class="btn btn-secondary mt-4" type="submit">Register</button>
+				</fieldset>
+				<p class="text-lg px-6 mt-4 justify-self-center">
+					Already a member? <a href="/login" class="btn btn-primary ml-2">Login Here</a>
 				</p>
-				<p>
-					<input class="" type="text" name="last_name" placeholder="Last Name" required/>
-					<span class="">{ err.LastName }</span>
-				</p>
-				<p>
-					<input class="" type="email" name="email" placeholder="Email" required/>
-					<span class="text-red-500">{ err.Email }</span> // TODO: look into input validation before submit event
-				</p>
-				<p>
-					<input class="" type="password" name="password" placeholder="Password" required/>
-					<span class="">{ err.Password }</span>
-				</p>
-				<button type="submit" class="hover:text-slate-800 hover:bg-stone-300 hover:cursor-pointer">Register</button>
-			</fieldset>
-		</form>
-		<p class="pt-2 mx-3">
-			Already a member? <a href="/login" class="hover:text-slate-800 hover:bg-stone-300">Login Here</a>
-		</p>
+			</form>
+		</section>
 	}
 }
