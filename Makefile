@@ -2,7 +2,7 @@ templ:
 	templ generate --watch --proxy="http://localhost:8080" --open-browser=false -v
 
 server:
-	air \
+	go run github.com/air-verse/air@v1.61.7 \
 		--build.cmd "go build -o tmp/bin/main" \
 		--build.bin "tmp/bin/main" \
 		--build.delay "100" \

@@ -33,6 +33,7 @@ templ RegisterPage(err RegErr) {
 						<input class="input" type="password" name="password" placeholder="Password" required/>
 						if err.Password != "" {
 							<span class="alert alert-error alert-soft">{ err.Password }</span>
+							// TODO: handle/add password validation alerts
 						}
 					</p>
 					<button class="btn btn-secondary mt-4" type="submit">Register</button>

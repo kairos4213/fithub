@@ -3,8 +3,6 @@ package templates
 import (
 	"fmt"
 	"github.com/kairos4213/fithub/internal/database"
-	"strings"
-	"time"
 )
 
 templ Workouts(workouts []database.Workout) {
@@ -12,35 +10,54 @@ templ Workouts(workouts []database.Workout) {
 		<p>No workouts scheduled</p>
 		<a href="/workouts/new">Create Workout</a>
 	} else {
-		<h2>Workouts Page</h2>
-		<table>
-			<thead>
-				<tr>
-					<th>Title</th>
-					<th>Description</th>
-					<th>Planned Duration</th>
-					<th>Date Scheduled</th>
-					<th>Completion Date</th>
-				</tr>
-			</thead>
-			<tbody>
-				for _, workout := range workouts {
-					<tr>
-						<td>{ workout.Title }</td>
-						<td>{ workout.Description.String }</td>
-						<td>{ fmt.Sprintf("%v", workout.DurationMinutes) }</td>
-						<td>{ fmt.Sprintf("%v", strings.TrimSuffix(workout.PlannedDate.Format(time.RFC1123), " 00:00:00 +0000")) }</td>
-						if !workout.DateCompleted.Valid {
-							<td>N/a</td>
-						} else {
-							<td>{ fmt.Sprintf("%v", workout.DateCompleted.Time.Format(time.RFC1123)) }</td>
+		<h1 class="text-3xl p-8">Upcoming Workouts</h1>
+		<div class="h-screen">
+			<div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100 mx-2">
+				<table class="table table-zebra table-pin-rows text-md text-center">
+					<thead>
+						<tr>
+							<th>Title</th>
+							<th>Description</th>
+							<th>Planned Duration</th>
+							<th>Date Scheduled</th>
+							<th>Completion Date</th>
+							<th></th>
+						</tr>
+					</thead>
+					<tbody>
+						for _, workout := range workouts {
+							<tr>
+								<td>{ workout.Title }</td>
+								<td>{ workout.Description.String }</td>
+								<td>{ fmt.Sprintf("%v", workout.DurationMinutes) }</td>
+								<td>{ fmt.Sprintf("%v", workout.PlannedDate.Format("Mon, 2 Jan 2006")) }</td>
+								if !workout.DateCompleted.Valid {
+									<td>N/A</td>
+								} else {
+									<td>{ fmt.Sprintf("%v", workout.DateCompleted.Time.Format("Mon, 2 Jan 2006")) }</td>
+								}
+								<td>
+									<a href={ templ.URL(fmt.Sprintf("/workouts/%v", workout.ID)) } class="btn btn-secondary m-1">Edit</a>
+									<a href={ templ.URL(fmt.Sprintf("/workouts/%v", workout.ID)) } class="btn btn-warning">Delete</a>
+								</td>
+							</tr>
 						}
-						<td><a href={ templ.URL(fmt.Sprintf("/workouts/%v", workout.ID)) }>Edit</a></td>
-					</tr>
-				}
-			</tbody>
-		</table>
-		<a href="/workouts/new">Create Workout</a>
+					</tbody>
+					<tfoot>
+						<tr>
+							<th></th>
+							<th></th>
+							<th></th>
+							<th></th>
+							<th></th>
+							<th>
+								<a href="/workouts/new" class="btn btn-outline btn-primary btn-ghost">Create Workout</a>
+							</th>
+						</tr>
+					</tfoot>
+				</table>
+			</div>
+		</div>
 	}
 }
 
