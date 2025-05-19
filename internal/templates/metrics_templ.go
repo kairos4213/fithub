@@ -11,6 +11,7 @@ import templruntime "github.com/a-h/templ/runtime"
 import (
 	"fmt"
 	"github.com/kairos4213/fithub/internal/database"
+	"time"
 )
 
 func Metrics(
@@ -113,7 +114,7 @@ func BodyweightsSect(bodyweights []database.BodyWeight) templ.Component {
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(bodyweight.Measurement)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 41, Col: 36}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 42, Col: 36}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {
@@ -126,7 +127,7 @@ func BodyweightsSect(bodyweights []database.BodyWeight) templ.Component {
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%v", bodyweight.UpdatedAt.Format("Monday, Jan 02 2006")))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 42, Col: 83}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 43, Col: 83}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
@@ -139,7 +140,7 @@ func BodyweightsSect(bodyweights []database.BodyWeight) templ.Component {
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/metrics/bodyweights/%v", bodyweight.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 44, Col: 74}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 45, Col: 74}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
@@ -152,7 +153,7 @@ func BodyweightsSect(bodyweights []database.BodyWeight) templ.Component {
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/metrics/bodyweights/%v", bodyweight.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 45, Col: 75}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 46, Col: 75}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {
@@ -163,7 +164,7 @@ func BodyweightsSect(bodyweights []database.BodyWeight) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</tbody><tfoot><th class=\"w-1/3\"></th><th class=\"w-1/3\"></th><th class=\"w-1/3\"><a href=\"/metrics/bodyweights\" class=\"btn btn-outline\n            btn-primary btn-ghost\">Log</a></th></tfoot></table></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</tbody><tfoot id=\"log-bw-row\"><th class=\"w-1/3\"></th><th class=\"w-1/3\"></th><th class=\"w-1/3\"><button hx-get=\"/metrics/bodyweights\" hx-target=\"#log-bw-row\" class=\"btn btn-outline btn-primary btn-ghost\">Log</button></th></tfoot></table></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -219,7 +220,7 @@ func MuscleMassesSect(musclesMasses []database.MuscleMass) templ.Component {
 				var templ_7745c5c3_Var8 string
 				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(muscleMass.Measurement)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 86, Col: 36}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 83, Col: 36}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
@@ -232,7 +233,7 @@ func MuscleMassesSect(musclesMasses []database.MuscleMass) templ.Component {
 				var templ_7745c5c3_Var9 string
 				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%v", muscleMass.UpdatedAt.Format("Mon, 02 Jan 2006")))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 87, Col: 80}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 84, Col: 80}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 				if templ_7745c5c3_Err != nil {
@@ -245,7 +246,7 @@ func MuscleMassesSect(musclesMasses []database.MuscleMass) templ.Component {
 				var templ_7745c5c3_Var10 string
 				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/metrics/muscleMasses/%v", muscleMass.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 89, Col: 75}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 86, Col: 75}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 				if templ_7745c5c3_Err != nil {
@@ -258,7 +259,7 @@ func MuscleMassesSect(musclesMasses []database.MuscleMass) templ.Component {
 				var templ_7745c5c3_Var11 string
 				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/metrics/muscleMasses/%v", muscleMass.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 90, Col: 76}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 87, Col: 76}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 				if templ_7745c5c3_Err != nil {
@@ -325,7 +326,7 @@ func BfPercentsSect(bfPercents []database.BodyFatPercent) templ.Component {
 				var templ_7745c5c3_Var13 string
 				templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(bfPercent.Measurement)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 127, Col: 35}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 124, Col: 35}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 				if templ_7745c5c3_Err != nil {
@@ -338,7 +339,7 @@ func BfPercentsSect(bfPercents []database.BodyFatPercent) templ.Component {
 				var templ_7745c5c3_Var14 string
 				templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%v", bfPercent.UpdatedAt.Format("2 Jan 2006, Mon")))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 128, Col: 78}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 125, Col: 78}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 				if templ_7745c5c3_Err != nil {
@@ -351,7 +352,7 @@ func BfPercentsSect(bfPercents []database.BodyFatPercent) templ.Component {
 				var templ_7745c5c3_Var15 string
 				templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/metrics/bfPercents/%v", bfPercent.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 130, Col: 72}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 127, Col: 72}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 				if templ_7745c5c3_Err != nil {
@@ -364,7 +365,7 @@ func BfPercentsSect(bfPercents []database.BodyFatPercent) templ.Component {
 				var templ_7745c5c3_Var16 string
 				templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/metrics/bfPercents/%v", bfPercent.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 131, Col: 73}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 128, Col: 73}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 				if templ_7745c5c3_Err != nil {
@@ -409,7 +410,20 @@ func LogBWForm() templ.Component {
 			templ_7745c5c3_Var17 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<form hx-post=\"/metrics/bodyweights\" hx-target=\"#bodyweights\" class=\"mx-3\"><fieldset><legend>Log Bodyweight Form</legend> <input class=\"\" type=\"text\" name=\"bodyweight\" placeholder=\"Enter Bodyweight\" required> <button type=\"submit\" class=\"hover:text-slate-800 hover:bg-stone-300 hover:cursor-pointer\">Log</button><!-- <span class=\"\">{ err.Default }</span> --></fieldset></form>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<td class=\"w-1/3\"><input class=\"input input-ghost text-center border-secondary\" type=\"text\" name=\"bodyweight\" placeholder=\"Enter Bodyweight\" required></td><td class=\"w-1/3\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var18 string
+		templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(time.Now().Format("Monday, Jan 2 2006"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 160, Col: 60}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</td><td class=\"w-1/3\"><button hx-post=\"/metrics/bodyweights\" hx-include=\"#log-bw-row\" hx-target=\"#bodyweights\" class=\"btn btn-primary\">Log</button></td>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -433,12 +447,12 @@ func EditBWForm() templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var18 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var18 == nil {
-			templ_7745c5c3_Var18 = templ.NopComponent
+		templ_7745c5c3_Var19 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var19 == nil {
+			templ_7745c5c3_Var19 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<form hx-put=\"/metrics/bodyweights/{id}\" hx-target=\"#bodyweights\" class=\"mx-3\"><fieldset><legend>Log Bodyweight Form</legend> <input class=\"\" type=\"text\" name=\"bodyweight\" value=\"Enter Bodyweight\" required> <input class=\"\" type=\"text\" name=\"date\" value=\"Enter Bodyweight\" required> <button type=\"submit\" class=\"hover:text-slate-800 hover:bg-stone-300 hover:cursor-pointer\">Log</button><!-- <span class=\"\">{ err.Default }</span> --></fieldset></form>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "<form hx-put=\"/metrics/bodyweights/{id}\" hx-target=\"#bodyweights\" class=\"mx-3\"><fieldset><legend>Log Bodyweight Form</legend> <input class=\"\" type=\"text\" name=\"bodyweight\" value=\"Enter Bodyweight\" required> <input class=\"\" type=\"text\" name=\"date\" value=\"Enter Bodyweight\" required> <button type=\"submit\" class=\"hover:text-slate-800 hover:bg-stone-300 hover:cursor-pointer\">Log</button><!-- <span class=\"\">{ err.Default }</span> --></fieldset></form>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -462,12 +476,12 @@ func LogMMForm() templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var19 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var19 == nil {
-			templ_7745c5c3_Var19 = templ.NopComponent
+		templ_7745c5c3_Var20 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var20 == nil {
+			templ_7745c5c3_Var20 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "<form hx-post=\"/metrics/muscleMasses\" hx-target=\"#muscleMasses\" class=\"mx-3\"><fieldset><legend>Log Muscle Mass Form</legend> <input class=\"\" type=\"text\" name=\"muscleMass\" placeholder=\"Enter Muscle Mass\" required> <button type=\"submit\" class=\"hover:text-slate-800 hover:bg-stone-300 hover:cursor-pointer\">Log</button><!-- <span class=\"\">{ err.Default }</span> --></fieldset></form>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<form hx-post=\"/metrics/muscleMasses\" hx-target=\"#muscleMasses\" class=\"mx-3\"><fieldset><legend>Log Muscle Mass Form</legend> <input class=\"\" type=\"text\" name=\"muscleMass\" placeholder=\"Enter Muscle Mass\" required> <button type=\"submit\" class=\"hover:text-slate-800 hover:bg-stone-300 hover:cursor-pointer\">Log</button><!-- <span class=\"\">{ err.Default }</span> --></fieldset></form>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -491,12 +505,12 @@ func LogBFForm() templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var20 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var20 == nil {
-			templ_7745c5c3_Var20 = templ.NopComponent
+		templ_7745c5c3_Var21 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var21 == nil {
+			templ_7745c5c3_Var21 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<form hx-post=\"/metrics/bfPercents\" hx-target=\"#bfPercents\" class=\"mx-3\"><fieldset><legend>Log Body Fat Percentage Form</legend> <input class=\"\" type=\"text\" name=\"bfPercent\" placeholder=\"Enter Body Fat Percentage\" required> <button type=\"submit\" class=\"hover:text-slate-800 hover:bg-stone-300 hover:cursor-pointer\">Log</button><!-- <span class=\"\">{ err.Default }</span> --></fieldset></form>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "<form hx-post=\"/metrics/bfPercents\" hx-target=\"#bfPercents\" class=\"mx-3\"><fieldset><legend>Log Body Fat Percentage Form</legend> <input class=\"\" type=\"text\" name=\"bfPercent\" placeholder=\"Enter Body Fat Percentage\" required> <button type=\"submit\" class=\"hover:text-slate-800 hover:bg-stone-300 hover:cursor-pointer\">Log</button><!-- <span class=\"\">{ err.Default }</span> --></fieldset></form>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
