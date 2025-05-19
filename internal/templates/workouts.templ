@@ -6,6 +6,7 @@ import (
 )
 
 templ Workouts(workouts []database.Workout) {
+	// TODO: Styling for smaller screens
 	if len(workouts) == 0 {
 		<p>No workouts scheduled</p>
 		<a href="/workouts/new">Create Workout</a>
@@ -37,8 +38,8 @@ templ Workouts(workouts []database.Workout) {
 									<td>{ fmt.Sprintf("%v", workout.DateCompleted.Time.Format("Mon, 2 Jan 2006")) }</td>
 								}
 								<td>
-									<a href={ templ.URL(fmt.Sprintf("/workouts/%v", workout.ID)) } class="btn btn-secondary m-1">Edit</a>
-									<a href={ templ.URL(fmt.Sprintf("/workouts/%v", workout.ID)) } class="btn btn-warning">Delete</a>
+									<a hx-get={ fmt.Sprintf("/workouts/%v", workout.ID) } class="btn btn-secondary m-1">Edit</a>
+									<a hx-post={ fmt.Sprintf("/workouts/%v", workout.ID) } class="btn btn-warning">Delete</a>
 								</td>
 							</tr>
 						}

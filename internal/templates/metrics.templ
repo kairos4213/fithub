@@ -10,97 +10,142 @@ templ Metrics(
 	muscleMasses []database.MuscleMass,
 	bfPercents []database.BodyFatPercent,
 ) {
-	@BodyweightsSect(bodyweights)
-	@MuscleMassesSect(muscleMasses)
-	@BfPercentsSect(bfPercents)
+	<div class="flex w-full flex-col">
+		@BodyweightsSect(bodyweights)
+		<div class="divider divider-accent"></div>
+		@MuscleMassesSect(muscleMasses)
+		<div class="divider divider-accent"></div>
+		@BfPercentsSect(bfPercents)
+	</div>
 }
 
 templ BodyweightsSect(bodyweights []database.BodyWeight) {
 	<section id="bodyweights" class="mb-5">
-		<h2>Bodyweight Measurements</h2>
+		<h2 class="text-3xl p-8">Bodyweights</h2>
 		if len(bodyweights) == 0 {
 			<p>No bodyweight measurements have been logged</p>
-			<button hx-get="/metrics/bodyweights" hx-target="#bodyweights">Log Bodyweight</button>
+			<button hx-get="/metrics/bodyweights" hx-target="#bodyweights">Log</button>
 		} else {
-			<table>
-				<thead>
-					<tr>
-						<th>Measurement</th>
-						<th>Date</th>
-					</tr>
-				</thead>
-				<tbody>
-					for _, bodyweight := range bodyweights {
+			<div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100 mx-2">
+				<table class="table table-in-rows table-fixed text-md text-center">
+					<thead>
 						<tr>
-							<td>{ bodyweight.Measurement }</td>
-							<td>{ fmt.Sprintf("%v", bodyweight.UpdatedAt.Format("Monday, Jan 02 2006")) }</td> // TODO: fix time format
-							<td class="p-1"><a href={ templ.URL(fmt.Sprintf("/metrics/bodyweights/%v", bodyweight.ID)) }>Edit</a></td>
+							<th class="w-1/3">Measurement</th>
+							<th class="w-1/3">Date</th>
+							<th class="w-1/3"></th>
 						</tr>
-					}
-				</tbody>
-			</table>
+					</thead>
+					<tbody>
+						for _, bodyweight := range bodyweights {
+							<tr>
+								<td>{ bodyweight.Measurement } lbs</td>
+								<td>{ fmt.Sprintf("%v", bodyweight.UpdatedAt.Format("Monday, Jan 02 2006")) }</td>
+								<td>
+									<a hx-get={ fmt.Sprintf("/metrics/bodyweights/%v", bodyweight.ID) } class="btn btn-secondary m-1">Edit</a>
+									<a hx-post={ fmt.Sprintf("/metrics/bodyweights/%v", bodyweight.ID) } class="btn btn-warning">Delete</a>
+								</td>
+							</tr>
+						}
+					</tbody>
+					<tfoot>
+						<th class="w-1/3"></th>
+						<th class="w-1/3"></th>
+						<th class="w-1/3">
+							<a
+								href="/metrics/bodyweights"
+								class="btn btn-outline
+            btn-primary btn-ghost"
+							>Log</a>
+						</th>
+					</tfoot>
+				</table>
+			</div>
 		}
 	</section>
 }
 
 templ MuscleMassesSect(musclesMasses []database.MuscleMass) {
 	<section id="muscleMasses" class="mb-5">
-		<h2>Muscle Mass Measurements</h2>
+		<h2 class="text-3xl p-8">Muscle Masses</h2>
 		if len(musclesMasses) == 0 {
 			<p>No muscle mass measurements have been logged</p>
-			<button hx-get="/metrics/muscleMasses" hx-target="#muscleMasses">
-				Log Muscle
-				Mass
-			</button>
+			<button hx-get="/metrics/muscleMasses" hx-target="#muscleMasses">Log</button>
 		} else {
-			<table>
-				<thead>
-					<tr>
-						<th>Measurement</th>
-						<th>Date</th>
-					</tr>
-				</thead>
-				<tbody>
-					for _, muscleMass := range musclesMasses {
+			<div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100 mx-2">
+				<table class="table table-in-rows table-fixed text-md text-center">
+					<thead>
 						<tr>
-							<td>{ muscleMass.Measurement }</td>
-							<td>{ fmt.Sprintf("%v", muscleMass.UpdatedAt.Format("Mon, 02 Jan 2006")) }</td> // TODO: Fix Time format
-							<td class="p-1"><a href={ templ.URL(fmt.Sprintf("/metrics/muscleMasses/%v", muscleMass.ID)) }>Edit</a></td>
+							<th class="w-1/3">Measurement</th>
+							<th class="w-1/3">Date</th>
+							<th class="w-1/3"></th>
 						</tr>
-					}
-				</tbody>
-			</table>
+					</thead>
+					<tbody>
+						for _, muscleMass := range musclesMasses {
+							<tr>
+								<td>{ muscleMass.Measurement } lbs</td>
+								<td>{ fmt.Sprintf("%v", muscleMass.UpdatedAt.Format("Mon, 02 Jan 2006")) }</td>
+								<td>
+									<a hx-get={ fmt.Sprintf("/metrics/muscleMasses/%v", muscleMass.ID) } class="btn btn-secondary m-1">Edit</a>
+									<a hx-post={ fmt.Sprintf("/metrics/muscleMasses/%v", muscleMass.ID) } class="btn btn-warning">Delete</a>
+								</td>
+							</tr>
+						}
+					</tbody>
+					<tfoot>
+						<th class="w-1/3"></th>
+						<th class="w-1/3"></th>
+						<th class="w-1/3">
+							<a href="/metrics/muscleMasses" class="btn btn-outline btn-primary btn-ghost">Log</a>
+						</th>
+					</tfoot>
+				</table>
+			</div>
 		}
 	</section>
 }
 
 templ BfPercentsSect(bfPercents []database.BodyFatPercent) {
 	<section id="bfPercents" class="mb-5">
-		<h2>Body Fat Percentage Measurements</h2>
+		<h2 class="text-3xl p-8">Body Fat Percentages</h2>
 		if len(bfPercents) == 0 {
 			<p>No body fat percentage measurements have been logged</p>
-			<button hx-get="/metrics/bfPercents" hx-target="#bfPercents">
-				Log Body Fat
-				Percentage
-			</button>
+			<button hx-get="/metrics/bfPercents" hx-target="#bfPercents">Log</button>
 		} else {
-			<table>
-				<thead>
-					<tr>
-						<th>Measurement</th>
-						<th>Date</th>
-					</tr>
-				</thead>
-				<tbody>
-					for _, bfPercent := range bfPercents {
+			<div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100 mx-2">
+				<table class="table table-in-rows table-fixed text-md text-center">
+					<thead>
 						<tr>
-							<td>{ bfPercent.Measurement }</td>
-							<td>{ fmt.Sprintf("%v", bfPercent.UpdatedAt.Format("2 Jan 2006, Mon")) }</td>
-							<td class="p-1"><a href={ templ.URL(fmt.Sprintf("/metrics/bfPercents/%v", bfPercent.ID)) }>Edit</a></td>
+							<th class="w-1/3">Measurement</th>
+							<th class="w-1/3">Date</th>
+							<th class="w-1/3"></th>
 						</tr>
-					}
-				</tbody>
-			</table>
+					</thead>
+					<tbody>
+						for _, bfPercent := range bfPercents {
+							<tr>
+								<td>{ bfPercent.Measurement }%</td>
+								<td>{ fmt.Sprintf("%v", bfPercent.UpdatedAt.Format("2 Jan 2006, Mon")) }</td>
+								<td>
+									<a hx-get={ fmt.Sprintf("/metrics/bfPercents/%v", bfPercent.ID) } class="btn btn-secondary m-1">Edit</a>
+									<a hx-post={ fmt.Sprintf("/metrics/bfPercents/%v", bfPercent.ID) } class="btn btn-warning">Delete</a>
+								</td>
+							</tr>
+						}
+					</tbody>
+					<tfoot>
+						<th class="w-1/3"></th>
+						<th class="w-1/3"></th>
+						<th class="w-1/3">
+							<a
+								href="/metrics/bfPercents"
+								class="btn btn-outline
+            btn-primary btn-ghost"
+							>Log</a>
+						</th>
+					</tfoot>
+				</table>
+			</div>
 		}
 	</section>
 }
