@@ -27,15 +27,9 @@ templ head(title string) {
 }
 
 templ footer() {
-	<footer
-		class="footer sm:footer-horizontal footer-center bg-base-300
-  text-base-content p-4"
-	>
+	<footer class="footer sm:footer-horizontal footer-center bg-base-300 text-base-content p-4">
 		<aside>
-			<p>
-				Copyright © { time.Now().Format("2006") } - All rights reserved by
-				FitHub Ltd
-			</p>
+			<p>Copyright © { time.Now().Format("2006") } - All rights reserved by FitHub Ltd</p>
 		</aside>
 	</footer>
 }
@@ -50,25 +44,21 @@ templ header(isLoggedIn bool) {
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16"></path>
 						</svg> // TODO: Download hamburger icon image
 					</div>
-					<ul
-						tabindex="0"
-						class="menu menu-sm dropdown-content bg-base-100
-          rounded-box z-1 mt-3 w-52 p-2 shadow"
-					>
-						<li><a href="/workouts">Workouts</a></li>
-						<li><a href="/metrics">Metrics</a></li>
+					<ul tabindex="0" class="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
+						<li><a href={ templ.URL("/workouts") }>Workouts</a></li>
+						<li><a href={ templ.URL("/metrics") }>Metrics</a></li>
 					</ul>
 				</div>
-				<a href="/" class="btn btn-ghost text-xl">FitHub</a>
+				<a href={ templ.URL("/") } class="btn btn-ghost text-xl">FitHub</a>
 			</div>
 			<div class="navbar-center hidden lg:flex">
 				<ul class="menu menu-horizontal px-1">
-					<li><a href="/workouts">Workouts</a></li>
-					<li><a href="/metrics">Metrics</a></li>
+					<li><a href={ templ.URL("/workouts") }>Workouts</a></li>
+					<li><a href={ templ.URL("/metrics") }>Metrics</a></li>
 				</ul>
 			</div>
 			<div class="navbar-end">
-				<button hx-post="/logout" class="btn btn-warning">Logout</button>
+				<button hx-post={ string(templ.URL("/logout")) } class="btn btn-warning">Logout</button>
 			</div>
 		</header>
 	}

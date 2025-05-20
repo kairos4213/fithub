@@ -6,8 +6,8 @@ templ Index() {
 			<div class="max-w-md">
 				<h1 class="text-5xl font-bold">Welcome to FitHub!</h1>
 				<p class="py-6">Hit one of the buttons below to enter the hub</p>
-				<a href="/login" class="btn btn-primary btn-outline">Login</a>
-				<a href="/register" class="btn btn-secondary btn-outline">Register</a>
+				<a href={ templ.URL("/login") } class="btn btn-primary btn-outline">Login</a>
+				<a href={ templ.URL("/register") } class="btn btn-secondary btn-outline">Register</a>
 			</div>
 		</div>
 	</section>
