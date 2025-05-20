@@ -33,7 +33,29 @@ func LoginPage(err LoginErr) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<section class=\"container mx-auto p-10 h-screen\"><form hx-post=\"/login\" hx-target=\"main\" class=\"justify-self-center\"><h1 class=\"text-5xl\">FitHub</h1><fieldset class=\"fieldset bg-base-200 border-base-300 rounded-box w-xs\n    border p-4\"><legend class=\"fieldset-legend text-lg\">Login</legend> <input class=\"input\" type=\"email\" name=\"email\" placeholder=\"Email\" required> <input class=\"input\" type=\"password\" name=\"password\" placeholder=\"Password\" required> <button class=\"btn btn-primary mt-4\" type=\"submit\">Login</button></fieldset><p class=\"text-lg px-6 mt-4 justify-self-center\">Not signed up? <a href=\"/register\" class=\"btn btn-secondary ml-2\">Register Here</a></p></form></section>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<section class=\"container mx-auto p-10 h-screen\"><form hx-post=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var2 string
+		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(string(templ.URL("/login")))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/login.templ`, Line: 9, Col: 45}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" hx-target=\"main\" class=\"justify-self-center\"><h1 class=\"text-5xl\">FitHub</h1><fieldset class=\"fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4\"><legend class=\"fieldset-legend text-lg\">Login</legend> <input class=\"input\" type=\"email\" name=\"email\" placeholder=\"Email\" required> <input class=\"input\" type=\"password\" name=\"password\" placeholder=\"Password\" required> <button class=\"btn btn-primary mt-4\" type=\"submit\">Login</button></fieldset><p class=\"text-lg px-6 mt-4 justify-self-center\">Not signed up? <a href=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var3 templ.SafeURL = templ.URL("/register")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(string(templ_7745c5c3_Var3)))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\" class=\"btn btn-secondary ml-2\">Register Here</a></p></form></section>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

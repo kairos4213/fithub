@@ -6,12 +6,9 @@ type LoginErr struct {
 
 templ LoginPage(err LoginErr) {
 	<section class="container mx-auto p-10 h-screen">
-		<form hx-post="/login" hx-target="main" class="justify-self-center">
+		<form hx-post={ string(templ.URL("/login")) } hx-target="main" class="justify-self-center">
 			<h1 class="text-5xl">FitHub</h1>
-			<fieldset
-				class="fieldset bg-base-200 border-base-300 rounded-box w-xs
-    border p-4"
-			>
+			<fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4">
 				<legend class="fieldset-legend text-lg">Login</legend>
 				<input class="input" type="email" name="email" placeholder="Email" required/>
 				<input class="input" type="password" name="password" placeholder="Password" required/>
@@ -19,7 +16,7 @@ templ LoginPage(err LoginErr) {
 			</fieldset>
 			<p class="text-lg px-6 mt-4 justify-self-center">
 				Not signed up?
-				<a href="/register" class="btn btn-secondary ml-2">Register Here</a>
+				<a href={ templ.URL("/register") } class="btn btn-secondary ml-2">Register Here</a>
 			</p>
 		</form>
 	</section>

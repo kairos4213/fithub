@@ -14,12 +14,9 @@ templ RegisterPage(err RegErr) {
 		<p>Please check back later to see if it's been resolved!</p>
 	} else {
 		<section class="container mx-auto p-10 h-screen">
-			<form hx-post="/register" hx-target="main" class="justify-self-center">
+			<form hx-post={ string(templ.URL("/register")) } hx-target="main" class="justify-self-center">
 				<h1 class="text-5xl">FitHub</h1>
-				<fieldset
-					class="fieldset bg-base-200 border-base-300 rounded-box w-xs
-        border p-4"
-				>
+				<fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4">
 					<legend class="fieldset-legend text-lg">Register</legend>
 					<input class="input" type="text" name="first_name" placeholder="First Name" required/>
 					<input class="input" type="text" name="last_name" placeholder="Last Name" required/>
@@ -39,7 +36,7 @@ templ RegisterPage(err RegErr) {
 					<button class="btn btn-secondary mt-4" type="submit">Register</button>
 				</fieldset>
 				<p class="text-lg px-6 mt-4 justify-self-center">
-					Already a member? <a href="/login" class="btn btn-primary ml-2">Login Here</a>
+					Already a member? <a href={ templ.URL("/login") } class="btn btn-primary ml-2">Login Here</a>
 				</p>
 			</form>
 		</section>
