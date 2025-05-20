@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -39,6 +40,7 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 		})
 		if err != nil {
 			if strings.Contains(err.Error(), "users_email_key") {
+				log.Printf("Duplicate email error: %v", err)
 				regErr := templates.RegErr{Email: "Email already exists"}
 				templates.RegisterPage(regErr).Render(r.Context(), w)
 				return

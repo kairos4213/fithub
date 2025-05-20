@@ -79,6 +79,9 @@ func main() {
 	mux.Handle("GET /metrics", mw.Auth(http.HandlerFunc(handler.GetAllMetrics)))
 	mux.Handle("GET /metrics/{type}", mw.Auth(http.HandlerFunc(handler.GetLogMetricsForm)))
 	mux.Handle("POST /metrics/{type}", mw.Auth(http.HandlerFunc(handler.LogMetrics)))
+	mux.Handle("GET /metrics/{type}/{id}", mw.Auth(http.HandlerFunc(handler.GetEditMetricsForm)))
+	mux.Handle("PUT /metrics/{type}/{id}", mw.Auth(http.HandlerFunc(handler.EditMetrics)))
+	mux.Handle("DELETE /metrics/{type}/{id}", mw.Auth(http.HandlerFunc(handler.DeleteMetrics)))
 
 	mux.HandleFunc("POST /api/v1/register", handler.CreateUser)
 	mux.HandleFunc("POST /api/v1/login", handler.LoginUser)

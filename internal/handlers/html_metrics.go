@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -14,6 +15,7 @@ func (h *Handler) GetAllMetrics(w http.ResponseWriter, r *http.Request) {
 
 	bodyweights, err := h.DB.GetAllBodyWeights(r.Context(), userID)
 	if err != nil {
+		log.Printf("error: %v", err)
 		// TODO: html error response
 		return
 	}
@@ -88,5 +90,69 @@ func (h *Handler) LogMetrics(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		templates.BfPercentsSect(bfPercents).Render(r.Context(), w)
+	}
+}
+
+func (h *Handler) GetEditMetricsForm(w http.ResponseWriter, r *http.Request) {
+	metricType := r.PathValue("type")
+	id := r.PathValue("id")
+	switch metricType {
+	case "bodyweights":
+		entry := r.FormValue("bw-entry")
+		date := r.FormValue("bw-date")
+		templates.EditBWForm(entry, date, id).Render(r.Context(), w)
+	}
+}
+
+func (h *Handler) EditMetrics(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
+
+	metricType := r.PathValue("type")
+	id, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		// TODO: send error
+		return
+	}
+	switch metricType {
+	case "bodyweights":
+		entry := r.FormValue("bodyweight")
+
+		_, err := h.DB.UpdateBodyWeight(r.Context(), database.UpdateBodyWeightParams{Measurement: entry, ID: id, UserID: userID})
+		if err != nil {
+			return // TODO: send error
+		}
+
+		bodyweights, err := h.DB.GetAllBodyWeights(r.Context(), userID)
+		if err != nil {
+			return // TODO: send error
+		}
+
+		templates.BodyweightsSect(bodyweights).Render(r.Context(), w)
+	}
+}
+
+func (h *Handler) DeleteMetrics(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
+
+	metricType := r.PathValue("type")
+	id, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		// TODO: send error
+		return
+	}
+	switch metricType {
+	case "bodyweights":
+
+		err := h.DB.DeleteBodyWeight(r.Context(), database.DeleteBodyWeightParams{ID: id, UserID: userID})
+		if err != nil {
+			return // TODO: send error
+		}
+
+		bodyweights, err := h.DB.GetAllBodyWeights(r.Context(), userID)
+		if err != nil {
+			return // TODO: send error
+		}
+
+		templates.BodyweightsSect(bodyweights).Render(r.Context(), w)
 	}
 }
