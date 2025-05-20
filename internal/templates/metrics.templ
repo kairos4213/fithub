@@ -2,9 +2,10 @@ package templates
 
 import (
 	"fmt"
-	"github.com/kairos4213/fithub/internal/database"
 	"sort"
 	"time"
+
+	"github.com/kairos4213/fithub/internal/database"
 )
 
 templ Metrics(
@@ -27,7 +28,7 @@ templ BodyweightsSect(bodyweights []database.BodyWeight) {
 		<h2 class="text-3xl p-8">Bodyweights</h2>
 		if len(bodyweights) == 0 {
 			<p>No bodyweight measurements have been logged</p>
-			<button hx-get="/metrics/bodyweights" hx-target="#bodyweights">Log</button>
+			<button hx-get={ string(templ.URL("/metrics/bodyweights")) } hx-target="#bodyweights">Log</button>
 		} else {
 			<div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100 mx-2">
 				<table class="table table-in-rows table-fixed text-md text-center">
@@ -54,8 +55,17 @@ templ BodyweightsSect(bodyweights []database.BodyWeight) {
 									/>
 								</td>
 								<td>
-									<button hx-get={ fmt.Sprintf("/metrics/bodyweights/%v", bodyweight.ID) } hx-include={ fmt.Sprintf("#bw-%v", bodyweight.ID) } hx-target={ fmt.Sprintf("#bw-%v", bodyweight.ID) } class="btn btn-secondary m-1">Edit</button>
-									<button hx-delete={ fmt.Sprintf("/metrics/bodyweights/%v", bodyweight.ID) } hx-target="#bodyweights" class="btn btn-warning">Delete</button>
+									<button
+										hx-get={ string(templ.URL(fmt.Sprintf("/metrics/bodyweights/%v", bodyweight.ID))) }
+										hx-include={ fmt.Sprintf("#bw-%v", bodyweight.ID) }
+										hx-target={ fmt.Sprintf("#bw-%v", bodyweight.ID) }
+										class="btn btn-secondary m-1"
+									>Edit</button>
+									<button
+										hx-delete={ string(templ.URL(fmt.Sprintf("/metrics/bodyweights/%v", bodyweight.ID))) }
+										hx-target="#bodyweights"
+										class="btn btn-warning"
+									>Delete</button>
 								</td>
 							</tr>
 						}
@@ -64,7 +74,11 @@ templ BodyweightsSect(bodyweights []database.BodyWeight) {
 						<th class="w-1/3"></th>
 						<th class="w-1/3"></th>
 						<th class="w-1/3">
-							<button hx-get="/metrics/bodyweights" hx-target="#log-bw-row" class="btn btn-outline btn-primary btn-ghost">Log</button>
+							<button
+								hx-get={ string(templ.URL("/metrics/bodyweights")) }
+								hx-target="#log-bw-row"
+								class="btn btn-outline btn-primary btn-ghost"
+							>Log</button>
 						</th>
 					</tfoot>
 				</table>
@@ -79,7 +93,7 @@ templ MuscleMassesSect(musclesMasses []database.MuscleMass) {
 		<h2 class="text-3xl p-8">Muscle Masses</h2>
 		if len(musclesMasses) == 0 {
 			<p>No muscle mass measurements have been logged</p>
-			<button hx-get="/metrics/muscleMasses" hx-target="#muscleMasses">Log</button>
+			<button hx-get={ string(templ.URL("/metrics/muscleMasses")) } hx-target="#muscleMasses">Log</button>
 		} else {
 			<div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100 mx-2">
 				<table class="table table-in-rows table-fixed text-md text-center">
@@ -96,8 +110,14 @@ templ MuscleMassesSect(musclesMasses []database.MuscleMass) {
 								<td>{ muscleMass.Measurement } lbs</td>
 								<td>{ fmt.Sprintf("%v", muscleMass.UpdatedAt.Format("Mon, 02 Jan 2006")) }</td>
 								<td>
-									<a hx-get={ fmt.Sprintf("/metrics/muscleMasses/%v", muscleMass.ID) } class="btn btn-secondary m-1">Edit</a>
-									<a hx-post={ fmt.Sprintf("/metrics/muscleMasses/%v", muscleMass.ID) } class="btn btn-warning">Delete</a>
+									<button
+										hx-get={ string(templ.URL(fmt.Sprintf("/metrics/muscleMasses/%v", muscleMass.ID))) }
+										class="btn btn-secondary m-1"
+									>Edit</button>
+									<button
+										hx-delete={ string(templ.URL(fmt.Sprintf("/metrics/muscleMasses/%v", muscleMass.ID))) }
+										class="btn btn-warning"
+									>Delete</button>
 								</td>
 							</tr>
 						}
@@ -106,7 +126,10 @@ templ MuscleMassesSect(musclesMasses []database.MuscleMass) {
 						<th class="w-1/3"></th>
 						<th class="w-1/3"></th>
 						<th class="w-1/3">
-							<a href="/metrics/muscleMasses" class="btn btn-outline btn-primary btn-ghost">Log</a>
+							<button
+								hx-get={ string(templ.URL("/metrics/muscleMasses")) }
+								class="btn btn-outline btn-primary btn-ghost"
+							>Log</button>
 						</th>
 					</tfoot>
 				</table>
@@ -121,7 +144,7 @@ templ BfPercentsSect(bfPercents []database.BodyFatPercent) {
 		<h2 class="text-3xl p-8">Body Fat Percentages</h2>
 		if len(bfPercents) == 0 {
 			<p>No body fat percentage measurements have been logged</p>
-			<button hx-get="/metrics/bfPercents" hx-target="#bfPercents">Log</button>
+			<button hx-get={ string(templ.URL("/metrics/bfPercents")) } hx-target="#bfPercents">Log</button>
 		} else {
 			<div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100 mx-2">
 				<table class="table table-in-rows table-fixed text-md text-center">
@@ -138,8 +161,14 @@ templ BfPercentsSect(bfPercents []database.BodyFatPercent) {
 								<td>{ bfPercent.Measurement }%</td>
 								<td>{ fmt.Sprintf("%v", bfPercent.UpdatedAt.Format("2 Jan 2006, Mon")) }</td>
 								<td>
-									<a hx-get={ fmt.Sprintf("/metrics/bfPercents/%v", bfPercent.ID) } class="btn btn-secondary m-1">Edit</a>
-									<a hx-post={ fmt.Sprintf("/metrics/bfPercents/%v", bfPercent.ID) } class="btn btn-warning">Delete</a>
+									<button
+										hx-get={ string(templ.URL(fmt.Sprintf("/metrics/bfPercents/%v", bfPercent.ID))) }
+										class="btn btn-secondary m-1"
+									>Edit</button>
+									<button
+										hx-post={ string(templ.URL(fmt.Sprintf("/metrics/bfPercents/%v", bfPercent.ID))) }
+										class="btn btn-warning"
+									>Delete</button>
 								</td>
 							</tr>
 						}
@@ -148,11 +177,10 @@ templ BfPercentsSect(bfPercents []database.BodyFatPercent) {
 						<th class="w-1/3"></th>
 						<th class="w-1/3"></th>
 						<th class="w-1/3">
-							<a
-								href="/metrics/bfPercents"
-								class="btn btn-outline
-            btn-primary btn-ghost"
-							>Log</a>
+							<button
+								hx-get={ string(templ.URL("/metrics/bfPercents")) }
+								class="btn btn-outline btn-primary btn-ghost"
+							>Log</button>
 						</th>
 					</tfoot>
 				</table>
@@ -173,7 +201,12 @@ templ LogBWForm() {
 	</td>
 	<td class="w-1/3">{ time.Now().Format("Monday, Jan 2 2006") }</td>
 	<td class="w-1/3">
-		<button hx-post="/metrics/bodyweights" hx-include="#log-bw-row" hx-target="#bodyweights" class="btn btn-primary">Log</button>
+		<button
+			hx-post={ string(templ.URL("/metrics/bodyweights")) }
+			hx-include="#log-bw-row"
+			hx-target="#bodyweights"
+			class="btn btn-primary"
+		>Log</button>
 	</td>
 }
 
@@ -190,7 +223,12 @@ templ EditBWForm(entry, date, id string) {
 	</td>
 	<td class="w-1/3">{ date }</td>
 	<td class="w-1/3">
-		<button hx-put={ fmt.Sprintf("/metrics/bodyweights/%v ", id) } hx-include={ fmt.Sprintf("#bw-%v", id) } hx-target="#bodyweights" class="btn btn-primary">Log Edit</button>
+		<button
+			hx-put={ string(templ.URL(fmt.Sprintf("/metrics/bodyweights/%v", id))) }
+			hx-include={ fmt.Sprintf("#bw-%v", id) }
+			hx-target="#bodyweights"
+			class="btn btn-primary"
+		>Log Edit</button>
 	</td>
 }
 
