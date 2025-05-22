@@ -35,18 +35,6 @@ func (h *Handler) GetAllMetrics(w http.ResponseWriter, r *http.Request) {
 	templates.Layout(contents, "Fithub | Metrics", true).Render(r.Context(), w)
 }
 
-func (h *Handler) GetLogMetricsForm(w http.ResponseWriter, r *http.Request) {
-	metricType := r.PathValue("type")
-	switch metricType {
-	case "bodyweights":
-		templates.LogBWForm().Render(r.Context(), w)
-	case "muscleMasses":
-		templates.LogMMForm().Render(r.Context(), w)
-	case "bfPercents":
-		templates.LogBFForm().Render(r.Context(), w)
-	}
-}
-
 func (h *Handler) LogMetrics(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 
@@ -54,18 +42,13 @@ func (h *Handler) LogMetrics(w http.ResponseWriter, r *http.Request) {
 	switch metricType {
 	case "bodyweights":
 		entry := r.FormValue("bodyweight")
-		_, err := h.DB.AddBodyWeight(r.Context(), database.AddBodyWeightParams{UserID: userID, Measurement: entry})
+		bw, err := h.DB.AddBodyWeight(r.Context(), database.AddBodyWeightParams{UserID: userID, Measurement: entry})
 		if err != nil {
 			// TODO: handle error
 			return
 		}
 
-		bodyweights, err := h.DB.GetAllBodyWeights(r.Context(), userID)
-		if err != nil {
-			// TODO: html error response
-			return
-		}
-		templates.BodyweightsSect(bodyweights).Render(r.Context(), w)
+		templates.BWDataRow(bw).Render(r.Context(), w)
 	case "muscleMasses":
 		entry := r.FormValue("muscleMass")
 		_, err := h.DB.AddMuscleMass(r.Context(), database.AddMuscleMassParams{UserID: userID, Measurement: entry})
@@ -117,17 +100,12 @@ func (h *Handler) EditMetrics(w http.ResponseWriter, r *http.Request) {
 	case "bodyweights":
 		entry := r.FormValue("bodyweight")
 
-		_, err := h.DB.UpdateBodyWeight(r.Context(), database.UpdateBodyWeightParams{Measurement: entry, ID: id, UserID: userID})
+		updatedBW, err := h.DB.UpdateBodyWeight(r.Context(), database.UpdateBodyWeightParams{Measurement: entry, ID: id, UserID: userID})
 		if err != nil {
 			return // TODO: send error
 		}
 
-		bodyweights, err := h.DB.GetAllBodyWeights(r.Context(), userID)
-		if err != nil {
-			return // TODO: send error
-		}
-
-		templates.BodyweightsSect(bodyweights).Render(r.Context(), w)
+		templates.BWDataRow(updatedBW).Render(r.Context(), w)
 	}
 }
 
@@ -142,17 +120,11 @@ func (h *Handler) DeleteMetrics(w http.ResponseWriter, r *http.Request) {
 	}
 	switch metricType {
 	case "bodyweights":
-
 		err := h.DB.DeleteBodyWeight(r.Context(), database.DeleteBodyWeightParams{ID: id, UserID: userID})
 		if err != nil {
 			return // TODO: send error
 		}
 
-		bodyweights, err := h.DB.GetAllBodyWeights(r.Context(), userID)
-		if err != nil {
-			return // TODO: send error
-		}
-
-		templates.BodyweightsSect(bodyweights).Render(r.Context(), w)
+		w.WriteHeader(http.StatusOK)
 	}
 }

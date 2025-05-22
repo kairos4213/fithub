@@ -41,45 +41,42 @@ templ BodyweightsSect(bodyweights []database.BodyWeight) {
 					</thead>
 					<tbody>
 						for _, bodyweight := range bodyweights {
-							<tr id={ fmt.Sprintf("bw-%v", bodyweight.ID) }>
-								<td>
-									{ bodyweight.Measurement } lbs
-									<input class="hidden" name="bw-entry" value={ bodyweight.Measurement }/>
-								</td>
-								<td>
-									{ fmt.Sprintf("%v", bodyweight.CreatedAt.Format("Monday, Jan 02 2006")) }
-									<input
-										class="hidden"
-										name="bw-date"
-										value={ bodyweight.CreatedAt.Format("Monday, Jan 02 2006") }
-									/>
-								</td>
-								<td>
-									<button
-										hx-get={ string(templ.URL(fmt.Sprintf("/metrics/bodyweights/%v", bodyweight.ID))) }
-										hx-include={ fmt.Sprintf("#bw-%v", bodyweight.ID) }
-										hx-target={ fmt.Sprintf("#bw-%v", bodyweight.ID) }
-										class="btn btn-secondary m-1"
-									>Edit</button>
-									<button
-										hx-delete={ string(templ.URL(fmt.Sprintf("/metrics/bodyweights/%v", bodyweight.ID))) }
-										hx-target="#bodyweights"
-										class="btn btn-warning"
-									>Delete</button>
-								</td>
-							</tr>
+							@BWDataRow(bodyweight)
 						}
 					</tbody>
-					<tfoot id="log-bw-row">
-						<th class="w-1/3"></th>
-						<th class="w-1/3"></th>
-						<th class="w-1/3">
-							<button
-								hx-get={ string(templ.URL("/metrics/bodyweights")) }
-								hx-target="#log-bw-row"
-								class="btn btn-outline btn-primary btn-ghost"
-							>Log</button>
-						</th>
+					<tfoot id="log-bw-row" x-data="{ open: false }">
+						<tr x-show="!open">
+							<th class="w-1/3"></th>
+							<th class="w-1/3"></th>
+							<th class="w-1/3">
+								<button
+									class="btn btn-outline btn-primary btn-ghost"
+									@click="open = ! open"
+								>Log</button>
+							</th>
+						</tr>
+						<tr x-cloak x-show="open">
+							<th class="w-1/3">
+								<input
+									class="input input-ghost text-center border-secondary"
+									type="text"
+									name="bodyweight"
+									placeholder="Enter Bodyweight"
+									required
+								/>
+							</th>
+							<th class="w-1/3">{ time.Now().Format("Monday, Jan 2 2006") }</th>
+							<th class="w-1/3">
+								<button
+									hx-post={ string(templ.URL("/metrics/bodyweights")) }
+									hx-include="#log-bw-row"
+									hx-target="tbody"
+									hx-swap="beforeend"
+									class="btn btn-primary"
+									@click="open = ! open"
+								>Log</button>
+							</th>
+						</tr>
 					</tfoot>
 				</table>
 			</div>
@@ -204,7 +201,8 @@ templ LogBWForm() {
 		<button
 			hx-post={ string(templ.URL("/metrics/bodyweights")) }
 			hx-include="#log-bw-row"
-			hx-target="#bodyweights"
+			hx-target="tbody"
+			hx-swap="beforeend"
 			class="btn btn-primary"
 		>Log</button>
 	</td>
@@ -226,10 +224,42 @@ templ EditBWForm(entry, date, id string) {
 		<button
 			hx-put={ string(templ.URL(fmt.Sprintf("/metrics/bodyweights/%v", id))) }
 			hx-include={ fmt.Sprintf("#bw-%v", id) }
-			hx-target="#bodyweights"
+			hx-target={ fmt.Sprintf("#bw-%v", id) }
+			hx-swap="outerHTML"
 			class="btn btn-primary"
 		>Log Edit</button>
 	</td>
+}
+
+templ BWDataRow(bodyweight database.BodyWeight) {
+	<tr id={ fmt.Sprintf("bw-%v", bodyweight.ID) }>
+		<td>
+			{ bodyweight.Measurement } lbs
+			<input class="hidden" name="bw-entry" value={ bodyweight.Measurement }/>
+		</td>
+		<td>
+			{ fmt.Sprintf("%v", bodyweight.CreatedAt.Format("Monday, Jan 02 2006")) }
+			<input
+				class="hidden"
+				name="bw-date"
+				value={ bodyweight.CreatedAt.Format("Monday, Jan 02 2006") }
+			/>
+		</td>
+		<td>
+			<button
+				hx-get={ string(templ.URL(fmt.Sprintf("/metrics/bodyweights/%v", bodyweight.ID))) }
+				hx-include={ fmt.Sprintf("#bw-%v", bodyweight.ID) }
+				hx-target={ fmt.Sprintf("#bw-%v", bodyweight.ID) }
+				class="btn btn-secondary m-1"
+			>Edit</button>
+			<button
+				hx-delete={ string(templ.URL(fmt.Sprintf("/metrics/bodyweights/%v", bodyweight.ID))) }
+				hx-target={ fmt.Sprintf("#bw-%v", bodyweight.ID) }
+				hx-swap="delete"
+				class="btn btn-warning"
+			>Delete</button>
+		</td>
+	</tr>
 }
 
 templ LogMMForm() {

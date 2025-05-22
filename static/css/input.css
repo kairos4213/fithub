@@ -2,3 +2,7 @@
 @plugin "daisyui" {
   themes: dim --default;
 }
+
+[x-cloak] {
+  display: none !important;
+}
