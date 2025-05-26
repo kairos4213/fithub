@@ -76,17 +76,6 @@ func (h *Handler) LogMetrics(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *Handler) GetEditMetricsForm(w http.ResponseWriter, r *http.Request) {
-	metricType := r.PathValue("type")
-	id := r.PathValue("id")
-	switch metricType {
-	case "bodyweights":
-		entry := r.FormValue("bw-entry")
-		date := r.FormValue("bw-date")
-		templates.EditBWForm(entry, date, id).Render(r.Context(), w)
-	}
-}
-
 func (h *Handler) EditMetrics(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 

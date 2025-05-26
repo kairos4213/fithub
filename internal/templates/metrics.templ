@@ -103,20 +103,7 @@ templ MuscleMassesSect(musclesMasses []database.MuscleMass) {
 					</thead>
 					<tbody>
 						for _, muscleMass := range musclesMasses {
-							<tr>
-								<td>{ muscleMass.Measurement } lbs</td>
-								<td>{ fmt.Sprintf("%v", muscleMass.UpdatedAt.Format("Mon, 02 Jan 2006")) }</td>
-								<td>
-									<button
-										hx-get={ string(templ.URL(fmt.Sprintf("/metrics/muscleMasses/%v", muscleMass.ID))) }
-										class="btn btn-secondary m-1"
-									>Edit</button>
-									<button
-										hx-delete={ string(templ.URL(fmt.Sprintf("/metrics/muscleMasses/%v", muscleMass.ID))) }
-										class="btn btn-warning"
-									>Delete</button>
-								</td>
-							</tr>
+							@MMDataRow(muscleMass)
 						}
 					</tbody>
 					<tfoot>
@@ -186,76 +173,61 @@ templ BfPercentsSect(bfPercents []database.BodyFatPercent) {
 	</section>
 }
 
-templ LogBWForm() {
-	<td class="w-1/3">
-		<input
-			class="input input-ghost text-center border-secondary"
-			type="text"
-			name="bodyweight"
-			placeholder="Enter Bodyweight"
-			required
-		/>
-	</td>
-	<td class="w-1/3">{ time.Now().Format("Monday, Jan 2 2006") }</td>
-	<td class="w-1/3">
-		<button
-			hx-post={ string(templ.URL("/metrics/bodyweights")) }
-			hx-include="#log-bw-row"
-			hx-target="tbody"
-			hx-swap="beforeend"
-			class="btn btn-primary"
-		>Log</button>
-	</td>
-}
-
-templ EditBWForm(entry, date, id string) {
-	<td class="w-1/3">
-		<input
-			class="input input-ghost text-center border-secondary"
-			type="text"
-			name="bodyweight"
-			value={ fmt.Sprintf("%v", entry) }
-			placeholder={ fmt.Sprintf("%v", entry) }
-			required
-		/>
-	</td>
-	<td class="w-1/3">{ date }</td>
-	<td class="w-1/3">
-		<button
-			hx-put={ string(templ.URL(fmt.Sprintf("/metrics/bodyweights/%v", id))) }
-			hx-include={ fmt.Sprintf("#bw-%v", id) }
-			hx-target={ fmt.Sprintf("#bw-%v", id) }
-			hx-swap="outerHTML"
-			class="btn btn-primary"
-		>Log Edit</button>
-	</td>
-}
-
 templ BWDataRow(bodyweight database.BodyWeight) {
-	<tr id={ fmt.Sprintf("bw-%v", bodyweight.ID) }>
-		<td>
+	<tr id={ fmt.Sprintf("bw-%v", bodyweight.ID) } x-data="{ editing: false }">
+		<td x-show="!editing">
 			{ bodyweight.Measurement } lbs
-			<input class="hidden" name="bw-entry" value={ bodyweight.Measurement }/>
 		</td>
-		<td>
-			{ fmt.Sprintf("%v", bodyweight.CreatedAt.Format("Monday, Jan 02 2006")) }
+		<td x-cloak x-show="editing">
 			<input
-				class="hidden"
-				name="bw-date"
-				value={ bodyweight.CreatedAt.Format("Monday, Jan 02 2006") }
+				class="input input-ghost text-center border-secondary"
+				type="text"
+				name="bodyweight"
+				value={ fmt.Sprintf("%v", bodyweight.Measurement) }
+				required
 			/>
 		</td>
 		<td>
+			{ fmt.Sprintf("%v", bodyweight.CreatedAt.Format("Monday, Jan 02 2006")) }
+		</td>
+		<td>
 			<button
-				hx-get={ string(templ.URL(fmt.Sprintf("/metrics/bodyweights/%v", bodyweight.ID))) }
-				hx-include={ fmt.Sprintf("#bw-%v", bodyweight.ID) }
-				hx-target={ fmt.Sprintf("#bw-%v", bodyweight.ID) }
+				x-show="!editing"
 				class="btn btn-secondary m-1"
+				@click="editing = ! editing"
 			>Edit</button>
 			<button
+				x-show="!editing"
 				hx-delete={ string(templ.URL(fmt.Sprintf("/metrics/bodyweights/%v", bodyweight.ID))) }
 				hx-target={ fmt.Sprintf("#bw-%v", bodyweight.ID) }
 				hx-swap="delete"
+				class="btn btn-warning"
+			>Delete</button>
+			<button
+				x-cloak
+				x-show="editing"
+				hx-put={ string(templ.URL(fmt.Sprintf("/metrics/bodyweights/%v", bodyweight.ID))) }
+				hx-include={ fmt.Sprintf("#bw-%v", bodyweight.ID) }
+				hx-target={ fmt.Sprintf("#bw-%v", bodyweight.ID) }
+				hx-swap="outerHTML"
+				class="btn btn-primary"
+				@click="editing = ! editing"
+			>Log Edit</button>
+		</td>
+	</tr>
+}
+
+templ MMDataRow(muscleMass database.MuscleMass) {
+	<tr>
+		<td>{ muscleMass.Measurement } lbs</td>
+		<td>{ fmt.Sprintf("%v", muscleMass.UpdatedAt.Format("Mon, 02 Jan 2006")) }</td>
+		<td>
+			<button
+				hx-get={ string(templ.URL(fmt.Sprintf("/metrics/muscleMasses/%v", muscleMass.ID))) }
+				class="btn btn-secondary m-1"
+			>Edit</button>
+			<button
+				hx-delete={ string(templ.URL(fmt.Sprintf("/metrics/muscleMasses/%v", muscleMass.ID))) }
 				class="btn btn-warning"
 			>Delete</button>
 		</td>
