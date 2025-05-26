@@ -50,17 +50,13 @@ func (h *Handler) LogMetrics(w http.ResponseWriter, r *http.Request) {
 
 		templates.BWDataRow(bw).Render(r.Context(), w)
 	case "muscleMasses":
-		entry := r.FormValue("muscleMass")
-		_, err := h.DB.AddMuscleMass(r.Context(), database.AddMuscleMassParams{UserID: userID, Measurement: entry})
+		entry := r.FormValue("muscle-mass")
+		mm, err := h.DB.AddMuscleMass(r.Context(), database.AddMuscleMassParams{UserID: userID, Measurement: entry})
 		if err != nil {
-			return
+			return // TODO: send error
 		}
 
-		muscleMasses, err := h.DB.GetAllMuscleMasses(r.Context(), userID)
-		if err != nil {
-			return
-		}
-		templates.MuscleMassesSect(muscleMasses).Render(r.Context(), w)
+		templates.MMDataRow(mm).Render(r.Context(), w)
 	case "bfPercents":
 		entry := r.FormValue("bfPercent")
 		_, err := h.DB.AddBodyFatPerc(r.Context(), database.AddBodyFatPercParams{UserID: userID, Measurement: entry})

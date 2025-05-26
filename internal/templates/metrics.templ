@@ -31,7 +31,7 @@ templ BodyweightsSect(bodyweights []database.BodyWeight) {
 			<button hx-get={ string(templ.URL("/metrics/bodyweights")) } hx-target="#bodyweights">Log</button>
 		} else {
 			<div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100 mx-2">
-				<table class="table table-in-rows table-fixed text-md text-center">
+				<table id="bw-table" class="table table-in-rows table-fixed text-md text-center">
 					<thead>
 						<tr>
 							<th class="w-1/3">Measurement</th>
@@ -70,7 +70,7 @@ templ BodyweightsSect(bodyweights []database.BodyWeight) {
 								<button
 									hx-post={ string(templ.URL("/metrics/bodyweights")) }
 									hx-include="#log-bw-row"
-									hx-target="tbody"
+									hx-target="#bw-table"
 									hx-swap="beforeend"
 									class="btn btn-primary"
 									@click="open = ! open"
@@ -93,7 +93,7 @@ templ MuscleMassesSect(musclesMasses []database.MuscleMass) {
 			<button hx-get={ string(templ.URL("/metrics/muscleMasses")) } hx-target="#muscleMasses">Log</button>
 		} else {
 			<div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100 mx-2">
-				<table class="table table-in-rows table-fixed text-md text-center">
+				<table id="mm-table" class="table table-in-rows table-fixed text-md text-center">
 					<thead>
 						<tr>
 							<th class="w-1/3">Measurement</th>
@@ -106,15 +106,39 @@ templ MuscleMassesSect(musclesMasses []database.MuscleMass) {
 							@MMDataRow(muscleMass)
 						}
 					</tbody>
-					<tfoot>
-						<th class="w-1/3"></th>
-						<th class="w-1/3"></th>
-						<th class="w-1/3">
-							<button
-								hx-get={ string(templ.URL("/metrics/muscleMasses")) }
-								class="btn btn-outline btn-primary btn-ghost"
-							>Log</button>
-						</th>
+					<tfoot id="log-mm-row" x-data="{ open: false}">
+						<tr x-show="!open">
+							<th class="w-1/3"></th>
+							<th class="w-1/3"></th>
+							<th class="w-1/3">
+								<button
+									class="btn btn-outline btn-primary btn-ghost"
+									@click="open = ! open"
+								>Log</button>
+							</th>
+						</tr>
+						<tr x-cloak x-show="open">
+							<th class="w-1/3">
+								<input
+									class="input input-ghost text-center border-secondary"
+									type="text"
+									name="muscle-mass"
+									placeholder="Enter Muscle Mass"
+									required
+								/>
+							</th>
+							<th class="w-1/3">{ time.Now().Format("Monday, Jan 2 2006") }</th>
+							<th class="w-1/3">
+								<button
+									hx-post={ string(templ.URL("/metrics/muscleMasses")) }
+									hx-include="#log-mm-row"
+									hx-target="#mm-table"
+									hx-swap="beforeend"
+									class="btn btn-primary"
+									@click="open = ! open"
+								>Log</button>
+							</th>
+						</tr>
 					</tfoot>
 				</table>
 			</div>
