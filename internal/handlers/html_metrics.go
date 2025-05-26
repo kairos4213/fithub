@@ -91,6 +91,15 @@ func (h *Handler) EditMetrics(w http.ResponseWriter, r *http.Request) {
 		}
 
 		templates.BWDataRow(updatedBW).Render(r.Context(), w)
+	case "muscleMasses":
+		entry := r.FormValue("muscle-mass")
+
+		updatedMM, err := h.DB.UpdateMuscleMass(r.Context(), database.UpdateMuscleMassParams{Measurement: entry, ID: id, UserID: userID})
+		if err != nil {
+			return // TODO: send error
+		}
+
+		templates.MMDataRow(updatedMM).Render(r.Context(), w)
 	}
 }
 

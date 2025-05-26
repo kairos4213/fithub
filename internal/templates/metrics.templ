@@ -242,31 +242,47 @@ templ BWDataRow(bodyweight database.BodyWeight) {
 }
 
 templ MMDataRow(muscleMass database.MuscleMass) {
-	<tr>
-		<td>{ muscleMass.Measurement } lbs</td>
-		<td>{ fmt.Sprintf("%v", muscleMass.UpdatedAt.Format("Mon, 02 Jan 2006")) }</td>
+	<tr id={ fmt.Sprintf("mm-%v", muscleMass.ID) } x-data="{ editing: false }">
+		<td x-show="!editing">
+			{ muscleMass.Measurement } lbs
+		</td>
+		<td x-cloak x-show="editing">
+			<input
+				class="input input-ghost text-center border-secondary"
+				type="text"
+				name="muscle-mass"
+				value={ fmt.Sprintf("%v", muscleMass.Measurement) }
+				required
+			/>
+		</td>
+		<td>
+			{ fmt.Sprintf("%v", muscleMass.CreatedAt.Format("Monday, Jan 02 2006")) }
+		</td>
 		<td>
 			<button
-				hx-get={ string(templ.URL(fmt.Sprintf("/metrics/muscleMasses/%v", muscleMass.ID))) }
+				x-show="!editing"
 				class="btn btn-secondary m-1"
+				@click="editing = ! editing"
 			>Edit</button>
 			<button
+				x-show="!editing"
 				hx-delete={ string(templ.URL(fmt.Sprintf("/metrics/muscleMasses/%v", muscleMass.ID))) }
+				hx-target={ fmt.Sprintf("#mm-%v", muscleMass.ID) }
+				hx-swap="delete"
 				class="btn btn-warning"
 			>Delete</button>
+			<button
+				x-cloak
+				x-show="editing"
+				hx-put={ string(templ.URL(fmt.Sprintf("/metrics/muscleMasses/%v", muscleMass.ID))) }
+				hx-include={ fmt.Sprintf("#mm-%v", muscleMass.ID) }
+				hx-target={ fmt.Sprintf("#mm-%v", muscleMass.ID) }
+				hx-swap="outerHTML"
+				class="btn btn-primary"
+				@click="editing = ! editing"
+			>Log Edit</button>
 		</td>
 	</tr>
-}
-
-templ LogMMForm() {
-	<form hx-post="/metrics/muscleMasses" hx-target="#muscleMasses" class="mx-3">
-		<fieldset>
-			<legend>Log Muscle Mass Form</legend>
-			<input class="" type="text" name="muscleMass" placeholder="Enter Muscle Mass" required/>
-			<button type="submit" class="hover:text-slate-800 hover:bg-stone-300 hover:cursor-pointer">Log</button>
-			<!-- <span class="">{ err.Default }</span> -->
-		</fieldset>
-	</form>
 }
 
 templ LogBFForm() {
