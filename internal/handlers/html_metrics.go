@@ -120,5 +120,12 @@ func (h *Handler) DeleteMetrics(w http.ResponseWriter, r *http.Request) {
 		}
 
 		w.WriteHeader(http.StatusOK)
+	case "muscleMasses":
+		err := h.DB.DeleteMuscleMass(r.Context(), database.DeleteMuscleMassParams{ID: id, UserID: userID})
+		if err != nil {
+			return // TODO: send error
+		}
+
+		w.WriteHeader(http.StatusOK)
 	}
 }
