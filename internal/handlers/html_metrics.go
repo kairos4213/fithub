@@ -58,17 +58,13 @@ func (h *Handler) LogMetrics(w http.ResponseWriter, r *http.Request) {
 
 		templates.MMDataRow(mm).Render(r.Context(), w)
 	case "bfPercents":
-		entry := r.FormValue("bfPercent")
-		_, err := h.DB.AddBodyFatPerc(r.Context(), database.AddBodyFatPercParams{UserID: userID, Measurement: entry})
+		entry := r.FormValue("bf-percent")
+		bf, err := h.DB.AddBodyFatPerc(r.Context(), database.AddBodyFatPercParams{UserID: userID, Measurement: entry})
 		if err != nil {
-			return
+			return // TODO: send error
 		}
 
-		bfPercents, err := h.DB.GetAllBodyFatPercs(r.Context(), userID)
-		if err != nil {
-			return
-		}
-		templates.BfPercentsSect(bfPercents).Render(r.Context(), w)
+		templates.BFPercentDataRow(bf).Render(r.Context(), w)
 	}
 }
 
@@ -100,6 +96,15 @@ func (h *Handler) EditMetrics(w http.ResponseWriter, r *http.Request) {
 		}
 
 		templates.MMDataRow(updatedMM).Render(r.Context(), w)
+	case "bfPercents":
+		entry := r.FormValue("bf-percent")
+
+		updatedBF, err := h.DB.UpdateBodyFatPerc(r.Context(), database.UpdateBodyFatPercParams{Measurement: entry, ID: id, UserID: userID})
+		if err != nil {
+			return // TODO: send error
+		}
+
+		templates.BFPercentDataRow(updatedBF).Render(r.Context(), w)
 	}
 }
 
@@ -122,6 +127,13 @@ func (h *Handler) DeleteMetrics(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	case "muscleMasses":
 		err := h.DB.DeleteMuscleMass(r.Context(), database.DeleteMuscleMassParams{ID: id, UserID: userID})
+		if err != nil {
+			return // TODO: send error
+		}
+
+		w.WriteHeader(http.StatusOK)
+	case "bfPercents":
+		err := h.DB.DeleteBodyFatPerc(r.Context(), database.DeleteBodyFatPercParams{ID: id, UserID: userID})
 		if err != nil {
 			return // TODO: send error
 		}
