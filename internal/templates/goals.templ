@@ -1,0 +1,26 @@
+package templates
+
+import "github.com/kairos4213/fithub/internal/database"
+
+templ Goals(goals []database.Goal) {
+	<h2>Goals Page</h2>
+	for _, goal := range goals {
+		<p>{ goal.ID.String() }</p>
+		<p>{ goal.CreatedAt.Format("Mon, Jan 2 15:04:05 2006") }</p>
+		<p>{ goal.UpdatedAt.Format("Mon, Jan 2 15:04:05 2006") }</p>
+		<p>{ goal.GoalName }</p>
+		<p>{ goal.Description }</p>
+		<p>{ goal.GoalDate.Format("Mon, Jan 2 2006") }</p>
+		if goal.CompletionDate.Valid {
+			<p>{ goal.CompletionDate.Time.Format("Mon, Jan 2 2006") }</p>
+		} else {
+			<p>N/A</p>
+		}
+		if goal.Notes.Valid {
+			<p>{ goal.Notes.String }</p>
+		} else {
+			<p>No notes</p>
+		}
+		<p>{ goal.Status }</p>
+	}
+}
