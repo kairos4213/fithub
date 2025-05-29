@@ -4,3 +4,4 @@ fithub
 *.toml
 tmp/
 node_modules/
+.sqlfluff
