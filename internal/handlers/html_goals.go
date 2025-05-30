@@ -53,6 +53,9 @@ func (h *Handler) AddNewGoal(w http.ResponseWriter, r *http.Request) {
 		Notes:       notes,
 		UserID:      userID,
 	})
+	if err != nil {
+		return // TODO: handle error
+	}
 
-	// TODO: Handle html response with new goal
+	templates.NewGoal(newGoal).Render(r.Context(), w)
 }

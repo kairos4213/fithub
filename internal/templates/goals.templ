@@ -3,24 +3,75 @@ package templates
 import "github.com/kairos4213/fithub/internal/database"
 
 templ Goals(goals []database.Goal) {
-	<h2>Goals Page</h2>
-	for _, goal := range goals {
-		<p>{ goal.ID.String() }</p>
-		<p>{ goal.CreatedAt.Format("Mon, Jan 2 15:04:05 2006") }</p>
-		<p>{ goal.UpdatedAt.Format("Mon, Jan 2 15:04:05 2006") }</p>
-		<p>{ goal.GoalName }</p>
-		<p>{ goal.Description }</p>
-		<p>{ goal.GoalDate.Format("Mon, Jan 2 2006") }</p>
-		if goal.CompletionDate.Valid {
-			<p>{ goal.CompletionDate.Time.Format("Mon, Jan 2 2006") }</p>
-		} else {
-			<p>N/A</p>
+	<section id="goals">
+		<h2>Goals Page</h2>
+		for _, goal := range goals {
+			<p>{ goal.ID.String() }</p>
+			<p>{ goal.CreatedAt.Format("Mon, Jan 2 15:04:05 2006") }</p>
+			<p>{ goal.UpdatedAt.Format("Mon, Jan 2 15:04:05 2006") }</p>
+			<p>{ goal.GoalName }</p>
+			<p>{ goal.Description }</p>
+			<p>{ goal.GoalDate.Format("Mon, Jan 2 2006") }</p>
+			if goal.CompletionDate.Valid {
+				<p>{ goal.CompletionDate.Time.Format("Mon, Jan 2 2006") }</p>
+			} else {
+				<p>N/A</p>
+			}
+			if goal.Notes.Valid {
+				<p>{ goal.Notes.String }</p>
+			} else {
+				<p>No notes</p>
+			}
+			<p>{ goal.Status }</p>
 		}
-		if goal.Notes.Valid {
-			<p>{ goal.Notes.String }</p>
-		} else {
-			<p>No notes</p>
-		}
-		<p>{ goal.Status }</p>
+	</section>
+	<div x-data="{ open: false }">
+		<button class="btn btn-outline btn-primary btn-ghost" x-show="!open" @click="open = ! open">
+			Add New Goal
+		</button>
+		<form x-cloak x-show="open">
+			<input
+				class="input input-ghost text-center border-secondary"
+				type="text"
+				name="goal-name"
+				placeholder="Enter Goal Name"
+				required
+			/>
+			<textarea
+				class="textarea h-12"
+				name="description"
+				placeholder="Enter Description"
+				required
+			></textarea>
+			<input type="date" name="goal-date" required/>
+			<textarea class="textarea h-12" name="notes" placeholder="Enter Optional Notes"></textarea>
+			<button
+				hx-post={ string(templ.URL("/goals")) }
+				hx-target="#goals"
+				hx-swap="beforeend"
+				class="btn btn-primary"
+				@click="open = ! open"
+			>Add Goal</button>
+		</form>
+	</div>
+}
+
+templ NewGoal(goal database.Goal) {
+	<p>{ goal.ID.String() }</p>
+	<p>{ goal.CreatedAt.Format("Mon, Jan 2 15:04:05 2006") }</p>
+	<p>{ goal.UpdatedAt.Format("Mon, Jan 2 15:04:05 2006") }</p>
+	<p>{ goal.GoalName }</p>
+	<p>{ goal.Description }</p>
+	<p>{ goal.GoalDate.Format("Mon, Jan 2 2006") }</p>
+	if goal.CompletionDate.Valid {
+		<p>{ goal.CompletionDate.Time.Format("Mon, Jan 2 2006") }</p>
+	} else {
+		<p>N/A</p>
 	}
+	if goal.Notes.Valid {
+		<p>{ goal.Notes.String }</p>
+	} else {
+		<p>No notes</p>
+	}
+	<p>{ goal.Status }</p>
 }
