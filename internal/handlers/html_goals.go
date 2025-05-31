@@ -59,3 +59,73 @@ func (h *Handler) AddNewGoal(w http.ResponseWriter, r *http.Request) {
 
 	templates.GoalDataRow(newGoal).Render(r.Context(), w)
 }
+
+func (h *Handler) EditGoal(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
+	goalID, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		return // TODO: Handle error
+	}
+
+	err = r.ParseForm()
+	if err != nil {
+		return // TODO: handle error
+	}
+
+	reqGoalName := r.FormValue("goal-name")
+	reqStatus := r.FormValue("status")
+	reqDescription := r.FormValue("description")
+	reqGoalDate := r.FormValue("goal-date")
+	reqNotes := r.FormValue("notes")
+
+	goalDate, err := time.Parse(time.DateOnly, reqGoalDate)
+	if err != nil {
+		return // TODO: handle err
+	}
+
+	notes := sql.NullString{Valid: false}
+	if reqNotes != "" {
+		notes.String = reqNotes
+		notes.Valid = true
+	}
+
+	completionDate := sql.NullTime{Valid: false}
+	if reqStatus == "completed" {
+		completionDate.Time = time.Now().UTC()
+		completionDate.Valid = true
+	}
+
+	updatedGoal, err := h.DB.UpdateGoal(r.Context(), database.UpdateGoalParams{
+		GoalName:       reqGoalName,
+		Description:    reqDescription,
+		GoalDate:       goalDate,
+		CompletionDate: completionDate,
+		Notes:          notes,
+		Status:         reqStatus,
+		ID:             goalID,
+		UserID:         userID,
+	})
+	if err != nil {
+		return // TODO: handle err
+	}
+
+	templates.GoalDataRow(updatedGoal).Render(r.Context(), w)
+}
+
+func (h *Handler) DeleteGoal(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
+	goalID, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		return // TODO: Handle error
+	}
+
+	err = h.DB.DeleteGoal(r.Context(), database.DeleteGoalParams{
+		ID:     goalID,
+		UserID: userID,
+	})
+	if err != nil {
+		return // TODO: handle error
+	}
+
+	w.WriteHeader(http.StatusOK)
+}

@@ -101,6 +101,7 @@ func (h *Handler) GetAllUserGoals(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) UpdateGoal(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 	goalID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "invalid goal id", err)
@@ -118,6 +119,7 @@ func (h *Handler) UpdateGoal(w http.ResponseWriter, r *http.Request) {
 		GoalName:    reqParams.Name,
 		Description: reqParams.Description,
 		Status:      reqParams.Status,
+		UserID:      userID,
 	}
 
 	goalDate, err := time.Parse(time.DateOnly, reqParams.GoalDate)
@@ -164,14 +166,18 @@ func (h *Handler) UpdateGoal(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (h *Handler) DeleteGoal(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) DeleteGoalJSON(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 	goalID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, "Error parsing goal id", err)
 		return
 	}
 
-	if err := h.DB.DeleteGoal(r.Context(), goalID); err != nil {
+	if err := h.DB.DeleteGoal(r.Context(), database.DeleteGoalParams{
+		ID:     goalID,
+		UserID: userID,
+	}); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, "Error deleting goal", err)
 		return
 	}

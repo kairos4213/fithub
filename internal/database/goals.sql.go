@@ -23,8 +23,8 @@ INSERT INTO goals (
     goal_date,
     notes,
     user_id
-  ) VALUES (gen_random_uuid(), NOW(), NOW(), $1, $2, $3, $4, $5)
-  RETURNING id, created_at, updated_at, goal_name, description, goal_date, completion_date, notes, status, user_id
+) VALUES (gen_random_uuid(), now(), now(), $1, $2, $3, $4, $5)
+RETURNING id, created_at, updated_at, goal_name, description, goal_date, completion_date, notes, status, user_id
 `
 
 type CreateGoalParams struct {
@@ -61,7 +61,7 @@ func (q *Queries) CreateGoal(ctx context.Context, arg CreateGoalParams) (Goal, e
 
 const deleteAllUserGoals = `-- name: DeleteAllUserGoals :exec
 DELETE FROM goals
-  WHERE user_id = $1
+WHERE user_id = $1
 `
 
 func (q *Queries) DeleteAllUserGoals(ctx context.Context, userID uuid.UUID) error {
@@ -71,17 +71,22 @@ func (q *Queries) DeleteAllUserGoals(ctx context.Context, userID uuid.UUID) erro
 
 const deleteGoal = `-- name: DeleteGoal :exec
 DELETE FROM goals
-  WHERE id = $1
+WHERE id = $1 AND user_id = $2
 `
 
-func (q *Queries) DeleteGoal(ctx context.Context, id uuid.UUID) error {
-	_, err := q.db.ExecContext(ctx, deleteGoal, id)
+type DeleteGoalParams struct {
+	ID     uuid.UUID
+	UserID uuid.UUID
+}
+
+func (q *Queries) DeleteGoal(ctx context.Context, arg DeleteGoalParams) error {
+	_, err := q.db.ExecContext(ctx, deleteGoal, arg.ID, arg.UserID)
 	return err
 }
 
 const getAllUserGoals = `-- name: GetAllUserGoals :many
 SELECT id, created_at, updated_at, goal_name, description, goal_date, completion_date, notes, status, user_id FROM goals
-  WHERE user_id = $1
+WHERE user_id = $1
 `
 
 func (q *Queries) GetAllUserGoals(ctx context.Context, userID uuid.UUID) ([]Goal, error) {
@@ -120,15 +125,16 @@ func (q *Queries) GetAllUserGoals(ctx context.Context, userID uuid.UUID) ([]Goal
 
 const updateGoal = `-- name: UpdateGoal :one
 UPDATE goals
-  SET updated_at = NOW(),
-      goal_name = $1,
-      description = $2,
-      goal_date = $3,
-      completion_date = $4,
-      notes = $5,
-      status = $6
-  WHERE id = $7
-  RETURNING id, created_at, updated_at, goal_name, description, goal_date, completion_date, notes, status, user_id
+SET
+    updated_at = now(),
+    goal_name = $1,
+    description = $2,
+    goal_date = $3,
+    completion_date = $4,
+    notes = $5,
+    status = $6
+WHERE id = $7 AND user_id = $8
+RETURNING id, created_at, updated_at, goal_name, description, goal_date, completion_date, notes, status, user_id
 `
 
 type UpdateGoalParams struct {
@@ -139,6 +145,7 @@ type UpdateGoalParams struct {
 	Notes          sql.NullString
 	Status         string
 	ID             uuid.UUID
+	UserID         uuid.UUID
 }
 
 func (q *Queries) UpdateGoal(ctx context.Context, arg UpdateGoalParams) (Goal, error) {
@@ -150,6 +157,7 @@ func (q *Queries) UpdateGoal(ctx context.Context, arg UpdateGoalParams) (Goal, e
 		arg.Notes,
 		arg.Status,
 		arg.ID,
+		arg.UserID,
 	)
 	var i Goal
 	err := row.Scan(

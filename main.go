@@ -83,6 +83,8 @@ func main() {
 
 	mux.Handle("GET /goals", mw.Auth(http.HandlerFunc(handler.GetAllGoals)))
 	mux.Handle("POST /goals", mw.Auth(http.HandlerFunc(handler.AddNewGoal)))
+	mux.Handle("PUT /goals/{id}", mw.Auth(http.HandlerFunc(handler.EditGoal)))
+	mux.Handle("DELETE /goals/{id}", mw.Auth(http.HandlerFunc(handler.DeleteGoal)))
 
 	mux.HandleFunc("POST /api/v1/register", handler.CreateUser)
 	mux.HandleFunc("POST /api/v1/login", handler.LoginUser)
@@ -95,7 +97,7 @@ func main() {
 	mux.Handle("POST /api/v1/goals", mw.Auth(http.HandlerFunc(handler.CreateGoal)))
 	mux.Handle("GET /api/v1/goals", mw.Auth(http.HandlerFunc(handler.GetAllUserGoals)))
 	mux.Handle("PUT /api/v1/goals/{id}", mw.Auth(http.HandlerFunc(handler.UpdateGoal)))
-	mux.Handle("DELETE /api/v1/goals/{id}", mw.Auth(http.HandlerFunc(handler.DeleteGoal)))
+	mux.Handle("DELETE /api/v1/goals/{id}", mw.Auth(http.HandlerFunc(handler.DeleteGoalJSON)))
 	mux.Handle("DELETE /api/v1/goals", mw.Auth(http.HandlerFunc(handler.DeleteAllUserGoals)))
 
 	mux.Handle("POST /api/v1/metrics/{type}", mw.Auth(http.HandlerFunc(handler.AddMetric)))

@@ -24,15 +24,15 @@ INSERT INTO workouts (
     duration_minutes,
     planned_date
 ) VALUES (
-      gen_random_uuid(),
-      NOW(),
-      NOW(),
-      $1,
-      $2,
-      $3,
-      $4,
-      $5
-  ) RETURNING id, user_id, title, description, duration_minutes, planned_date, date_completed, created_at, updated_at
+    gen_random_uuid(),
+    now(),
+    now(),
+    $1,
+    $2,
+    $3,
+    $4,
+    $5
+) RETURNING id, user_id, title, description, duration_minutes, planned_date, date_completed, created_at, updated_at
 `
 
 type CreateWorkoutParams struct {
@@ -68,7 +68,7 @@ func (q *Queries) CreateWorkout(ctx context.Context, arg CreateWorkoutParams) (W
 
 const deleteAllUserWorkouts = `-- name: DeleteAllUserWorkouts :exec
 DELETE FROM workouts
-  WHERE user_id = $1
+WHERE user_id = $1
 `
 
 func (q *Queries) DeleteAllUserWorkouts(ctx context.Context, userID uuid.UUID) error {
@@ -78,7 +78,7 @@ func (q *Queries) DeleteAllUserWorkouts(ctx context.Context, userID uuid.UUID) e
 
 const deleteWorkout = `-- name: DeleteWorkout :exec
 DELETE FROM workouts
-  WHERE id = $1 AND user_id = $2
+WHERE id = $1 AND user_id = $2
 `
 
 type DeleteWorkoutParams struct {
@@ -93,7 +93,7 @@ func (q *Queries) DeleteWorkout(ctx context.Context, arg DeleteWorkoutParams) er
 
 const getAllUserWorkouts = `-- name: GetAllUserWorkouts :many
 SELECT id, user_id, title, description, duration_minutes, planned_date, date_completed, created_at, updated_at FROM workouts
-    WHERE user_id = $1
+WHERE user_id = $1
 `
 
 func (q *Queries) GetAllUserWorkouts(ctx context.Context, userID uuid.UUID) ([]Workout, error) {
@@ -131,15 +131,15 @@ func (q *Queries) GetAllUserWorkouts(ctx context.Context, userID uuid.UUID) ([]W
 
 const updateWorkout = `-- name: UpdateWorkout :one
 UPDATE workouts
-  SET 
-    updated_at = NOW(),
+SET
+    updated_at = now(),
     title = $1,
     description = $2,
     duration_minutes = $3,
     planned_date = $4,
     date_completed = $5
-  WHERE id = $6 AND user_id = $7
-  RETURNING id, user_id, title, description, duration_minutes, planned_date, date_completed, created_at, updated_at
+WHERE id = $6 AND user_id = $7
+RETURNING id, user_id, title, description, duration_minutes, planned_date, date_completed, created_at, updated_at
 `
 
 type UpdateWorkoutParams struct {

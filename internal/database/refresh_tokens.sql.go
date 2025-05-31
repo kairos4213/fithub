@@ -15,12 +15,12 @@ import (
 
 const createRefreshToken = `-- name: CreateRefreshToken :exec
 INSERT INTO refresh_tokens (
-  token,
-  created_at,
-  updated_at,
-  user_id,
-  expires_at,
-  revoked_at
+    token,
+    created_at,
+    updated_at,
+    user_id,
+    expires_at,
+    revoked_at
 ) VALUES ($1, NOW(), NOW(), $2, $3, $4)
 RETURNING token, created_at, updated_at, user_id, expires_at, revoked_at
 `
@@ -45,9 +45,10 @@ func (q *Queries) CreateRefreshToken(ctx context.Context, arg CreateRefreshToken
 const getUserFromRefreshToken = `-- name: GetUserFromRefreshToken :one
 SELECT users.id, users.created_at, users.updated_at, users.first_name, users.middle_name, users.last_name, users.email, users.hashed_password, users.profile_image, users.preferences FROM users
 JOIN refresh_tokens ON users.id = refresh_tokens.user_id
-WHERE refresh_tokens.token = $1
-AND refresh_tokens.revoked_at IS NULL
-AND refresh_tokens.expires_at > NOW()
+WHERE
+    refresh_tokens.token = $1
+    AND refresh_tokens.revoked_at IS NULL
+    AND refresh_tokens.expires_at > NOW()
 `
 
 func (q *Queries) GetUserFromRefreshToken(ctx context.Context, token string) (User, error) {
