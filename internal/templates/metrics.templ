@@ -71,6 +71,10 @@ templ BodyweightsSect(bodyweights []database.BodyWeight) {
 								class="btn btn-primary"
 								@click="open = ! open"
 							>Log</button>
+							<button
+								class="btn btn-warning"
+								@click="open = ! open"
+							>Cancel</button>
 						</th>
 					</tr>
 				</tfoot>
@@ -128,6 +132,10 @@ templ MuscleMassesSect(musclesMasses []database.MuscleMass) {
 								class="btn btn-primary"
 								@click="open = ! open"
 							>Log</button>
+							<button
+								class="btn btn-warning"
+								@click="open = ! open"
+							>Cancel</button>
 						</th>
 					</tr>
 				</tfoot>
@@ -185,6 +193,10 @@ templ BfPercentsSect(bfPercents []database.BodyFatPercent) {
 								class="btn btn-primary"
 								@click="open = ! open"
 							>Log</button>
+							<button
+								class="btn btn-warning"
+								@click="open = ! open"
+							>Cancel</button>
 						</th>
 					</tr>
 				</tfoot>
@@ -233,6 +245,7 @@ templ BWDataRow(bodyweight database.BodyWeight) {
 				class="btn btn-primary"
 				@click="editing = ! editing"
 			>Log Edit</button>
+			<button x-cloak x-show="editing" class="btn btn-warning" @click="editing = ! editing">Cancel</button>
 		</td>
 	</tr>
 }
@@ -277,6 +290,7 @@ templ MMDataRow(muscleMass database.MuscleMass) {
 				class="btn btn-primary"
 				@click="editing = ! editing"
 			>Log Edit</button>
+			<button x-cloak x-show="editing" class="btn btn-warning" @click="editing = ! editing">Cancel</button>
 		</td>
 	</tr>
 }
@@ -321,6 +335,7 @@ templ BFPercentDataRow(bfPercent database.BodyFatPercent) {
 				class="btn btn-primary"
 				@click="editing = ! editing"
 			>Log Edit</button>
+			<button x-cloak x-show="editing" class="btn btn-warning" @click="editing = ! editing">Cancel</button>
 		</td>
 	</tr>
 }

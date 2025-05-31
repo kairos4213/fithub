@@ -24,38 +24,77 @@ templ Goals(goals []database.Goal) {
 						@GoalDataRow(goal)
 					}
 				</tbody>
+				<tfoot id="add-goal-row" x-data="{ open: false }">
+					<tr x-show="!open">
+						<th></th>
+						<th></th>
+						<th></th>
+						<th></th>
+						<th></th>
+						<th></th>
+						<th>
+							<button
+								class="btn btn-outline btn-primary btn-ghost"
+								@click="open = ! open"
+							>Add Goal</button>
+						</th>
+					</tr>
+					<tr x-cloak x-show="open">
+						<th>
+							<input
+								class="input input-ghost text-center border-secondary"
+								type="text"
+								name="goal-name"
+								placeholder="Enter Goal Name"
+								required
+							/>
+						</th>
+						<th>
+							In Progress
+						</th>
+						<th>
+							<textarea
+								class="textarea textarea-xs text-center border-secondary"
+								name="description"
+								placeholder="Enter Description"
+								required
+							></textarea>
+						</th>
+						<th>
+							<input
+								class="input input-ghost text-center border-secondary"
+								type="date"
+								name="goal-date"
+								required
+							/>
+						</th>
+						<th>
+							<textarea
+								class="textarea textarea-xs text-center border-secondary"
+								name="notes"
+								placeholder="Enter Optional Notes"
+							></textarea>
+						</th>
+						<th>N/A</th>
+						<th>
+							<button
+								hx-post={ string(templ.URL("/goals")) }
+								hx-include="#add-goal-row"
+								hx-target="#goals-table"
+								hx-swap="beforeend"
+								class="btn btn-outline btn-primary btn-ghost"
+								@click="open = ! open"
+							>Add Goal</button>
+							<button
+								class="btn btn-warning"
+								@click="open = ! open"
+							>Cancel</button>
+						</th>
+					</tr>
+				</tfoot>
 			</table>
 		</div>
 	</section>
-	<div x-data="{ open: false }">
-		<button class="btn btn-outline btn-primary btn-ghost" x-show="!open" @click="open = ! open">
-			Add New Goal
-		</button>
-		<form x-cloak x-show="open">
-			<input
-				class="input input-ghost text-center border-secondary"
-				type="text"
-				name="goal-name"
-				placeholder="Enter Goal Name"
-				required
-			/>
-			<textarea
-				class="textarea h-12"
-				name="description"
-				placeholder="Enter Description"
-				required
-			></textarea>
-			<input type="date" name="goal-date" required/>
-			<textarea class="textarea h-12" name="notes" placeholder="Enter Optional Notes"></textarea>
-			<button
-				hx-post={ string(templ.URL("/goals")) }
-				hx-target="#goals"
-				hx-swap="beforeend"
-				class="btn btn-primary"
-				@click="open = ! open"
-			>Add Goal</button>
-		</form>
-	</div>
 }
 
 templ GoalDataRow(goal database.Goal) {
@@ -92,7 +131,7 @@ templ GoalDataRow(goal database.Goal) {
 		</td>
 		<td x-cloak x-show="editing">
 			<textarea
-				class="textarea textarea-xs border-secondary"
+				class="textarea textarea-xs text-center border-secondary"
 				name="description"
 				placeholder={ goal.Description }
 				required
@@ -110,15 +149,18 @@ templ GoalDataRow(goal database.Goal) {
 				required
 			/>
 		</td>
-		<td x-show="!editing">
-			{ goal.Notes.String }
-		</td>
+		if goal.Notes.Valid {
+			<td x-show="!editing">
+				{ goal.Notes.String }
+			</td>
+		} else {
+			<td x-show="!editing">No notes, yet!</td>
+		}
 		<td x-cloak x-show="editing">
 			<textarea
-				class="textarea textarea-xs border-secondary"
+				class="textarea textarea-xs text-center border-secondary"
 				name="notes"
 				placeholder={ goal.Notes.String }
-				required
 			></textarea>
 		</td>
 		if goal.CompletionDate.Valid {
@@ -132,9 +174,11 @@ templ GoalDataRow(goal database.Goal) {
 		}
 		<td x-show="editing"></td>
 		<td>
-			<button x-show="!editing" class="btn btn-secondary m-1" @click="editing = ! editing">
-				Edit
-			</button>
+			<button
+				x-show="!editing"
+				class="btn btn-secondary m-1"
+				@click="editing = ! editing"
+			>Edit</button>
 			<button
 				x-show="!editing"
 				hx-delete={ string(templ.URL(fmt.Sprintf("/goals/%v", goal.ID))) }
@@ -152,26 +196,7 @@ templ GoalDataRow(goal database.Goal) {
 				class="btn btn-primary"
 				@click="editing = ! editing"
 			>Log Edit</button>
+			<button x-cloak x-show="editing" class="btn btn-warning" @click="editing = ! editing">Cancel</button>
 		</td>
 	</tr>
-}
-
-templ NewGoal(goal database.Goal) {
-	<p>{ goal.ID.String() }</p>
-	<p>{ goal.CreatedAt.Format("Mon, Jan 2 15:04:05 2006") }</p>
-	<p>{ goal.UpdatedAt.Format("Mon, Jan 2 15:04:05 2006") }</p>
-	<p>{ goal.GoalName }</p>
-	<p>{ goal.Description }</p>
-	<p>{ goal.GoalDate.Format("Mon, Jan 2 2006") }</p>
-	if goal.CompletionDate.Valid {
-		<p>{ goal.CompletionDate.Time.Format("Mon, Jan 2 2006") }</p>
-	} else {
-		<p>N/A</p>
-	}
-	if goal.Notes.Valid {
-		<p>{ goal.Notes.String }</p>
-	} else {
-		<p>No notes</p>
-	}
-	<p>{ goal.Status }</p>
 }

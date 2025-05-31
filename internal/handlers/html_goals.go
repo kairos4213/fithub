@@ -57,5 +57,5 @@ func (h *Handler) AddNewGoal(w http.ResponseWriter, r *http.Request) {
 		return // TODO: handle error
 	}
 
-	templates.NewGoal(newGoal).Render(r.Context(), w)
+	templates.GoalDataRow(newGoal).Render(r.Context(), w)
 }
