@@ -28,6 +28,16 @@ type BodyWeight struct {
 	UpdatedAt   time.Time
 }
 
+type Exercise struct {
+	ID                   uuid.UUID
+	Name                 string
+	Description          sql.NullString
+	PrimaryMuscleGroup   sql.NullString
+	SecondaryMuscleGroup sql.NullString
+	CreatedAt            time.Time
+	UpdatedAt            time.Time
+}
+
 type Goal struct {
 	ID             uuid.UUID
 	CreatedAt      time.Time

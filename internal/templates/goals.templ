@@ -8,8 +8,8 @@ import (
 
 templ Goals(goals []database.Goal) {
 	{{ sort.Slice(goals, func(i, j int) bool { return goals[i].GoalDate.Before(goals[j].GoalDate) }) }}
-	<section id="goals">
-		<h2 class="text-3xl">Goals Page</h2>
+	<section id="goals" class="h-screen">
+		<h2 class="text-3xl p-4">Upcoming Goals</h2>
 		<div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100 mx-2">
 			<table id="goals-table" class="table table-in-rows md:table-fixed table-auto text-md text-center">
 				<thead>

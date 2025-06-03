@@ -36,7 +36,7 @@ func Goals(goals []database.Goal) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		sort.Slice(goals, func(i, j int) bool { return goals[i].GoalDate.Before(goals[j].GoalDate) })
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<section id=\"goals\"><h2 class=\"text-3xl\">Goals Page</h2><div class=\"overflow-x-auto rounded-box border border-base-content/5 bg-base-100 mx-2\"><table id=\"goals-table\" class=\"table table-in-rows md:table-fixed table-auto text-md text-center\"><thead><tr><th>Goal Name</th><th>Status</th><th>Description</th><th>Goal Date</th><th>Notes</th><th>Completed</th><th></th></tr></thead> <tbody>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<section id=\"goals\" class=\"h-screen\"><h2 class=\"text-3xl p-4\">Upcoming Goals</h2><div class=\"overflow-x-auto rounded-box border border-base-content/5 bg-base-100 mx-2\"><table id=\"goals-table\" class=\"table table-in-rows md:table-fixed table-auto text-md text-center\"><thead><tr><th>Goal Name</th><th>Status</th><th>Description</th><th>Goal Date</th><th>Notes</th><th>Completed</th><th></th></tr></thead> <tbody>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
