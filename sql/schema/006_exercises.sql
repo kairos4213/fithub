@@ -3,8 +3,8 @@ CREATE TABLE exercises (
     id UUID PRIMARY KEY,
     name TEXT NOT NULL,
     description TEXT,
-    primary_muscle_group TEXT,
-    secondary_muscle_group TEXT,
+    primary_muscle_groups TEXT [],
+    secondary_muscle_groups TEXT [],
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL
 );
