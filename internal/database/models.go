@@ -79,6 +79,7 @@ type User struct {
 	HashedPassword string
 	ProfileImage   sql.NullString
 	Preferences    pqtype.NullRawMessage
+	IsAdmin        bool
 }
 
 type Workout struct {

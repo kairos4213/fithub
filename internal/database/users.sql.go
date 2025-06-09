@@ -23,7 +23,7 @@ INSERT INTO users (
     email,
     hashed_password
 ) VALUES (gen_random_uuid(), now(), now(), $1, $2, $3, $4, $5)
-RETURNING id, created_at, updated_at, first_name, middle_name, last_name, email, hashed_password, profile_image, preferences
+RETURNING id, created_at, updated_at, first_name, middle_name, last_name, email, hashed_password, profile_image, preferences, is_admin
 `
 
 type CreateUserParams struct {
@@ -54,6 +54,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.HashedPassword,
 		&i.ProfileImage,
 		&i.Preferences,
+		&i.IsAdmin,
 	)
 	return i, err
 }
@@ -69,7 +70,7 @@ func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) error {
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, created_at, updated_at, first_name, middle_name, last_name, email, hashed_password, profile_image, preferences FROM users
+SELECT id, created_at, updated_at, first_name, middle_name, last_name, email, hashed_password, profile_image, preferences, is_admin FROM users
 WHERE email = $1
 `
 
@@ -87,6 +88,31 @@ func (q *Queries) GetUser(ctx context.Context, email string) (User, error) {
 		&i.HashedPassword,
 		&i.ProfileImage,
 		&i.Preferences,
+		&i.IsAdmin,
+	)
+	return i, err
+}
+
+const getUserByID = `-- name: GetUserByID :one
+SELECT id, created_at, updated_at, first_name, middle_name, last_name, email, hashed_password, profile_image, preferences, is_admin FROM users
+WHERE id = $1
+`
+
+func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserByID, id)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.FirstName,
+		&i.MiddleName,
+		&i.LastName,
+		&i.Email,
+		&i.HashedPassword,
+		&i.ProfileImage,
+		&i.Preferences,
+		&i.IsAdmin,
 	)
 	return i, err
 }
@@ -98,7 +124,7 @@ SET
     email = coalesce($3, email),
     updated_at = now()
 WHERE id = $1
-RETURNING id, created_at, updated_at, first_name, middle_name, last_name, email, hashed_password, profile_image, preferences
+RETURNING id, created_at, updated_at, first_name, middle_name, last_name, email, hashed_password, profile_image, preferences, is_admin
 `
 
 type UpdateUserParams struct {
@@ -121,6 +147,7 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		&i.HashedPassword,
 		&i.ProfileImage,
 		&i.Preferences,
+		&i.IsAdmin,
 	)
 	return i, err
 }
