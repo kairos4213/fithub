@@ -87,6 +87,7 @@ func main() {
 	mux.Handle("DELETE /goals/{id}", mw.Auth(http.HandlerFunc(handler.DeleteGoal)))
 
 	mux.Handle("GET /admin/exercises", mw.Auth(http.HandlerFunc(handler.GetAddExerciseForm)))
+	mux.Handle("POST /admin/exercises", mw.Auth(http.HandlerFunc(handler.AddExercise)))
 
 	mux.HandleFunc("POST /api/v1/register", handler.CreateUser)
 	mux.HandleFunc("POST /api/v1/login", handler.LoginUser)

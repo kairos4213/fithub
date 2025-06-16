@@ -10,7 +10,6 @@ import (
 	"database/sql"
 
 	"github.com/google/uuid"
-	"github.com/lib/pq"
 )
 
 const createExercise = `-- name: CreateExercise :one
@@ -20,8 +19,8 @@ INSERT INTO exercises (
     updated_at,
     name,
     description,
-    primary_muscle_groups,
-    secondary_muscle_groups
+    primary_muscle_group,
+    secondary_muscle_group
 ) VALUES (
     gen_random_uuid(),
     now(),
@@ -30,30 +29,30 @@ INSERT INTO exercises (
     $2,
     $3,
     $4
-) RETURNING id, name, description, primary_muscle_groups, secondary_muscle_groups, created_at, updated_at
+) RETURNING id, name, description, primary_muscle_group, secondary_muscle_group, created_at, updated_at
 `
 
 type CreateExerciseParams struct {
-	Name                  string
-	Description           sql.NullString
-	PrimaryMuscleGroups   []string
-	SecondaryMuscleGroups []string
+	Name                 string
+	Description          sql.NullString
+	PrimaryMuscleGroup   sql.NullString
+	SecondaryMuscleGroup sql.NullString
 }
 
 func (q *Queries) CreateExercise(ctx context.Context, arg CreateExerciseParams) (Exercise, error) {
 	row := q.db.QueryRowContext(ctx, createExercise,
 		arg.Name,
 		arg.Description,
-		pq.Array(arg.PrimaryMuscleGroups),
-		pq.Array(arg.SecondaryMuscleGroups),
+		arg.PrimaryMuscleGroup,
+		arg.SecondaryMuscleGroup,
 	)
 	var i Exercise
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
 		&i.Description,
-		pq.Array(&i.PrimaryMuscleGroups),
-		pq.Array(&i.SecondaryMuscleGroups),
+		&i.PrimaryMuscleGroup,
+		&i.SecondaryMuscleGroup,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -71,7 +70,7 @@ func (q *Queries) DeleteExercise(ctx context.Context, id uuid.UUID) error {
 }
 
 const getExerciseByName = `-- name: GetExerciseByName :many
-SELECT id, name, description, primary_muscle_groups, secondary_muscle_groups, created_at, updated_at FROM exercises
+SELECT id, name, description, primary_muscle_group, secondary_muscle_group, created_at, updated_at FROM exercises
 WHERE name = $1
 `
 
@@ -88,8 +87,8 @@ func (q *Queries) GetExerciseByName(ctx context.Context, name string) ([]Exercis
 			&i.ID,
 			&i.Name,
 			&i.Description,
-			pq.Array(&i.PrimaryMuscleGroups),
-			pq.Array(&i.SecondaryMuscleGroups),
+			&i.PrimaryMuscleGroup,
+			&i.SecondaryMuscleGroup,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -107,12 +106,12 @@ func (q *Queries) GetExerciseByName(ctx context.Context, name string) ([]Exercis
 }
 
 const getExercisesByPrimaryMG = `-- name: GetExercisesByPrimaryMG :many
-SELECT id, name, description, primary_muscle_groups, secondary_muscle_groups, created_at, updated_at FROM exercises
-WHERE primary_muscle_groups = $1
+SELECT id, name, description, primary_muscle_group, secondary_muscle_group, created_at, updated_at FROM exercises
+WHERE primary_muscle_group = $1
 `
 
-func (q *Queries) GetExercisesByPrimaryMG(ctx context.Context, primaryMuscleGroups []string) ([]Exercise, error) {
-	rows, err := q.db.QueryContext(ctx, getExercisesByPrimaryMG, pq.Array(primaryMuscleGroups))
+func (q *Queries) GetExercisesByPrimaryMG(ctx context.Context, primaryMuscleGroup sql.NullString) ([]Exercise, error) {
+	rows, err := q.db.QueryContext(ctx, getExercisesByPrimaryMG, primaryMuscleGroup)
 	if err != nil {
 		return nil, err
 	}
@@ -124,8 +123,8 @@ func (q *Queries) GetExercisesByPrimaryMG(ctx context.Context, primaryMuscleGrou
 			&i.ID,
 			&i.Name,
 			&i.Description,
-			pq.Array(&i.PrimaryMuscleGroups),
-			pq.Array(&i.SecondaryMuscleGroups),
+			&i.PrimaryMuscleGroup,
+			&i.SecondaryMuscleGroup,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -143,12 +142,12 @@ func (q *Queries) GetExercisesByPrimaryMG(ctx context.Context, primaryMuscleGrou
 }
 
 const getExercisesBySecondaryMG = `-- name: GetExercisesBySecondaryMG :many
-SELECT id, name, description, primary_muscle_groups, secondary_muscle_groups, created_at, updated_at FROM exercises
-WHERE secondary_muscle_groups = $1
+SELECT id, name, description, primary_muscle_group, secondary_muscle_group, created_at, updated_at FROM exercises
+WHERE secondary_muscle_group = $1
 `
 
-func (q *Queries) GetExercisesBySecondaryMG(ctx context.Context, secondaryMuscleGroups []string) ([]Exercise, error) {
-	rows, err := q.db.QueryContext(ctx, getExercisesBySecondaryMG, pq.Array(secondaryMuscleGroups))
+func (q *Queries) GetExercisesBySecondaryMG(ctx context.Context, secondaryMuscleGroup sql.NullString) ([]Exercise, error) {
+	rows, err := q.db.QueryContext(ctx, getExercisesBySecondaryMG, secondaryMuscleGroup)
 	if err != nil {
 		return nil, err
 	}
@@ -160,8 +159,8 @@ func (q *Queries) GetExercisesBySecondaryMG(ctx context.Context, secondaryMuscle
 			&i.ID,
 			&i.Name,
 			&i.Description,
-			pq.Array(&i.PrimaryMuscleGroups),
-			pq.Array(&i.SecondaryMuscleGroups),
+			&i.PrimaryMuscleGroup,
+			&i.SecondaryMuscleGroup,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -184,26 +183,26 @@ SET
     updated_at = now(),
     name = $1,
     description = $2,
-    primary_muscle_groups = $3,
-    secondary_muscle_groups = $4
+    primary_muscle_group = $3,
+    secondary_muscle_group = $4
 WHERE id = $5
-RETURNING id, name, description, primary_muscle_groups, secondary_muscle_groups, created_at, updated_at
+RETURNING id, name, description, primary_muscle_group, secondary_muscle_group, created_at, updated_at
 `
 
 type UpdateExerciseParams struct {
-	Name                  string
-	Description           sql.NullString
-	PrimaryMuscleGroups   []string
-	SecondaryMuscleGroups []string
-	ID                    uuid.UUID
+	Name                 string
+	Description          sql.NullString
+	PrimaryMuscleGroup   sql.NullString
+	SecondaryMuscleGroup sql.NullString
+	ID                   uuid.UUID
 }
 
 func (q *Queries) UpdateExercise(ctx context.Context, arg UpdateExerciseParams) (Exercise, error) {
 	row := q.db.QueryRowContext(ctx, updateExercise,
 		arg.Name,
 		arg.Description,
-		pq.Array(arg.PrimaryMuscleGroups),
-		pq.Array(arg.SecondaryMuscleGroups),
+		arg.PrimaryMuscleGroup,
+		arg.SecondaryMuscleGroup,
 		arg.ID,
 	)
 	var i Exercise
@@ -211,8 +210,8 @@ func (q *Queries) UpdateExercise(ctx context.Context, arg UpdateExerciseParams) 
 		&i.ID,
 		&i.Name,
 		&i.Description,
-		pq.Array(&i.PrimaryMuscleGroups),
-		pq.Array(&i.SecondaryMuscleGroups),
+		&i.PrimaryMuscleGroup,
+		&i.SecondaryMuscleGroup,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

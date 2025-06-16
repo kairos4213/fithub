@@ -1,11 +1,32 @@
 package templates
 
 templ AddExerciseForm() {
-	<form>
-		<input placeholder="Exercise Name"/>
-		<input placeholder="Description"/>
-		<input placeholder="Primary Muscle Groups"/>
-		<input placeholder="Secondary Muscle Groups"/>
-		<button type="submit">Submit</button>
-	</form>
+	<section class="container mx-auto p-10 h-screen">
+		<form hx-post={ string(templ.URL("/admin/exercises")) } hx-target="main" class="justify-self-center">
+			<fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4">
+				<legend class="fieldset-legend">Add Exercise</legend>
+				<label class="label">Exercise Name</label>
+				<input type="text" class="input" name="exercise-name" placeholder="Exercise Name"/>
+				<label class="label">Exercise Description</label>
+				<textarea class="textarea" name="exercise-description" placeholder="Exercise Description"></textarea>
+				<select name="primary-muscle-group" class="select">
+					<option disabled selected>Primary Muscle Group</option>
+					<option value="chest">Chest</option>
+					<option value="triceps">Triceps</option>
+					<option value="biceps">Biceps</option>
+					<option value="back">Back</option>
+					<option value="legs">Legs</option>
+				</select>
+				<select name="secondary-muscle-group" class="select">
+					<option disabled selected>Secondary Muscle Group</option>
+					<option value="chest">Chest</option>
+					<option value="triceps">Triceps</option>
+					<option value="biceps">Biceps</option>
+					<option value="back">Back</option>
+					<option value="legs">Legs</option>
+				</select>
+				<button type="submit" class="btn btn-primary">Add Exercise</button>
+			</fieldset>
+		</form>
+	</section>
 }

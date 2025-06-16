@@ -5,8 +5,8 @@ INSERT INTO exercises (
     updated_at,
     name,
     description,
-    primary_muscle_groups,
-    secondary_muscle_groups
+    primary_muscle_group,
+    secondary_muscle_group
 ) VALUES (
     gen_random_uuid(),
     now(),
@@ -23,8 +23,8 @@ SET
     updated_at = now(),
     name = $1,
     description = $2,
-    primary_muscle_groups = $3,
-    secondary_muscle_groups = $4
+    primary_muscle_group = $3,
+    secondary_muscle_group = $4
 WHERE id = $5
 RETURNING *;
 
@@ -38,8 +38,8 @@ WHERE name = $1;
 
 -- name: GetExercisesByPrimaryMG :many
 SELECT * FROM exercises
-WHERE primary_muscle_groups = $1;
+WHERE primary_muscle_group = $1;
 
 -- name: GetExercisesBySecondaryMG :many
 SELECT * FROM exercises
-WHERE secondary_muscle_groups = $1;
+WHERE secondary_muscle_group = $1;

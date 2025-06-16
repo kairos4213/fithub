@@ -29,7 +29,20 @@ func AddExerciseForm() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<form><input placeholder=\"Exercise Name\"> <input placeholder=\"Description\"> <input placeholder=\"Primary Muscle Groups\"> <input placeholder=\"Secondary Muscle Groups\"> <button type=\"submit\">Submit</button></form>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<section class=\"container mx-auto p-10 h-screen\"><form hx-post=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var2 string
+		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(string(templ.URL("/admin/exercises")))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/exercises_admin.templ`, Line: 5, Col: 55}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" hx-target=\"main\" class=\"justify-self-center\"><fieldset class=\"fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4\"><legend class=\"fieldset-legend\">Add Exercise</legend> <label class=\"label\">Exercise Name</label> <input type=\"text\" class=\"input\" name=\"exercise-name\" placeholder=\"Exercise Name\"> <label class=\"label\">Exercise Description</label> <textarea class=\"textarea\" name=\"exercise-description\" placeholder=\"Exercise Description\"></textarea> <select name=\"primary-muscle-group\" class=\"select\"><option disabled selected>Primary Muscle Group</option> <option value=\"chest\">Chest</option> <option value=\"triceps\">Triceps</option> <option value=\"biceps\">Biceps</option> <option value=\"back\">Back</option> <option value=\"legs\">Legs</option></select> <select name=\"secondary-muscle-group\" class=\"select\"><option disabled selected>Secondary Muscle Group</option> <option value=\"chest\">Chest</option> <option value=\"triceps\">Triceps</option> <option value=\"biceps\">Biceps</option> <option value=\"back\">Back</option> <option value=\"legs\">Legs</option></select> <button type=\"submit\" class=\"btn btn-primary\">Add Exercise</button></fieldset></form></section>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
