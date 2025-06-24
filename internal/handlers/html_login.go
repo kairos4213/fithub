@@ -64,6 +64,12 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 			SameSite: http.SameSiteDefaultMode,
 		})
 		w.Header().Set("Content-type", "text/html")
+
+		if user.IsAdmin {
+			w.Header().Set("HX-Location", `{"path": "/admin"}`)
+			w.WriteHeader(http.StatusAccepted)
+		}
+
 		w.Header().Set("HX-Location", `{"path": "/workouts"}`)
 		w.WriteHeader(http.StatusAccepted)
 	}

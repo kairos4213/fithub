@@ -24,7 +24,7 @@ func (h *Handler) GetAddExerciseForm(w http.ResponseWriter, r *http.Request) {
 	}
 
 	contents := templates.AddExerciseForm()
-	templates.Layout(contents, "FitHub-Admin | Exercises", true).Render(r.Context(), w)
+	templates.AdminLayout(contents, "FitHub-Admin | Exercises", true).Render(r.Context(), w)
 }
 
 func (h *Handler) AddExercise(w http.ResponseWriter, r *http.Request) {
