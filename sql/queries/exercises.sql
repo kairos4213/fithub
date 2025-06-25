@@ -32,6 +32,9 @@ RETURNING *;
 DELETE FROM exercises
 WHERE id = $1;
 
+-- name: GetAllExercises :many
+SELECT * FROM exercises;
+
 -- name: GetExerciseByName :many
 SELECT * FROM exercises
 WHERE name = $1;

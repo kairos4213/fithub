@@ -88,7 +88,7 @@ func main() {
 
 	mux.Handle("GET /admin", mw.Auth(http.HandlerFunc(handler.GetAdminHome)))
 
-	mux.Handle("GET /admin/exercises", mw.Auth(http.HandlerFunc(handler.GetAddExerciseForm)))
+	mux.Handle("GET /admin/exercises", mw.Auth(http.HandlerFunc(handler.GetAdminExercisesPage)))
 	mux.Handle("POST /admin/exercises", mw.Auth(http.HandlerFunc(handler.AddExercise)))
 
 	mux.HandleFunc("POST /api/v1/register", handler.CreateUser)

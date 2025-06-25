@@ -69,6 +69,41 @@ func (q *Queries) DeleteExercise(ctx context.Context, id uuid.UUID) error {
 	return err
 }
 
+const getAllExercises = `-- name: GetAllExercises :many
+SELECT id, name, description, primary_muscle_group, secondary_muscle_group, created_at, updated_at FROM exercises
+`
+
+func (q *Queries) GetAllExercises(ctx context.Context) ([]Exercise, error) {
+	rows, err := q.db.QueryContext(ctx, getAllExercises)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Exercise
+	for rows.Next() {
+		var i Exercise
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.PrimaryMuscleGroup,
+			&i.SecondaryMuscleGroup,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getExerciseByName = `-- name: GetExerciseByName :many
 SELECT id, name, description, primary_muscle_group, secondary_muscle_group, created_at, updated_at FROM exercises
 WHERE name = $1

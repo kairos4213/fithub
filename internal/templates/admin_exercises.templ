@@ -1,5 +1,56 @@
 package templates
 
+import (
+	"fmt"
+	"github.com/kairos4213/fithub/internal/database"
+)
+
+templ AdminExercisesPage(exercises []database.Exercise) {
+	@ExercisesTable(exercises)
+	@AddExerciseForm()
+}
+
+templ ExercisesTable(exercises []database.Exercise) {
+	<section id="exercises" class="mb-5">
+		<h2 class="text-3xl p-8">Exercises</h2>
+		<div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100 mx-2">
+			<table id="exercises-table" class="table table-in-rows md:table-fixed table-auto text-md text-center">
+				<thead>
+					<tr>
+						<th class="w-1/5">Name</th>
+						<th class="w-1/5">Description</th>
+						<th class="w-1/5">Primary Muscle Group</th>
+						<th class="w-1/5">Secondary Muscle Group</th>
+						<th class="w-1/5"></th>
+					</tr>
+				</thead>
+				<tbody>
+					for _, exercise := range exercises {
+						@ExerciseDataRow(exercise)
+					}
+				</tbody>
+			</table>
+		</div>
+	</section>
+}
+
+templ ExerciseDataRow(exercise database.Exercise) {
+	<tr id={ fmt.Sprintf("exercise-%v", exercise.ID) }>
+		<td>{ exercise.Name }</td>
+		<td>{ exercise.Description.String }</td>
+		<td>{ exercise.PrimaryMuscleGroup.String }</td>
+		<td>{ exercise.SecondaryMuscleGroup.String }</td>
+		<td>
+			<button
+				hx-delete={ string(templ.URL(fmt.Sprintf("/admin/exercises/%v", exercise.ID))) }
+				hx-target={ fmt.Sprintf("#exercise-%v", exercise.ID) }
+				hx-swap="delete"
+				class="btn btn-warning"
+			>Delete</button>
+		</td>
+	</tr>
+}
+
 templ AddExerciseForm() {
 	<section class="container mx-auto p-10 h-screen">
 		<form hx-post={ string(templ.URL("/admin/exercises")) } hx-target="main" class="justify-self-center">

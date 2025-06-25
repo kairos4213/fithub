@@ -10,7 +10,7 @@ import (
 	"github.com/kairos4213/fithub/internal/templates"
 )
 
-func (h *Handler) GetAddExerciseForm(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetAdminExercisesPage(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 	user, err := h.DB.GetUserByID(r.Context(), userID)
 	if err != nil {
@@ -23,8 +23,13 @@ func (h *Handler) GetAddExerciseForm(w http.ResponseWriter, r *http.Request) {
 		return // TODO: Finish error handler
 	}
 
-	contents := templates.AddExerciseForm()
-	templates.AdminLayout(contents, "FitHub-Admin | Exercises", true).Render(r.Context(), w)
+	exercises, err := h.DB.GetAllExercises(r.Context())
+	if err != nil {
+		return // TODO: handle err
+	}
+
+	contents := templates.AdminExercisesPage(exercises)
+	templates.AdminLayout(contents, "FitHub-Admin | Home", true).Render(r.Context(), w)
 }
 
 func (h *Handler) AddExercise(w http.ResponseWriter, r *http.Request) {

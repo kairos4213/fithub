@@ -21,6 +21,11 @@ func (h *Handler) GetAdminHome(w http.ResponseWriter, r *http.Request) {
 		return // TODO: Finish error handler
 	}
 
-	contents := templates.AddExerciseForm()
+	exercises, err := h.DB.GetAllExercises(r.Context())
+	if err != nil {
+		return // TODO: handle err
+	}
+
+	contents := templates.AdminExercisesPage(exercises)
 	templates.AdminLayout(contents, "FitHub-Admin | Home", true).Render(r.Context(), w)
 }
