@@ -6,8 +6,11 @@ import (
 )
 
 templ AdminExercisesPage(exercises []database.Exercise) {
-	@ExercisesTable(exercises)
-	@AddExerciseForm()
+	<div class="flex w-full flex-col pb-5">
+		@ExercisesTable(exercises)
+		<div class="divider divider-accent"></div>
+		@AddExerciseForm()
+	</div>
 }
 
 templ ExercisesTable(exercises []database.Exercise) {

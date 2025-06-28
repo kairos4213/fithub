@@ -82,3 +82,29 @@ func (h *Handler) AddExercise(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("HX-Location", `{"path": "/admin/exercises"}`)
 	w.WriteHeader(http.StatusCreated)
 }
+
+func (h *Handler) DeleteExercise(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
+	user, err := h.DB.GetUserByID(r.Context(), userID)
+	if err != nil {
+		return // TODO: Handle err
+	}
+
+	if !user.IsAdmin {
+		w.Header().Set("Content-type", "text/html")
+		w.WriteHeader(http.StatusUnauthorized)
+		return // TODO: Finish error handler
+	}
+
+	exerciseID, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		return // TODO: handle err
+	}
+
+	err = h.DB.DeleteExercise(r.Context(), exerciseID)
+	if err != nil {
+		return // TODO: handle err
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
