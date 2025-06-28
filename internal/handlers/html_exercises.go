@@ -83,6 +83,66 @@ func (h *Handler) AddExercise(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
+func (h *Handler) EditExercise(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
+	user, err := h.DB.GetUserByID(r.Context(), userID)
+	if err != nil {
+		return // TODO: Handle err
+	}
+
+	if !user.IsAdmin {
+		w.Header().Set("Content-type", "text/html")
+		w.WriteHeader(http.StatusUnauthorized)
+		return // TODO: Finish error handler
+	}
+
+	exerciseID, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		return // TODO: Handle error
+	}
+
+	err = r.ParseForm()
+	if err != nil {
+		return // TODO: handle error
+	}
+
+	reqName := r.FormValue("exercise-name")
+	reqDescription := r.FormValue("exercise-description")
+	reqPrimaryMG := r.FormValue("primary-muscle-group")
+	reqSecondaryMG := r.FormValue("secondary-muscle-group")
+
+	description := sql.NullString{Valid: false}
+	if reqDescription != "" {
+		description.String = reqDescription
+		description.Valid = true
+	}
+
+	primaryMG := sql.NullString{Valid: false}
+	if reqPrimaryMG != "" {
+		primaryMG.String = reqPrimaryMG
+		primaryMG.Valid = true
+	}
+
+	secondaryMG := sql.NullString{Valid: false}
+	if reqSecondaryMG != "" {
+		secondaryMG.String = reqSecondaryMG
+		secondaryMG.Valid = true
+	}
+
+	updatedExercise, err := h.DB.UpdateExercise(r.Context(), database.UpdateExerciseParams{
+		Name:                 reqName,
+		Description:          description,
+		PrimaryMuscleGroup:   primaryMG,
+		SecondaryMuscleGroup: secondaryMG,
+		ID:                   exerciseID,
+	})
+	if err != nil {
+		return // TODO: handle err
+	}
+
+	templates.ExerciseDataRow(updatedExercise).Render(r.Context(), w)
+}
+
 func (h *Handler) DeleteExercise(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 	user, err := h.DB.GetUserByID(r.Context(), userID)

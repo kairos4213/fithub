@@ -38,18 +38,71 @@ templ ExercisesTable(exercises []database.Exercise) {
 }
 
 templ ExerciseDataRow(exercise database.Exercise) {
-	<tr id={ fmt.Sprintf("exercise-%v", exercise.ID) }>
-		<td>{ exercise.Name }</td>
-		<td>{ exercise.Description.String }</td>
-		<td>{ exercise.PrimaryMuscleGroup.String }</td>
-		<td>{ exercise.SecondaryMuscleGroup.String }</td>
+	<tr id={ fmt.Sprintf("exercise-%v", exercise.ID) } x-data="{ editing: false }">
+		<td x-show="!editing">{ exercise.Name }</td>
+		<td x-cloak x-show="editing">
+			<input
+				class="input input-ghost text-center border-secondary"
+				type="text"
+				name="exercise-name"
+				value={ fmt.Sprintf("%v", exercise.Name) }
+				required
+			/>
+		</td>
+		<td x-show="!editing">{ exercise.Description.String }</td>
+		<td x-cloak x-show="editing">
+			<textarea
+				class="textarea textarea-xs text-center border-secondary"
+				name="exercise-description"
+				placeholder="Enter a description"
+			>{ exercise.Description.String }</textarea>
+		</td>
+		<td x-show="!editing">{ exercise.PrimaryMuscleGroup.String }</td>
+		<td x-cloak x-show="editing">
+			<select name="primary-muscle-group" class="select border-secondary">
+				<option disabled selected>Primary Muscle Group</option>
+				<option value="chest">Chest</option>
+				<option value="triceps">Triceps</option>
+				<option value="biceps">Biceps</option>
+				<option value="back">Back</option>
+				<option value="legs">Legs</option>
+			</select>
+		</td>
+		<td x-show="!editing">{ exercise.SecondaryMuscleGroup.String }</td>
+		<td x-cloak x-show="editing">
+			<select name="secondary-muscle-group" class="select border-secondary">
+				<option disabled selected>Secondary Muscle Group</option>
+				<option value="chest">Chest</option>
+				<option value="triceps">Triceps</option>
+				<option value="biceps">Biceps</option>
+				<option value="back">Back</option>
+				<option value="legs">Legs</option>
+			</select>
+		</td>
 		<td>
 			<button
+				x-show="!editing"
+				class="btn btn-secondary m-1"
+				@click="editing = ! editing"
+			>Edit</button>
+			<button
+				x-show="!editing"
 				hx-delete={ string(templ.URL(fmt.Sprintf("/admin/exercises/%v", exercise.ID))) }
 				hx-target={ fmt.Sprintf("#exercise-%v", exercise.ID) }
 				hx-swap="delete"
 				class="btn btn-warning"
 			>Delete</button>
+			<button
+				x-cloak
+				x-show="editing"
+				hx-put={ string(templ.URL(fmt.Sprintf("/admin/exercises/%v", exercise.ID))) }
+				hx-include={ fmt.Sprintf("#exercise-%v", exercise.ID) }
+				hx-target={ fmt.Sprintf("#exercise-%v", exercise.ID) }
+				hx-swap="outerHTML"
+				class="btn btn-primary"
+				@click="editing = ! editing"
+			>Submit</button>
+			<button x-cloak x-show="editing" class="btn btn-warning" @click="editing = ! editing">Cancel</button>
 		</td>
 	</tr>
 }
