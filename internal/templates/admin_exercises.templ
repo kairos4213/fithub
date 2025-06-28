@@ -6,35 +6,97 @@ import (
 )
 
 templ AdminExercisesPage(exercises []database.Exercise) {
-	<div class="flex w-full flex-col pb-5">
+	<section id="exercises" class="h-screen">
+		<h2 class="text-3xl p-8">Exercises</h2>
 		@ExercisesTable(exercises)
-		<div class="divider divider-accent"></div>
-		@AddExerciseForm()
-	</div>
+	</section>
 }
 
 templ ExercisesTable(exercises []database.Exercise) {
-	<section id="exercises" class="mb-5">
-		<h2 class="text-3xl p-8">Exercises</h2>
-		<div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100 mx-2">
-			<table id="exercises-table" class="table table-in-rows md:table-fixed table-auto text-md text-center">
-				<thead>
-					<tr>
-						<th class="w-1/5">Name</th>
-						<th class="w-1/5">Description</th>
-						<th class="w-1/5">Primary Muscle Group</th>
-						<th class="w-1/5">Secondary Muscle Group</th>
-						<th class="w-1/5"></th>
-					</tr>
-				</thead>
-				<tbody>
-					for _, exercise := range exercises {
-						@ExerciseDataRow(exercise)
-					}
-				</tbody>
-			</table>
-		</div>
-	</section>
+	<div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100 mx-2">
+		<table id="exercises-table" class="table table-in-rows md:table-fixed table-auto text-md text-center">
+			<thead>
+				<tr>
+					<th class="w-1/5">Name</th>
+					<th class="w-1/5">Description</th>
+					<th class="w-1/5">Primary Muscle Group</th>
+					<th class="w-1/5">Secondary Muscle Group</th>
+					<th class="w-1/5"></th>
+				</tr>
+			</thead>
+			<tbody>
+				for _, exercise := range exercises {
+					@ExerciseDataRow(exercise)
+				}
+			</tbody>
+			<tfoot id="add-exercise-row" x-data="{ open: false }">
+				<tr x-show="!open">
+					<th></th>
+					<th></th>
+					<th></th>
+					<th></th>
+					<th>
+						<button
+							class="btn btn-outline btn-primary btn-ghost"
+							@click="open = ! open"
+						>Add Exercise</button>
+					</th>
+				</tr>
+				<tr x-cloak x-show="open">
+					<th>
+						<input
+							class="input input-ghost text-center border-secondary"
+							type="text"
+							name="exercise-name"
+							placeholder="Exercise Name"
+							required
+						/>
+					</th>
+					<th>
+						<textarea
+							class="textarea textarea-xs text-center border-secondary"
+							name="exercise-description"
+							placeholder="Enter a description"
+						></textarea>
+					</th>
+					<th>
+						<select name="primary-muscle-group" class="select border-secondary">
+							<option disabled selected>Primary Muscle Group</option>
+							<option value="chest">Chest</option>
+							<option value="triceps">Triceps</option>
+							<option value="biceps">Biceps</option>
+							<option value="back">Back</option>
+							<option value="legs">Legs</option>
+						</select>
+					</th>
+					<th>
+						<select name="secondary-muscle-group" class="select border-secondary">
+							<option disabled selected>Secondary Muscle Group</option>
+							<option value="chest">Chest</option>
+							<option value="triceps">Triceps</option>
+							<option value="biceps">Biceps</option>
+							<option value="back">Back</option>
+							<option value="legs">Legs</option>
+						</select>
+					</th>
+					<th>
+						<button
+							hx-post={ string(templ.URL("/admin/exercises")) }
+							hx-include="#add-exercise-row"
+							hx-target="#exercises-table"
+							hx-swap="beforeend"
+							class="btn btn-outline btn-primary btn-ghost"
+							@click="open = ! open"
+						>Add Goal</button>
+						<button
+							class="btn btn-warning"
+							@click="open = ! open"
+						>Cancel</button>
+					</th>
+				</tr>
+			</tfoot>
+		</table>
+	</div>
 }
 
 templ ExerciseDataRow(exercise database.Exercise) {
@@ -105,35 +167,4 @@ templ ExerciseDataRow(exercise database.Exercise) {
 			<button x-cloak x-show="editing" class="btn btn-warning" @click="editing = ! editing">Cancel</button>
 		</td>
 	</tr>
-}
-
-templ AddExerciseForm() {
-	<section class="container mx-auto p-10 h-screen">
-		<form hx-post={ string(templ.URL("/admin/exercises")) } hx-target="main" class="justify-self-center">
-			<fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4">
-				<legend class="fieldset-legend">Add Exercise</legend>
-				<label class="label">Exercise Name</label>
-				<input type="text" class="input" name="exercise-name" placeholder="Exercise Name"/>
-				<label class="label">Exercise Description</label>
-				<textarea class="textarea" name="exercise-description" placeholder="Exercise Description"></textarea>
-				<select name="primary-muscle-group" class="select">
-					<option disabled selected>Primary Muscle Group</option>
-					<option value="chest">Chest</option>
-					<option value="triceps">Triceps</option>
-					<option value="biceps">Biceps</option>
-					<option value="back">Back</option>
-					<option value="legs">Legs</option>
-				</select>
-				<select name="secondary-muscle-group" class="select">
-					<option disabled selected>Secondary Muscle Group</option>
-					<option value="chest">Chest</option>
-					<option value="triceps">Triceps</option>
-					<option value="biceps">Biceps</option>
-					<option value="back">Back</option>
-					<option value="legs">Legs</option>
-				</select>
-				<button type="submit" class="btn btn-primary">Add Exercise</button>
-			</fieldset>
-		</form>
-	</section>
 }
