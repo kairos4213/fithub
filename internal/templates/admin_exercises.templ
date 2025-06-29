@@ -3,9 +3,13 @@ package templates
 import (
 	"fmt"
 	"github.com/kairos4213/fithub/internal/database"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
+	"sort"
 )
 
 templ AdminExercisesPage(exercises []database.Exercise) {
+	{{ sort.Slice(exercises, func(i, j int) bool { return exercises[i].Name < exercises[j].Name }) }}
 	<section id="exercises" class="h-screen">
 		<h2 class="text-3xl p-8">Exercises</h2>
 		@ExercisesTable(exercises)
@@ -119,26 +123,76 @@ templ ExerciseDataRow(exercise database.Exercise) {
 				placeholder="Enter a description"
 			>{ exercise.Description.String }</textarea>
 		</td>
-		<td x-show="!editing">{ exercise.PrimaryMuscleGroup.String }</td>
+		<td x-show="!editing">{ title(exercise.PrimaryMuscleGroup.String) }</td>
 		<td x-cloak x-show="editing">
-			<select name="primary-muscle-group" class="select border-secondary">
-				<option disabled selected>Primary Muscle Group</option>
-				<option value="chest">Chest</option>
-				<option value="triceps">Triceps</option>
-				<option value="biceps">Biceps</option>
-				<option value="back">Back</option>
-				<option value="legs">Legs</option>
+			<select name="primary-muscle-group" class="select border-secondary" required>
+				<option disabled>Primary Muscle Group</option>
+				<option
+					value="chest"
+					if exercise.PrimaryMuscleGroup.String == "chest" {
+						selected
+					}
+				>Chest</option>
+				<option
+					value="triceps"
+					if exercise.PrimaryMuscleGroup.String == "triceps" {
+						selected
+					}
+				>Triceps</option>
+				<option
+					value="biceps"
+					if exercise.PrimaryMuscleGroup.String == "biceps" {
+						selected
+					}
+				>Biceps</option>
+				<option
+					value="back"
+					if exercise.PrimaryMuscleGroup.String == "back" {
+						selected
+					}
+				>Back</option>
+				<option
+					value="legs"
+					if exercise.PrimaryMuscleGroup.String == "legs" {
+						selected
+					}
+				>Legs</option>
 			</select>
 		</td>
-		<td x-show="!editing">{ exercise.SecondaryMuscleGroup.String }</td>
+		<td x-show="!editing">{ title(exercise.SecondaryMuscleGroup.String) }</td>
 		<td x-cloak x-show="editing">
 			<select name="secondary-muscle-group" class="select border-secondary">
-				<option disabled selected>Secondary Muscle Group</option>
-				<option value="chest">Chest</option>
-				<option value="triceps">Triceps</option>
-				<option value="biceps">Biceps</option>
-				<option value="back">Back</option>
-				<option value="legs">Legs</option>
+				<option disabled>Secondary Muscle Group</option>
+				<option
+					value="chest"
+					if exercise.SecondaryMuscleGroup.String == "chest" {
+						selected
+					}
+				>Chest</option>
+				<option
+					value="triceps"
+					if exercise.SecondaryMuscleGroup.String == "triceps" {
+						selected
+					}
+				>Triceps</option>
+				<option
+					value="biceps"
+					if exercise.SecondaryMuscleGroup.String == "biceps" {
+						selected
+					}
+				>Biceps</option>
+				<option
+					value="back"
+					if exercise.SecondaryMuscleGroup.String == "back" {
+						selected
+					}
+				>Back</option>
+				<option
+					value="legs"
+					if exercise.SecondaryMuscleGroup.String == "legs" {
+						selected
+					}
+				>Legs</option>
 			</select>
 		</td>
 		<td>
@@ -167,4 +221,9 @@ templ ExerciseDataRow(exercise database.Exercise) {
 			<button x-cloak x-show="editing" class="btn btn-warning" @click="editing = ! editing">Cancel</button>
 		</td>
 	</tr>
+}
+
+func title(s string) string {
+	caser := cases.Title(language.AmericanEnglish)
+	return string(caser.String(s))
 }
