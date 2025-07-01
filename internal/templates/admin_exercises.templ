@@ -105,13 +105,13 @@ templ ExercisesTable(exercises []database.Exercise) {
 
 templ ExerciseDataRow(exercise database.Exercise) {
 	<tr id={ fmt.Sprintf("exercise-%v", exercise.ID) } x-data="{ editing: false }">
-		<td x-show="!editing">{ exercise.Name }</td>
+		<td x-show="!editing">{ title(exercise.Name) }</td>
 		<td x-cloak x-show="editing">
 			<input
 				class="input input-ghost text-center border-secondary"
 				type="text"
 				name="exercise-name"
-				value={ fmt.Sprintf("%v", exercise.Name) }
+				value={ fmt.Sprintf("%v", title(exercise.Name)) }
 				required
 			/>
 		</td>
