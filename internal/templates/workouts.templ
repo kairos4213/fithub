@@ -6,68 +6,172 @@ import (
 )
 
 templ Workouts(workouts []database.Workout) {
-	// TODO: Styling for smaller screens
-	if len(workouts) == 0 {
-		<p>No workouts scheduled</p>
-		<a href="/workouts/new">Create Workout</a>
-	} else {
-		<h1 class="text-3xl p-8">Upcoming Workouts</h1>
-		<div class="h-screen">
-			<div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100 mx-2">
-				<table class="table table-zebra table-pin-rows text-md text-center">
-					<thead>
-						<tr>
-							<th>Title</th>
-							<th>Description</th>
-							<th>Planned Duration</th>
-							<th>Date Scheduled</th>
-							<th>Completion Date</th>
-							<th></th>
-						</tr>
-					</thead>
-					<tbody>
-						for _, workout := range workouts {
-							<tr>
-								<td>{ workout.Title }</td>
-								<td>{ workout.Description.String }</td>
-								<td>{ fmt.Sprintf("%v", workout.DurationMinutes) }</td>
-								<td>{ fmt.Sprintf("%v", workout.PlannedDate.Format("Mon, 2 Jan 2006")) }</td>
-								if !workout.DateCompleted.Valid {
-									<td>N/A</td>
-								} else {
-									<td>{ fmt.Sprintf("%v", workout.DateCompleted.Time.Format("Mon, 2 Jan 2006")) }</td>
-								}
-								<td>
-									<a hx-get={ fmt.Sprintf("/workouts/%v", workout.ID) } class="btn btn-secondary m-1">Edit</a>
-									<a hx-post={ fmt.Sprintf("/workouts/%v", workout.ID) } class="btn btn-warning">Delete</a>
-								</td>
-							</tr>
-						}
-					</tbody>
-					<tfoot>
-						<tr>
-							<th></th>
-							<th></th>
-							<th></th>
-							<th></th>
-							<th></th>
-							<th>
-								<a href="/workouts/new" class="btn btn-outline btn-primary btn-ghost">Create Workout</a>
-							</th>
-						</tr>
-					</tfoot>
-				</table>
-			</div>
-		</div>
-	}
+	<div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100 mx-2">
+		<table id="workouts-table" class="table table-in-rows md:table-fixed table-auto text-md text-center">
+			<thead>
+				<tr>
+					<th class="w-1/6">Title</th>
+					<th class="w-1/6">Description</th>
+					<th class="w-1/6">Duration (Minutes)</th>
+					<th class="w-1/6">Planned Date</th>
+					<th class="w-1/6">Completion Date</th>
+					<th class="w-1/6"></th>
+				</tr>
+			</thead>
+			<tbody>
+				for _, workout := range workouts {
+					@WorkoutDataRow(workout)
+				}
+			</tbody>
+			<tfoot id="add-workout-row" x-data="{ open: false }">
+				<tr x-show="!open">
+					<th></th>
+					<th></th>
+					<th></th>
+					<th></th>
+					<th></th>
+					<th>
+						<button
+							class="btn btn-outline btn-primary btn-ghost"
+							@click="open = ! open"
+						>Create Workout</button>
+					</th>
+				</tr>
+				<tr x-cloak x-show="open">
+					<th>
+						<input
+							class="input input-ghost text-center border-secondary"
+							type="text"
+							name="title"
+							placeholder="Workout Title"
+							required
+						/>
+					</th>
+					<th>
+						<textarea
+							class="textarea textarea-xs text-center border-secondary"
+							name="workout-description"
+							placeholder="Enter a description"
+						></textarea>
+					</th>
+					<th>
+						<input
+							class="input validator"
+							type="number"
+							name="duration"
+							placeholder="Planned Duration in Minutes"
+							min="0"
+							required
+						/>
+					</th>
+					<th>
+						<input class="input" type="date" name="planned-date"/>
+					</th>
+					<th>N/A</th>
+					<th>
+						<button
+							hx-post={ string(templ.URL("/workouts")) }
+							hx-include="#add-workout-row"
+							hx-target="#workouts-table"
+							hx-swap="beforeend"
+							class="btn btn-outline btn-primary btn-ghost"
+							@click="open = ! open"
+						>Create Workout</button>
+						<button
+							class="btn btn-warning"
+							@click="open = ! open"
+						>Cancel</button>
+					</th>
+				</tr>
+			</tfoot>
+		</table>
+	</div>
 }
 
-templ CreateWorkout() {
-	<form hx-post="/workouts/new" hx-target="main" id="new_workout">
-		<fieldset>
-			<legend>New Workout</legend>
-			<input class="input-area" type="text" name="title" placeholder="Title" required/>
-			<input class="input-area" type="text" name="description" placeholder="Description"/>
-		</fieldset>
-	</form>
+templ WorkoutDataRow(workout database.Workout) {
+	<tr id={ fmt.Sprintf("workout-%v", workout.ID) } x-data="{ editing: false }">
+		<td x-show="!editing">
+			{ workout.Title }
+		</td>
+		<td x-cloak x-show="editing">
+			<input
+				class="input input-ghost text-center border-secondary"
+				type="text"
+				name="title"
+				value={ fmt.Sprintf("%v", workout.Title) }
+				required
+			/>
+		</td>
+		if workout.Description.Valid {
+			<td x-show="!editing">
+				{ workout.Description.String }
+			</td>
+		} else {
+			<td x-show="!editing">No description</td>
+		}
+		<td x-cloak x-show="editing">
+			<textarea
+				class="textarea textarea-xs text-center border-secondary"
+				name="workout-description"
+				placeholder="Enter a description"
+				required
+			>{ workout.Description.String }</textarea>
+		</td>
+		<td x-show="!editing">
+			{ workout.DurationMinutes }
+		</td>
+		<td x-cloak x-show="editing">
+			<input
+				class="input validator"
+				type="number"
+				name="minutes"
+				placeholder="Planned Duration in Minutes"
+				min="0"
+				value={ workout.DurationMinutes }
+				required
+			/>
+		</td>
+		<td x-show="!editing">
+			{ workout.PlannedDate.Format("Mon, Jan 02 2006") }
+		</td>
+		<td x-cloak x-show="editing">
+			<input class="input" type="date" name="planned-date" value={ workout.PlannedDate.Format("2006-01-02") }/>
+		</td>
+		if workout.DateCompleted.Valid {
+			<td x-show="!editing"></td>
+			<td x-cloak x-show="editing">
+				<input class="input" type="date" name="date-completed" value={ workout.DateCompleted.Time.Format("Mon, Jan 02 2006") }/>
+			</td>
+		} else {
+			<td x-show="!editing">N/A</td>
+			<td x-cloak x-show="editing">
+				<input class="input" type="date" name="date-completed"/>
+			</td>
+		}
+		<td>
+			<button
+				x-show="!editing"
+				class="btn btn-secondary m-1"
+				@click="editing = ! editing"
+			>Edit</button>
+			<button
+				x-show="!editing"
+				hx-delete={ string(templ.URL(fmt.Sprintf("/workouts/%v", workout.ID))) }
+				hx-target={ fmt.Sprintf("#workout-%v", workout.ID) }
+				hx-swap="delete"
+				class="btn btn-warning"
+			>Delete</button>
+			<button
+				x-cloak
+				x-show="editing"
+				hx-put={ string(templ.URL(fmt.Sprintf("/workouts/%v", workout.ID))) }
+				hx-include={ fmt.Sprintf("#workout-%v", workout.ID) }
+				hx-target={ fmt.Sprintf("#workout-%v", workout.ID) }
+				hx-swap="outerHTML"
+				class="btn btn-primary"
+				@click="editing = ! editing"
+			>Submit</button>
+			<button x-cloak x-show="editing" class="btn btn-warning" @click="editing = ! editing">Cancel</button>
+		</td>
+	</tr>
 }

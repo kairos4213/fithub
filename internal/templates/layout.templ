@@ -8,7 +8,7 @@ templ Layout(contents templ.Component, title string, isLoggedIn bool) {
 		@head(title)
 		<body hx-boost="true">
 			@header(isLoggedIn)
-			<main>
+			<main class="h-screen">
 				@contents
 			</main>
 			@footer()
