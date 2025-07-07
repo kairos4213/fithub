@@ -3,9 +3,11 @@ package templates
 import (
 	"fmt"
 	"github.com/kairos4213/fithub/internal/database"
+	"sort"
 )
 
 templ Workouts(workouts []database.Workout) {
+	{{ sort.Slice(workouts, func(i, j int) bool { return workouts[i].PlannedDate.Before(workouts[j].PlannedDate) }) }}
 	<div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100 mx-2">
 		<table id="workouts-table" class="table table-in-rows md:table-fixed table-auto text-md text-center">
 			<thead>
@@ -124,7 +126,7 @@ templ WorkoutDataRow(workout database.Workout) {
 			<input
 				class="input validator"
 				type="number"
-				name="minutes"
+				name="duration"
 				placeholder="Planned Duration in Minutes"
 				min="0"
 				value={ workout.DurationMinutes }
@@ -138,9 +140,9 @@ templ WorkoutDataRow(workout database.Workout) {
 			<input class="input" type="date" name="planned-date" value={ workout.PlannedDate.Format("2006-01-02") }/>
 		</td>
 		if workout.DateCompleted.Valid {
-			<td x-show="!editing"></td>
+			<td x-show="!editing">{ workout.DateCompleted.Time.Format("Mon, Jan 02 2006") }</td>
 			<td x-cloak x-show="editing">
-				<input class="input" type="date" name="date-completed" value={ workout.DateCompleted.Time.Format("Mon, Jan 02 2006") }/>
+				<input class="input" type="date" name="date-completed" value={ workout.DateCompleted.Time.Format("2006-01-02") }/>
 			</td>
 		} else {
 			<td x-show="!editing">N/A</td>

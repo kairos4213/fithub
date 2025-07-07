@@ -64,6 +64,63 @@ func (h *Handler) CreateUserWorkout(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) EditUserWorkout(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
+	workoutID, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		return // TODO: handle error
+	}
+
+	err = r.ParseForm()
+	if err != nil {
+		return // TODO: handle error
+	}
+
+	reqTitle := r.FormValue("title")
+	reqDescription := r.FormValue("workout-description")
+	reqDuration := r.FormValue("duration")
+	reqPlannedDate := r.FormValue("planned-date")
+	reqCompletionDate := r.FormValue("date-completed")
+
+	description := sql.NullString{Valid: false}
+	if reqDescription != "" {
+		description.String = reqDescription
+		description.Valid = true
+	}
+
+	duration, err := strconv.ParseInt(reqDuration, 10, 32)
+	if err != nil {
+		return // TODO: handle err
+	}
+
+	plannedDate, err := time.Parse(time.DateOnly, reqPlannedDate)
+	if err != nil {
+		return // TODO: handle err
+	}
+
+	dateCompleted := sql.NullTime{Valid: false}
+	if reqCompletionDate != "" {
+		date, err := time.Parse(time.DateOnly, reqCompletionDate)
+		if err != nil {
+			return // TODO: handle err
+		}
+		dateCompleted.Time = date
+		dateCompleted.Valid = true
+	}
+
+	updatedWorkout, err := h.DB.UpdateWorkout(r.Context(), database.UpdateWorkoutParams{
+		Title:           reqTitle,
+		Description:     description,
+		DurationMinutes: int32(duration),
+		PlannedDate:     plannedDate,
+		DateCompleted:   dateCompleted,
+		ID:              workoutID,
+		UserID:          userID,
+	})
+	if err != nil {
+		return // TODO: handle err
+	}
+
+	templates.WorkoutDataRow(updatedWorkout).Render(r.Context(), w)
 }
 
 func (h *Handler) DeleteUserWorkout(w http.ResponseWriter, r *http.Request) {
