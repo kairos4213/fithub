@@ -75,6 +75,7 @@ func main() {
 
 	mux.Handle("GET /workouts", mw.Auth(http.HandlerFunc(handler.GetUserWorkouts)))
 	mux.Handle("POST /workouts", mw.Auth(http.HandlerFunc(handler.CreateUserWorkout)))
+	mux.Handle("DELETE /workouts/{id}", mw.Auth(http.HandlerFunc(handler.DeleteUserWorkout)))
 
 	mux.Handle("GET /metrics", mw.Auth(http.HandlerFunc(handler.GetAllMetrics)))
 	mux.Handle("POST /metrics/{type}", mw.Auth(http.HandlerFunc(handler.LogMetrics)))

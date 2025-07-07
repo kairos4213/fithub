@@ -62,3 +62,24 @@ func (h *Handler) CreateUserWorkout(w http.ResponseWriter, r *http.Request) {
 
 	templates.WorkoutDataRow(newWorkout).Render(r.Context(), w)
 }
+
+func (h *Handler) EditUserWorkout(w http.ResponseWriter, r *http.Request) {
+}
+
+func (h *Handler) DeleteUserWorkout(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
+	workoutID, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		return // TODO: handle error
+	}
+
+	err = h.DB.DeleteWorkout(r.Context(), database.DeleteWorkoutParams{
+		ID:     workoutID,
+		UserID: userID,
+	})
+	if err != nil {
+		return // TODO: handle error
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
