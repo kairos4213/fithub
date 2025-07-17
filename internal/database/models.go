@@ -93,3 +93,18 @@ type Workout struct {
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
 }
+
+type WorkoutsExercise struct {
+	ID                  uuid.UUID
+	WorkoutID           uuid.UUID
+	ExerciseID          uuid.UUID
+	SetsPlanned         int16
+	RepsPerSetPlanned   int16
+	SetsCompleted       int16
+	RepsPerSetCompleted int16
+	WeightsPlannedLbs   []int16
+	WeightsCompletedLbs []int16
+	DateCompleted       sql.NullTime
+	UpdatedAt           time.Time
+	CreatedAt           time.Time
+}

@@ -1,4 +1,4 @@
--- name: AddExercise :one
+-- name: AddExerciseToWorkout :one
 INSERT INTO workouts_exercises (
     id,
     workout_id,
@@ -23,4 +23,8 @@ INSERT INTO workouts_exercises (
     $8,
     now(),
     now()
-);
+) RETURNING *;
+
+-- name: GetExercisesForWorkout :many
+SELECT * FROM workouts_exercises
+WHERE workout_id = $1;

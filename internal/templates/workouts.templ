@@ -93,7 +93,11 @@ templ Workouts(workouts []database.Workout) {
 templ WorkoutDataRow(workout database.Workout) {
 	<tr id={ fmt.Sprintf("workout-%v", workout.ID) } x-data="{ editing: false }">
 		<td x-show="!editing">
-			{ workout.Title }
+			<a
+				class="link link-primary link-hover"
+				href={ templ.URL(fmt.Sprintf("workouts/%v", workout.ID)) }
+				hx-include={ fmt.Sprintf("#workout-%v", workout.ID) }
+			>{ workout.Title }</a>
 		</td>
 		<td x-cloak x-show="editing">
 			<input
@@ -176,4 +180,30 @@ templ WorkoutDataRow(workout database.Workout) {
 			<button x-cloak x-show="editing" class="btn btn-warning" @click="editing = ! editing">Cancel</button>
 		</td>
 	</tr>
+}
+
+templ WorkoutPage(workout database.Workout, workoutExercises []database.WorkoutsExercise) {
+	<div class="card w-96 bg-base-200 card-xl shadow-md mx-auto my-4">
+		<div class="card-body">
+			<h2 class="card-title">{ workout.Title }</h2>
+			<p>{ workout.Description.String }</p>
+			<p>{ workout.DurationMinutes }</p>
+			<p>{ workout.PlannedDate.Format("Mon, Jan 02 2006") }</p>
+			if workout.DateCompleted.Valid {
+				<p>{ workout.DateCompleted.Time.Format("Mon, Jan 02 2006") }</p>
+			}
+			<div class="justify-end card-actions">
+				<button class="btn btn-primary">Add Exercise</button>
+			</div>
+		</div>
+	</div>
+	if len(workoutExercises) == 0 {
+	} else {
+		for _, workoutExercise := range workoutExercises {
+			<h2>{ workoutExercise.RepsPerSetCompleted }</h2>
+		}
+	}
+}
+
+templ AddExerciseForm() {
 }
