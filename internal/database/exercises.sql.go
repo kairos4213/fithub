@@ -106,11 +106,11 @@ func (q *Queries) GetAllExercises(ctx context.Context) ([]Exercise, error) {
 
 const getExerciseByName = `-- name: GetExerciseByName :many
 SELECT id, name, description, primary_muscle_group, secondary_muscle_group, created_at, updated_at FROM exercises
-WHERE name ILIKE $1
+WHERE name ILIKE '%' || $1 || '%'
 `
 
-func (q *Queries) GetExerciseByName(ctx context.Context, name string) ([]Exercise, error) {
-	rows, err := q.db.QueryContext(ctx, getExerciseByName, name)
+func (q *Queries) GetExerciseByName(ctx context.Context, dollar_1 sql.NullString) ([]Exercise, error) {
+	rows, err := q.db.QueryContext(ctx, getExerciseByName, dollar_1)
 	if err != nil {
 		return nil, err
 	}

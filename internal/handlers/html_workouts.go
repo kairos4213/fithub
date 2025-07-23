@@ -195,6 +195,6 @@ func (h *Handler) GetUserWorkoutExercises(w http.ResponseWriter, r *http.Request
 		return // TODO: handle err
 	}
 
-	contents := templates.WorkoutPage(workout, workoutExercises)
+	contents := templates.WorkoutPage(workout, workoutExercises, []database.Exercise{})
 	templates.Layout(contents, "FitHub | Workout Page", true).Render(r.Context(), w)
 }

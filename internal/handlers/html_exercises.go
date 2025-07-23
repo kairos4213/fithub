@@ -171,11 +171,13 @@ func (h *Handler) DeleteExercise(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetExerciseByName(w http.ResponseWriter, r *http.Request) {
-	exerciseName := strings.ToLower(r.FormValue("exercise-name"))
-	// exerciseSearch := sql.NullString{String: exerciseName, Valid: true}
+	exerciseName := strings.ToLower(r.FormValue("exercise-search"))
+	exerciseSearch := sql.NullString{String: exerciseName, Valid: true}
 
-	_, err := h.DB.GetExerciseByName(r.Context(), exerciseName)
+	exercises, err := h.DB.GetExerciseByName(r.Context(), exerciseSearch)
 	if err != nil {
 		return // TODO: handle err
 	}
+
+	templates.ExerciseCards(exercises).Render(r.Context(), w)
 }

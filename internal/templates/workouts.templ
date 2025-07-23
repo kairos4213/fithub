@@ -182,7 +182,7 @@ templ WorkoutDataRow(workout database.Workout) {
 	</tr>
 }
 
-templ WorkoutPage(workout database.Workout, workoutExercises []database.WorkoutsExercise) {
+templ WorkoutPage(workout database.Workout, workoutExercises []database.WorkoutsExercise, exercises []database.Exercise) {
 	<div class="card w-auto bg-base-200 card-xl shadow-md m-4">
 		<div class="card-body">
 			<h2 class="card-title">{ workout.Title }</h2>
@@ -340,28 +340,27 @@ templ WorkoutPage(workout database.Workout, workoutExercises []database.Workouts
 				placeholder="Begin Typing To Find Exercises..."
 				hx-post={ templ.URL("/exercises") }
 				hx-trigger="input changed delay:500ms, keyup[key=='Enter'], load"
-				hx-target="#exercise-search-results"
 				hx-indicator=".htmx-indicator"
+				hx-target="#exercise-search-results"
 				required
 			/>
 			<div class="divider divider-accent"></div>
 			<div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100 mx-2">
-				<table id="exercise-search-results" class="table table-in-rows md:table-fixed table-auto text-md text-center">
-					<thead>
-						<tr>
-							<th class="w-1/8">Exercise</th>
-							<th class="w-1/8">Planned Sets</th>
-							<th class="w-1/8">Planned Reps</th>
-							<th class="w-1/8">Planned Weights (lbs)</th>
-							<th class="w-1/8">Sets Completed</th>
-							<th class="w-1/8">Reps Completed</th>
-							<th class="w-1/8">Weights Completed (lbs)</th>
-							<th class="w-1/8"></th>
-						</tr>
-					</thead>
-					<tbody></tbody>
-				</table>
+				<div id="exercise-search-results" class=""></div>
 			</div>
 		</div>
 	</div>
+}
+
+templ ExerciseCards(exercises []database.Exercise) {
+	for _, exercise := range exercises {
+		<div class="card w-auto bg-base-200 card-xl shadow-md m-4">
+			<div class="card-body">
+				<h4>{ exercise.Name }</h4>
+				<span><p>{ exercise.Description.String }</p></span>
+				<span><p>{ exercise.PrimaryMuscleGroup.String }</p></span>
+				<span><p>{ exercise.SecondaryMuscleGroup.String }</p></span>
+			</div>
+		</div>
+	}
 }
