@@ -37,7 +37,7 @@ SELECT * FROM exercises;
 
 -- name: GetExerciseByName :many
 SELECT * FROM exercises
-WHERE name = $1;
+WHERE name ILIKE $1;
 
 -- name: GetExercisesByPrimaryMG :many
 SELECT * FROM exercises

@@ -170,7 +170,7 @@ templ WorkoutDataRow(workout database.Workout) {
 			<button
 				x-cloak
 				x-show="editing"
-				hx-put={ string(templ.URL(fmt.Sprintf("/workouts/%v", workout.ID))) }
+				hx-put={ templ.URL(fmt.Sprintf("/workouts/%v", workout.ID)) }
 				hx-include={ fmt.Sprintf("#workout-%v", workout.ID) }
 				hx-target={ fmt.Sprintf("#workout-%v", workout.ID) }
 				hx-swap="outerHTML"
@@ -233,11 +233,17 @@ templ WorkoutPage(workout database.Workout, workoutExercises []database.Workouts
 						</tr>
 						<tr x-cloak x-show="open">
 							<th>
+								<!-- TODO: work on active search feature for exercises -->
 								<input
+									id="exercise-name"
 									class="input input-ghost text-center border-secondary"
 									type="text"
 									name="exercise-name"
 									placeholder="Exercise Name"
+									hx-post={ templ.URL("/exercises") }
+									hx-trigger="input changed delay:500ms, keyup[key=='Enter'], load"
+									hx-target=".exercise-name"
+									hx-indicator=".htmx-indicator"
 									required
 								/>
 							</th>
@@ -320,6 +326,40 @@ templ WorkoutPage(workout database.Workout, workoutExercises []database.Workouts
 							</th>
 						</tr>
 					</tfoot>
+				</table>
+			</div>
+		</div>
+	</div>
+	<div class="card w-auto bg-base-200 card-xl shadow-md m-4">
+		<div class="card-body">
+			<h3>Search Exercises<span class="htmx-indicator loading loading-ring loading-sm"></span></h3>
+			<input
+				class="form-control"
+				type="search"
+				name="exercise-search"
+				placeholder="Begin Typing To Find Exercises..."
+				hx-post={ templ.URL("/exercises") }
+				hx-trigger="input changed delay:500ms, keyup[key=='Enter'], load"
+				hx-target="#exercise-search-results"
+				hx-indicator=".htmx-indicator"
+				required
+			/>
+			<div class="divider divider-accent"></div>
+			<div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100 mx-2">
+				<table id="exercise-search-results" class="table table-in-rows md:table-fixed table-auto text-md text-center">
+					<thead>
+						<tr>
+							<th class="w-1/8">Exercise</th>
+							<th class="w-1/8">Planned Sets</th>
+							<th class="w-1/8">Planned Reps</th>
+							<th class="w-1/8">Planned Weights (lbs)</th>
+							<th class="w-1/8">Sets Completed</th>
+							<th class="w-1/8">Reps Completed</th>
+							<th class="w-1/8">Weights Completed (lbs)</th>
+							<th class="w-1/8"></th>
+						</tr>
+					</thead>
+					<tbody></tbody>
 				</table>
 			</div>
 		</div>

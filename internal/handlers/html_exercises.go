@@ -3,6 +3,7 @@ package handlers
 import (
 	"database/sql"
 	"net/http"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/kairos4213/fithub/internal/cntx"
@@ -167,4 +168,14 @@ func (h *Handler) DeleteExercise(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
+}
+
+func (h *Handler) GetExerciseByName(w http.ResponseWriter, r *http.Request) {
+	exerciseName := strings.ToLower(r.FormValue("exercise-name"))
+	// exerciseSearch := sql.NullString{String: exerciseName, Valid: true}
+
+	_, err := h.DB.GetExerciseByName(r.Context(), exerciseName)
+	if err != nil {
+		return // TODO: handle err
+	}
 }

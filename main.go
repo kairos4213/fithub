@@ -80,6 +80,8 @@ func main() {
 
 	mux.Handle("GET /workouts/{id}", mw.Auth(http.HandlerFunc(handler.GetUserWorkoutExercises)))
 
+	mux.Handle("POST /exercises", mw.Auth(http.HandlerFunc(handler.GetExerciseByName)))
+
 	mux.Handle("GET /metrics", mw.Auth(http.HandlerFunc(handler.GetAllMetrics)))
 	mux.Handle("POST /metrics/{type}", mw.Auth(http.HandlerFunc(handler.LogMetrics)))
 	mux.Handle("PUT /metrics/{type}/{id}", mw.Auth(http.HandlerFunc(handler.EditMetrics)))

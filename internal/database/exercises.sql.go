@@ -106,7 +106,7 @@ func (q *Queries) GetAllExercises(ctx context.Context) ([]Exercise, error) {
 
 const getExerciseByName = `-- name: GetExerciseByName :many
 SELECT id, name, description, primary_muscle_group, secondary_muscle_group, created_at, updated_at FROM exercises
-WHERE name = $1
+WHERE name ILIKE $1
 `
 
 func (q *Queries) GetExerciseByName(ctx context.Context, name string) ([]Exercise, error) {
