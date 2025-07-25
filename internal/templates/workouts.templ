@@ -353,14 +353,18 @@ templ WorkoutPage(workout database.Workout, workoutExercises []database.Workouts
 }
 
 templ ExerciseCards(exercises []database.Exercise) {
-	for _, exercise := range exercises {
-		<div class="card w-auto bg-base-200 card-xl shadow-md m-4">
-			<div class="card-body">
-				<h4>{ exercise.Name }</h4>
-				<span><p>{ exercise.Description.String }</p></span>
-				<span><p>{ exercise.PrimaryMuscleGroup.String }</p></span>
-				<span><p>{ exercise.SecondaryMuscleGroup.String }</p></span>
+	<div class="carousel carousel-vertical rounded-box">
+		for _, exercise := range exercises {
+			<div class="carousel-item h-1/2">
+				<div class="card w-auto bg-base-200 card-xl shadow-md m-4">
+					<div class="card-body">
+						<h4>{ exercise.Name }</h4>
+						<span><p class="italic">{ exercise.Description.String }</p></span>
+						<span><p>{ exercise.PrimaryMuscleGroup.String }</p></span>
+						<span><p>{ exercise.SecondaryMuscleGroup.String }</p></span>
+					</div>
+				</div>
 			</div>
-		</div>
-	}
+		}
+	</div>
 }

@@ -6,9 +6,9 @@ templ Layout(contents templ.Component, title string, isLoggedIn bool) {
 	<!DOCTYPE html>
 	<html lang="en">
 		@head(title)
-		<body hx-boost="true">
+		<body class="flex flex-col h-screen" hx-boost="true">
 			@header(isLoggedIn)
-			<main class="h-screen">
+			<main class="flex-grow">
 				@contents
 			</main>
 			@footer()
