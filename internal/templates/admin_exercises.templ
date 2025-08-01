@@ -3,8 +3,7 @@ package templates
 import (
 	"fmt"
 	"github.com/kairos4213/fithub/internal/database"
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
+	"github.com/kairos4213/fithub/internal/utils"
 	"sort"
 )
 
@@ -105,13 +104,13 @@ templ ExercisesTable(exercises []database.Exercise) {
 
 templ ExerciseDataRow(exercise database.Exercise) {
 	<tr id={ fmt.Sprintf("exercise-%v", exercise.ID) } x-data="{ editing: false }">
-		<td x-show="!editing">{ title(exercise.Name) }</td>
+		<td x-show="!editing">{ utils.TitleString(exercise.Name) }</td>
 		<td x-cloak x-show="editing">
 			<input
 				class="input input-ghost text-center border-secondary"
 				type="text"
 				name="exercise-name"
-				value={ fmt.Sprintf("%v", title(exercise.Name)) }
+				value={ fmt.Sprintf("%v", utils.TitleString(exercise.Name)) }
 				required
 			/>
 		</td>
@@ -123,7 +122,7 @@ templ ExerciseDataRow(exercise database.Exercise) {
 				placeholder="Enter a description"
 			>{ exercise.Description.String }</textarea>
 		</td>
-		<td x-show="!editing">{ title(exercise.PrimaryMuscleGroup.String) }</td>
+		<td x-show="!editing">{ utils.TitleString(exercise.PrimaryMuscleGroup.String) }</td>
 		<td x-cloak x-show="editing">
 			<select name="primary-muscle-group" class="select border-secondary" required>
 				<option disabled>Primary Muscle Group</option>
@@ -159,7 +158,7 @@ templ ExerciseDataRow(exercise database.Exercise) {
 				>Legs</option>
 			</select>
 		</td>
-		<td x-show="!editing">{ title(exercise.SecondaryMuscleGroup.String) }</td>
+		<td x-show="!editing">{ utils.TitleString(exercise.SecondaryMuscleGroup.String) }</td>
 		<td x-cloak x-show="editing">
 			<select name="secondary-muscle-group" class="select border-secondary">
 				<option disabled>Secondary Muscle Group</option>
@@ -221,9 +220,4 @@ templ ExerciseDataRow(exercise database.Exercise) {
 			<button x-cloak x-show="editing" class="btn btn-warning" @click="editing = ! editing">Cancel</button>
 		</td>
 	</tr>
-}
-
-func title(s string) string {
-	caser := cases.Title(language.AmericanEnglish)
-	return string(caser.String(s))
 }
