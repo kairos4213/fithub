@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"strings"
 
@@ -36,9 +37,12 @@ func (mw *Middleware) Auth(next http.Handler) http.Handler {
 		if err != nil {
 			w.Header().Set("Content-type", "text/html")
 			w.WriteHeader(http.StatusUnauthorized)
+
 			htmlErr := templates.HtmlErr{Code: http.StatusUnauthorized, Msg: "You don't have access to this! Please login, or register!"}
 			contents := templates.ErrorDisplay(htmlErr)
 			templates.Layout(contents, "FitHub", false).Render(r.Context(), w)
+
+			log.Printf("%v", err)
 			return
 		}
 
@@ -47,12 +51,22 @@ func (mw *Middleware) Auth(next http.Handler) http.Handler {
 		if err != nil {
 			w.Header().Set("Content-type", "text/html")
 			w.WriteHeader(http.StatusUnauthorized)
+
 			if strings.Contains(err.Error(), "token expired") {
 				htmlErr := templates.HtmlErr{Code: http.StatusUnauthorized, Msg: "Access Expired. Please login again"}
 				contents := templates.ErrorDisplay(htmlErr)
 				templates.Layout(contents, "FitHub", false).Render(r.Context(), w)
+
+				log.Printf("%v", err)
 				return
 			}
+
+			htmlErr := templates.HtmlErr{Code: http.StatusUnauthorized, Msg: "You don't have access to this! Please login, or register!"}
+			contents := templates.ErrorDisplay(htmlErr)
+			templates.Layout(contents, "FitHub", false).Render(r.Context(), w)
+
+			log.Printf("%v", err)
+			return
 		}
 
 		ctx := context.WithValue(r.Context(), cntx.UserIDKey, userID)
