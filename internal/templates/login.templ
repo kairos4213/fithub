@@ -1,10 +1,6 @@
 package templates
 
-type LoginErr struct {
-	Default string
-}
-
-templ LoginPage(err LoginErr) {
+templ LoginPage() {
 	<section class="container mx-auto p-10 h-screen">
 		<form hx-post={ string(templ.URL("/login")) } hx-target="main" class="justify-self-center">
 			<h1 class="text-5xl">FitHub</h1>

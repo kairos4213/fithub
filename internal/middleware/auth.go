@@ -3,6 +3,7 @@ package middleware
 import (
 	"context"
 	"net/http"
+	"strings"
 
 	"github.com/kairos4213/fithub/internal/auth"
 	"github.com/kairos4213/fithub/internal/cntx"
@@ -35,7 +36,8 @@ func (mw *Middleware) Auth(next http.Handler) http.Handler {
 		if err != nil {
 			w.Header().Set("Content-type", "text/html")
 			w.WriteHeader(http.StatusUnauthorized)
-			contents := templates.LoginPage(templates.LoginErr{})
+			htmlErr := templates.HtmlErr{Code: http.StatusUnauthorized, Msg: "You don't have access to this! Please login, or register!"}
+			contents := templates.ErrorDisplay(htmlErr)
 			templates.Layout(contents, "FitHub", false).Render(r.Context(), w)
 			return
 		}
@@ -45,9 +47,12 @@ func (mw *Middleware) Auth(next http.Handler) http.Handler {
 		if err != nil {
 			w.Header().Set("Content-type", "text/html")
 			w.WriteHeader(http.StatusUnauthorized)
-			contents := templates.LoginPage(templates.LoginErr{})
-			templates.Layout(contents, "FitHub", false).Render(r.Context(), w)
-			return
+			if strings.Contains(err.Error(), "token expired") {
+				htmlErr := templates.HtmlErr{Code: http.StatusUnauthorized, Msg: "Access Expired. Please login again"}
+				contents := templates.ErrorDisplay(htmlErr)
+				templates.Layout(contents, "FitHub", false).Render(r.Context(), w)
+				return
+			}
 		}
 
 		ctx := context.WithValue(r.Context(), cntx.UserIDKey, userID)

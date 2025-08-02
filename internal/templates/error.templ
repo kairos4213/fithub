@@ -1,0 +1,19 @@
+package templates
+
+type HtmlErr struct {
+	Code int
+	Msg  string
+}
+
+templ ErrorDisplay(err HtmlErr) {
+	<section class="hero bg-base-200 min-h-screen">
+		<div class="hero-content text-center">
+			<div class="max-w-md">
+				<h2 class="text-3xl">{ err.Code }</h2>
+				<p class="text-2xl pb-2">{ err.Msg }</p>
+				<a href={ templ.URL("/login") } class="btn btn-primary btn-outline">Login</a>
+				<a href={ templ.URL("/register") } class="btn btn-secondary btn-outline">Register</a>
+			</div>
+		</div>
+	</section>
+}

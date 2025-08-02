@@ -3,6 +3,7 @@ package templates
 import (
 	"fmt"
 	"github.com/kairos4213/fithub/internal/database"
+	"github.com/kairos4213/fithub/internal/utils"
 	"sort"
 )
 
@@ -185,7 +186,7 @@ templ WorkoutDataRow(workout database.Workout) {
 templ WorkoutPage(workout database.Workout, workoutExercises []database.WorkoutsExercise, exercises []database.Exercise) {
 	<div class="card w-auto bg-base-200 card-xl shadow-md m-4">
 		<div class="card-body">
-			<h2 class="card-title">{ workout.Title }</h2>
+			<h2 class="card-title">{ utils.TitleString(workout.Title) }</h2>
 			<p class="italic">{ workout.Description.String }</p>
 			<p><span class="font-bold">Est. Duration: </span>{ workout.DurationMinutes }min</p>
 			<p><span class="font-bold">Planned Date: </span>{ workout.PlannedDate.Format("Mon, Jan 02 2006") }</p>
@@ -331,7 +332,7 @@ templ WorkoutPage(workout database.Workout, workoutExercises []database.Workouts
 		</div>
 	</div>
 	<div class="card w-auto bg-base-200 card-xl shadow-md m-4">
-		<div class="card-body">
+		<div class="card-body h-96">
 			<h3>Search Exercises<span class="htmx-indicator loading loading-ring loading-sm"></span></h3>
 			<input
 				class="form-control"
@@ -353,15 +354,15 @@ templ WorkoutPage(workout database.Workout, workoutExercises []database.Workouts
 }
 
 templ ExerciseCards(exercises []database.Exercise) {
-	<div class="carousel carousel-vertical rounded-box">
+	<div class="carousel carousel-vertical rounded-box w-full pb-2">
 		for _, exercise := range exercises {
-			<div class="carousel-item h-1/2">
-				<div class="card w-auto bg-base-200 card-xl shadow-md m-4">
+			<div class="carousel-item h-3/4">
+				<div class="card w-full bg-base-200 card-xl shadow-md m-4">
 					<div class="card-body">
 						<h4>{ exercise.Name }</h4>
 						<span><p class="italic">{ exercise.Description.String }</p></span>
-						<span><p>{ exercise.PrimaryMuscleGroup.String }</p></span>
-						<span><p>{ exercise.SecondaryMuscleGroup.String }</p></span>
+						<span><p>{ utils.TitleString(exercise.PrimaryMuscleGroup.String) }</p></span>
+						<span><p>{ utils.TitleString(exercise.SecondaryMuscleGroup.String) }</p></span>
 					</div>
 				</div>
 			</div>

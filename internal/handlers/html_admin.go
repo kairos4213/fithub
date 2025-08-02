@@ -18,7 +18,7 @@ func (h *Handler) GetAdminHome(w http.ResponseWriter, r *http.Request) {
 	if !user.IsAdmin {
 		w.Header().Set("Content-type", "text/html")
 		w.WriteHeader(http.StatusUnauthorized)
-		contents := templates.LoginPage(templates.LoginErr{})
+		contents := templates.LoginPage()
 		templates.Layout(contents, "FitHub", false).Render(r.Context(), w)
 		return // TODO: Finish error handler
 	}

@@ -78,6 +78,10 @@ func ValidateJWT(tokenString string, publicKey []byte) (uuid.UUID, error) {
 		return uuid.Nil, errors.New("invalid token issuer")
 	}
 
+	if claims.ExpiresAt.Before(time.Now()) {
+		return uuid.Nil, errors.New("token expired")
+	}
+
 	return claims.UserID, nil
 }
 

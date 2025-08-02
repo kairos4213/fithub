@@ -11,7 +11,7 @@ import (
 
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-		contents := templates.LoginPage(templates.LoginErr{})
+		contents := templates.LoginPage()
 		templates.Layout(contents, "FitHub | Login", false).Render(r.Context(), w)
 		return
 	}
@@ -22,14 +22,12 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 
 		user, err := h.DB.GetUser(r.Context(), email)
 		if err != nil {
-			loginErr := templates.LoginErr{Default: "Invalid email or password"}
-			templates.LoginPage(loginErr).Render(r.Context(), w)
+			templates.LoginPage().Render(r.Context(), w)
 			return
 		}
 
 		if err = auth.CheckPasswordHash(password, user.HashedPassword); err != nil {
-			loginErr := templates.LoginErr{Default: "Invalid email or password"}
-			templates.LoginPage(loginErr).Render(r.Context(), w)
+			templates.LoginPage().Render(r.Context(), w)
 			return
 		}
 
