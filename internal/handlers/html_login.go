@@ -11,7 +11,7 @@ import (
 
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-		contents := templates.LoginPage()
+		contents := templates.LoginPage(templates.HtmlErr{})
 		templates.Layout(contents, "FitHub | Login", false).Render(r.Context(), w)
 		return
 	}
@@ -22,17 +22,21 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 
 		user, err := h.DB.GetUser(r.Context(), email)
 		if err != nil {
-			templates.LoginPage().Render(r.Context(), w)
+			htmlErr := templates.HtmlErr{Code: http.StatusUnauthorized, Msg: "Username and/or password are incorrect. Please try again."}
+			templates.LoginPage(htmlErr).Render(r.Context(), w)
 			return
 		}
 
 		if err = auth.CheckPasswordHash(password, user.HashedPassword); err != nil {
-			templates.LoginPage().Render(r.Context(), w)
+			htmlErr := templates.HtmlErr{Code: http.StatusUnauthorized, Msg: "Username and/or password are incorrect. Please try again."}
+			templates.LoginPage(htmlErr).Render(r.Context(), w)
 			return
 		}
 
 		accessToken, err := auth.MakeJWT(user.ID, h.PrivateKey)
 		if err != nil {
+			htmlErr := templates.HtmlErr{Code: http.StatusInternalServerError, Msg: "Something went wrong! Please try later."}
+			templates.ErrorDisplay(htmlErr).Render(r.Context(), w)
 			http.Error(w, "Issue creating access token", http.StatusInternalServerError)
 			return
 		}

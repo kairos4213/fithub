@@ -1,6 +1,6 @@
 package templates
 
-templ LoginPage() {
+templ LoginPage(err HtmlErr) {
 	<section class="container mx-auto p-10 h-screen">
 		<form hx-post={ string(templ.URL("/login")) } hx-target="main" class="justify-self-center">
 			<h1 class="text-5xl">FitHub</h1>
@@ -8,6 +8,9 @@ templ LoginPage() {
 				<legend class="fieldset-legend text-lg">Login</legend>
 				<input class="input" type="email" name="email" placeholder="Email" required/>
 				<input class="input" type="password" name="password" placeholder="Password" required/>
+				if err.Msg != "" {
+					<div role="alert" class="alert alert-warning alert-outline"><span>{ err.Msg }</span></div>
+				}
 				<button class="btn btn-primary mt-4" type="submit">Login</button>
 			</fieldset>
 			<p class="text-lg px-6 mt-4 justify-self-center">

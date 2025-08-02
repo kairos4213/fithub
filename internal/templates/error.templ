@@ -9,11 +9,26 @@ templ ErrorDisplay(err HtmlErr) {
 	<section class="hero bg-base-200 min-h-screen">
 		<div class="hero-content text-center">
 			<div class="max-w-md">
-				<h2 class="text-3xl">{ err.Code }</h2>
-				<p class="text-2xl pb-2">{ err.Msg }</p>
-				<a href={ templ.URL("/login") } class="btn btn-primary btn-outline">Login</a>
-				<a href={ templ.URL("/register") } class="btn btn-secondary btn-outline">Register</a>
+				switch err.Code {
+					case 401:
+						@unauthorized(err)
+					case 403:
+						@forbidden(err)
+				}
 			</div>
 		</div>
 	</section>
+}
+
+templ unauthorized(err HtmlErr) {
+	<h2 class="text-3xl">{ err.Code }</h2>
+	<p class="text-2xl mb-5">{ err.Msg }</p>
+	<a href={ templ.URL("/login") } class="btn btn-primary btn-outline">Login</a>
+	<a href={ templ.URL("/register") } class="btn btn-secondary btn-outline">Register</a>
+}
+
+templ forbidden(err HtmlErr) {
+	<h2 class="text-3xl">{ err.Code }</h2>
+	<p class="text-2xl mb-5">{ err.Msg }</p>
+	<a href={ templ.URL("/") } class="btn btn-secondary btn-outline">Return Home</a>
 }
