@@ -12,6 +12,7 @@ import (
 )
 
 func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
+	// TODO: decide on how to handle registration errors
 	if r.Method == http.MethodGet {
 		w.Header().Set("Content-type", "text/html")
 		contents := templates.RegisterPage(templates.RegErr{})
