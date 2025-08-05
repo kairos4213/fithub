@@ -32,7 +32,7 @@ func (h *Handler) GetAdminHome(w http.ResponseWriter, r *http.Request) {
 		contents := templates.ErrorDisplay(htmlErr)
 		templates.Layout(contents, "FitHub", true).Render(r.Context(), w)
 
-		log.Println("Unauthorized admin request:")
+		log.Println("Unauthorized admin GET request:")
 		log.Printf("\tUser ID: %v", user.ID)
 		log.Printf("\tUser Email: %v", user.Email)
 		return

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"database/sql"
+	"log"
 	"net/http"
 	"strings"
 
@@ -15,18 +16,42 @@ func (h *Handler) GetAdminExercisesPage(w http.ResponseWriter, r *http.Request) 
 	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 	user, err := h.DB.GetUserByID(r.Context(), userID)
 	if err != nil {
-		return // TODO: Handle err
+		w.Header().Set("Content-Type", "text/html")
+		w.WriteHeader(http.StatusInternalServerError)
+
+		htmlErr := templates.HtmlErr{Code: http.StatusInternalServerError, Msg: "Something went wrong. Please try later"}
+		contents := templates.ErrorDisplay(htmlErr)
+		templates.Layout(contents, "FitHub", false).Render(r.Context(), w)
+
+		log.Printf("Server Error: %v", err)
+		return
 	}
 
 	if !user.IsAdmin {
 		w.Header().Set("Content-type", "text/html")
-		w.WriteHeader(http.StatusUnauthorized)
-		return // TODO: Finish error handler
+		w.WriteHeader(http.StatusForbidden)
+
+		htmlErr := templates.HtmlErr{Code: http.StatusForbidden, Msg: "You don't have permission to access this resource"}
+		contents := templates.ErrorDisplay(htmlErr)
+		templates.Layout(contents, "FitHub", true).Render(r.Context(), w)
+
+		log.Println("Unauthorized admin GET request:")
+		log.Printf("\tUser ID: %v", user.ID)
+		log.Printf("\tUser Email: %v", user.Email)
+		return
 	}
 
 	exercises, err := h.DB.GetAllExercises(r.Context())
 	if err != nil {
-		return // TODO: handle err
+		w.Header().Set("Content-type", "text/html")
+		w.WriteHeader(http.StatusInternalServerError)
+
+		htmlErr := templates.HtmlErr{Code: http.StatusInternalServerError, Msg: "Something went wrong. Please try later"}
+		contents := templates.ErrorDisplay(htmlErr)
+		templates.Layout(contents, "FitHub", false).Render(r.Context(), w)
+
+		log.Printf("Server Error: %v", err)
+		return
 	}
 
 	contents := templates.AdminExercisesPage(exercises)
@@ -37,13 +62,29 @@ func (h *Handler) AddExercise(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 	user, err := h.DB.GetUserByID(r.Context(), userID)
 	if err != nil {
-		return // TODO: Handle err
+		w.Header().Set("Content-type", "text/html")
+		w.WriteHeader(http.StatusInternalServerError)
+
+		htmlErr := templates.HtmlErr{Code: http.StatusInternalServerError, Msg: "Something went wrong. Please try later"}
+		contents := templates.ErrorDisplay(htmlErr)
+		templates.Layout(contents, "FitHub", false).Render(r.Context(), w)
+
+		log.Printf("Server Error: %v", err)
+		return
 	}
 
 	if !user.IsAdmin {
 		w.Header().Set("Content-type", "text/html")
-		w.WriteHeader(http.StatusUnauthorized)
-		return // TODO: Finish error handler
+		w.WriteHeader(http.StatusForbidden)
+
+		htmlErr := templates.HtmlErr{Code: http.StatusForbidden, Msg: "You don't have permission to access this resource"}
+		contents := templates.ErrorDisplay(htmlErr)
+		templates.Layout(contents, "FitHub", true).Render(r.Context(), w)
+
+		log.Println("Unauthorized admin GET request:")
+		log.Printf("\tUser ID: %v", user.ID)
+		log.Printf("\tUser Email: %v", user.Email)
+		return
 	}
 
 	name := r.FormValue("exercise-name")
@@ -76,7 +117,15 @@ func (h *Handler) AddExercise(w http.ResponseWriter, r *http.Request) {
 		SecondaryMuscleGroup: secMG,
 	})
 	if err != nil {
-		return // TODO: handle err
+		w.Header().Set("Content-type", "text/html")
+		w.WriteHeader(http.StatusInternalServerError)
+
+		htmlErr := templates.HtmlErr{Code: http.StatusInternalServerError, Msg: "Something went wrong. Please try later"}
+		contents := templates.ErrorDisplay(htmlErr)
+		templates.Layout(contents, "FitHub", false).Render(r.Context(), w)
+
+		log.Printf("Server Error: %v", err)
+		return
 	}
 
 	w.Header().Set("Content-type", "text/html")
@@ -88,23 +137,55 @@ func (h *Handler) EditExercise(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 	user, err := h.DB.GetUserByID(r.Context(), userID)
 	if err != nil {
-		return // TODO: Handle err
+		w.Header().Set("Content-type", "text/html")
+		w.WriteHeader(http.StatusInternalServerError)
+
+		htmlErr := templates.HtmlErr{Code: http.StatusInternalServerError, Msg: "Something went wrong. Please try later"}
+		contents := templates.ErrorDisplay(htmlErr)
+		templates.Layout(contents, "FitHub", false).Render(r.Context(), w)
+
+		log.Printf("Server Error: %v", err)
+		return
 	}
 
 	if !user.IsAdmin {
 		w.Header().Set("Content-type", "text/html")
-		w.WriteHeader(http.StatusUnauthorized)
-		return // TODO: Finish error handler
+		w.WriteHeader(http.StatusForbidden)
+
+		htmlErr := templates.HtmlErr{Code: http.StatusForbidden, Msg: "You don't have permission to access this resource"}
+		contents := templates.ErrorDisplay(htmlErr)
+		templates.Layout(contents, "FitHub", true).Render(r.Context(), w)
+
+		log.Println("Unauthorized admin GET request:")
+		log.Printf("\tUser ID: %v", user.ID)
+		log.Printf("\tUser Email: %v", user.Email)
+		return
 	}
 
 	exerciseID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		return // TODO: Handle error
+		w.Header().Set("Content-type", "text/html")
+		w.WriteHeader(http.StatusInternalServerError)
+
+		htmlErr := templates.HtmlErr{Code: http.StatusInternalServerError, Msg: "Something went wrong. Please try later"}
+		contents := templates.ErrorDisplay(htmlErr)
+		templates.Layout(contents, "FitHub", false).Render(r.Context(), w)
+
+		log.Printf("Server Error: %v", err)
+		return
 	}
 
 	err = r.ParseForm()
 	if err != nil {
-		return // TODO: handle error
+		w.Header().Set("Content-type", "text/html")
+		w.WriteHeader(http.StatusInternalServerError)
+
+		htmlErr := templates.HtmlErr{Code: http.StatusInternalServerError, Msg: "Something went wrong. Please try later"}
+		contents := templates.ErrorDisplay(htmlErr)
+		templates.Layout(contents, "FitHub", false).Render(r.Context(), w)
+
+		log.Printf("Server Error: %v", err)
+		return
 	}
 
 	reqName := r.FormValue("exercise-name")
@@ -138,7 +219,15 @@ func (h *Handler) EditExercise(w http.ResponseWriter, r *http.Request) {
 		ID:                   exerciseID,
 	})
 	if err != nil {
-		return // TODO: handle err
+		w.Header().Set("Content-type", "text/html")
+		w.WriteHeader(http.StatusInternalServerError)
+
+		htmlErr := templates.HtmlErr{Code: http.StatusInternalServerError, Msg: "Something went wrong. Please try later"}
+		contents := templates.ErrorDisplay(htmlErr)
+		templates.Layout(contents, "FitHub", false).Render(r.Context(), w)
+
+		log.Printf("Server Error: %v", err)
+		return
 	}
 
 	templates.ExerciseDataRow(updatedExercise).Render(r.Context(), w)
@@ -148,23 +237,55 @@ func (h *Handler) DeleteExercise(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 	user, err := h.DB.GetUserByID(r.Context(), userID)
 	if err != nil {
-		return // TODO: Handle err
+		w.Header().Set("Content-type", "text/html")
+		w.WriteHeader(http.StatusInternalServerError)
+
+		htmlErr := templates.HtmlErr{Code: http.StatusInternalServerError, Msg: "Something went wrong. Please try later"}
+		contents := templates.ErrorDisplay(htmlErr)
+		templates.Layout(contents, "FitHub", false).Render(r.Context(), w)
+
+		log.Printf("Server Error: %v", err)
+		return
 	}
 
 	if !user.IsAdmin {
 		w.Header().Set("Content-type", "text/html")
-		w.WriteHeader(http.StatusUnauthorized)
-		return // TODO: Finish error handler
+		w.WriteHeader(http.StatusForbidden)
+
+		htmlErr := templates.HtmlErr{Code: http.StatusForbidden, Msg: "You don't have permission to access this resource"}
+		contents := templates.ErrorDisplay(htmlErr)
+		templates.Layout(contents, "FitHub", true).Render(r.Context(), w)
+
+		log.Println("Unauthorized admin GET request:")
+		log.Printf("\tUser ID: %v", user.ID)
+		log.Printf("\tUser Email: %v", user.Email)
+		return
 	}
 
 	exerciseID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		return // TODO: handle err
+		w.Header().Set("Content-type", "text/html")
+		w.WriteHeader(http.StatusInternalServerError)
+
+		htmlErr := templates.HtmlErr{Code: http.StatusInternalServerError, Msg: "Something went wrong. Please try later"}
+		contents := templates.ErrorDisplay(htmlErr)
+		templates.Layout(contents, "FitHub", false).Render(r.Context(), w)
+
+		log.Printf("Server Error: %v", err)
+		return
 	}
 
 	err = h.DB.DeleteExercise(r.Context(), exerciseID)
 	if err != nil {
-		return // TODO: handle err
+		w.Header().Set("Content-type", "text/html")
+		w.WriteHeader(http.StatusInternalServerError)
+
+		htmlErr := templates.HtmlErr{Code: http.StatusInternalServerError, Msg: "Something went wrong. Please try later"}
+		contents := templates.ErrorDisplay(htmlErr)
+		templates.Layout(contents, "FitHub", false).Render(r.Context(), w)
+
+		log.Printf("Server Error: %v", err)
+		return
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -176,7 +297,15 @@ func (h *Handler) GetExerciseByName(w http.ResponseWriter, r *http.Request) {
 
 	exercises, err := h.DB.GetExerciseByName(r.Context(), exerciseSearch)
 	if err != nil {
-		return // TODO: handle err
+		w.Header().Set("Content-type", "text/html")
+		w.WriteHeader(http.StatusInternalServerError)
+
+		htmlErr := templates.HtmlErr{Code: http.StatusInternalServerError, Msg: "Something went wrong. Please try later"}
+		contents := templates.ErrorDisplay(htmlErr)
+		templates.Layout(contents, "FitHub", false).Render(r.Context(), w)
+
+		log.Printf("Server Error: %v", err)
+		return
 	}
 
 	templates.ExerciseCards(exercises).Render(r.Context(), w)

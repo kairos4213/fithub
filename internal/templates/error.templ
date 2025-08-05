@@ -14,6 +14,8 @@ templ ErrorDisplay(err HtmlErr) {
 						@unauthorized(err)
 					case 403:
 						@forbidden(err)
+					case 500:
+						@serverIssue(err)
 				}
 			</div>
 		</div>
@@ -28,6 +30,12 @@ templ unauthorized(err HtmlErr) {
 }
 
 templ forbidden(err HtmlErr) {
+	<h2 class="text-3xl">{ err.Code }</h2>
+	<p class="text-2xl mb-5">{ err.Msg }</p>
+	<a href={ templ.URL("/") } class="btn btn-secondary btn-outline">Return Home</a>
+}
+
+templ serverIssue(err HtmlErr) {
 	<h2 class="text-3xl">{ err.Code }</h2>
 	<p class="text-2xl mb-5">{ err.Msg }</p>
 	<a href={ templ.URL("/") } class="btn btn-secondary btn-outline">Return Home</a>
