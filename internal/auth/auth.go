@@ -28,13 +28,15 @@ func CheckPasswordHash(password, hash string) error {
 }
 
 type CustomClaims struct {
-	UserID uuid.UUID
+	UserID  uuid.UUID
+	IsAdmin bool
 	jwt.RegisteredClaims
 }
 
-func MakeJWT(userID uuid.UUID, privateKeyBytes []byte) (string, error) {
+func MakeJWT(userID uuid.UUID, isAdmin bool, privateKeyBytes []byte) (string, error) {
 	claims := &CustomClaims{
 		userID,
+		isAdmin,
 		jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(1 * time.Hour)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -56,33 +58,29 @@ func MakeJWT(userID uuid.UUID, privateKeyBytes []byte) (string, error) {
 	return ss, nil
 }
 
-func ValidateJWT(tokenString string, publicKey []byte) (uuid.UUID, error) {
+func ValidateJWT(tokenString string, publicKey []byte) (*CustomClaims, error) {
 	pubKey, err := jwt.ParseRSAPublicKeyFromPEM(publicKey)
 	if err != nil {
-		return uuid.Nil, err
+		return nil, err
 	}
 
 	token, err := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(token *jwt.Token) (any, error) {
 		return pubKey, nil
 	})
 	if err != nil {
-		return uuid.Nil, err
+		return nil, err
 	}
 
 	claims, ok := token.Claims.(*CustomClaims)
 	if !ok {
-		return uuid.Nil, errors.New("error parsing custom claims")
+		return nil, errors.New("error parsing custom claims")
 	}
 
 	if claims.Issuer != "fithub" {
-		return uuid.Nil, errors.New("invalid token issuer")
+		return nil, errors.New("invalid token issuer")
 	}
 
-	if claims.ExpiresAt.Before(time.Now()) {
-		return uuid.Nil, errors.New("token expired")
-	}
-
-	return claims.UserID, nil
+	return claims, nil
 }
 
 func GetBearerToken(headers http.Header) (string, error) {

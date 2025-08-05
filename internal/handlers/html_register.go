@@ -48,7 +48,7 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		accessToken, err := auth.MakeJWT(user.ID, h.PrivateKey)
+		accessToken, err := auth.MakeJWT(user.ID, user.IsAdmin, h.PrivateKey)
 		if err != nil {
 			http.Error(w, "Issue creating access token", http.StatusInternalServerError)
 			return

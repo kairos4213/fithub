@@ -53,10 +53,7 @@ func main() {
 
 	mw := middleware.Middleware{PublicKey: pubKey}
 
-	handler := handlers.Handler{
-		DB:         dbQueries,
-		PrivateKey: privKey,
-	}
+	handler := handlers.Handler{DB: dbQueries, PrivateKey: privKey}
 
 	mux := http.NewServeMux()
 
@@ -92,12 +89,12 @@ func main() {
 	mux.Handle("PUT /goals/{id}", mw.Auth(http.HandlerFunc(handler.EditGoal)))
 	mux.Handle("DELETE /goals/{id}", mw.Auth(http.HandlerFunc(handler.DeleteGoal)))
 
-	mux.Handle("GET /admin", mw.Auth(http.HandlerFunc(handler.GetAdminHome)))
+	mux.Handle("GET /admin", mw.AdminAuth(http.HandlerFunc(handler.GetAdminHome)))
 
-	mux.Handle("GET /admin/exercises", mw.Auth(http.HandlerFunc(handler.GetAdminExercisesPage)))
-	mux.Handle("POST /admin/exercises", mw.Auth(http.HandlerFunc(handler.AddExercise)))
-	mux.Handle("PUT /admin/exercises/{id}", mw.Auth(http.HandlerFunc(handler.EditExercise)))
-	mux.Handle("DELETE /admin/exercises/{id}", mw.Auth(http.HandlerFunc(handler.DeleteExercise)))
+	mux.Handle("GET /admin/exercises", mw.AdminAuth(http.HandlerFunc(handler.GetAdminExercisesPage)))
+	mux.Handle("POST /admin/exercises", mw.AdminAuth(http.HandlerFunc(handler.AddExercise)))
+	mux.Handle("PUT /admin/exercises/{id}", mw.AdminAuth(http.HandlerFunc(handler.EditExercise)))
+	mux.Handle("DELETE /admin/exercises/{id}", mw.AdminAuth(http.HandlerFunc(handler.DeleteExercise)))
 
 	mux.HandleFunc("POST /api/v1/register", handler.CreateUser)
 	mux.HandleFunc("POST /api/v1/login", handler.LoginUser)

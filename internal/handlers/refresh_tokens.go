@@ -24,7 +24,7 @@ func (h *Handler) RefreshToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accessToken, err := auth.MakeJWT(user.ID, h.PrivateKey)
+	accessToken, err := auth.MakeJWT(user.ID, user.IsAdmin, h.PrivateKey)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, "Error making JWT", err)
 		return

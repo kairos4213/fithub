@@ -60,7 +60,7 @@ func TestJWTValidation(t *testing.T) {
 	userID := uuid.New()
 	privKey, _ := os.ReadFile("../../private_key.pem")
 	pubKey, _ := os.ReadFile("../../public_key.pem")
-	validToken, _ := MakeJWT(userID, privKey)
+	validToken, _ := MakeJWT(userID, false, privKey)
 
 	tests := map[string]struct {
 		tokenString string
@@ -90,13 +90,13 @@ func TestJWTValidation(t *testing.T) {
 
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
-			gotUserID, err := ValidateJWT(tc.tokenString, tc.publicKey)
+			claims, err := ValidateJWT(tc.tokenString, tc.publicKey)
 			if (err != nil) != tc.wantErr {
 				t.Fatalf("expected error: %v, got: %v", tc.wantErr, err)
 				return
 			}
-			if gotUserID != tc.wantUserID {
-				t.Errorf("expected userID: %v, got: %v", tc.wantUserID, gotUserID)
+			if claims.UserID != tc.wantUserID {
+				t.Errorf("expected userID: %v, got: %v", tc.wantUserID, claims.UserID)
 			}
 		})
 	}

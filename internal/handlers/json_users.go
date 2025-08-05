@@ -80,7 +80,7 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accessToken, err := auth.MakeJWT(user.ID, h.PrivateKey)
+	accessToken, err := auth.MakeJWT(user.ID, user.IsAdmin, h.PrivateKey)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, "Couldn't create access token", err)
 		return
@@ -144,7 +144,7 @@ func (h *Handler) LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accessToken, err := auth.MakeJWT(user.ID, h.PrivateKey)
+	accessToken, err := auth.MakeJWT(user.ID, user.IsAdmin, h.PrivateKey)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, "Couldn't create access token", err)
 		return

@@ -14,7 +14,11 @@ func (h *Handler) Index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-type", "text/html")
-	w.Header().Set("HX-Location", `{"path": "/workouts"}`)
-	w.WriteHeader(http.StatusFound)
+	if r.Header.Get("HX-Request") == "true" {
+		w.Header().Set("Content-type", "text/html")
+		w.Header().Set("HX-Location", `{"path": "/workouts"}`)
+		w.WriteHeader(http.StatusFound)
+	} else {
+		http.Redirect(w, r, "/workouts", http.StatusSeeOther)
+	}
 }

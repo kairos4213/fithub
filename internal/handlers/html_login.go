@@ -44,7 +44,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		accessToken, err := auth.MakeJWT(user.ID, h.PrivateKey)
+		accessToken, err := auth.MakeJWT(user.ID, user.IsAdmin, h.PrivateKey)
 		if err != nil {
 			w.Header().Set("Content-type", "text/html")
 			w.WriteHeader(http.StatusInternalServerError)
