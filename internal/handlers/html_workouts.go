@@ -30,14 +30,6 @@ func (h *Handler) GetUserWorkouts(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) CreateUserWorkout(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 
-	err := r.ParseForm()
-	if err != nil {
-		HandleInternalServerError(w, r)
-		log.Printf("%v", err)
-		return
-
-	}
-
 	reqTitle := r.FormValue("title")
 	reqDescription := r.FormValue("workout-description")
 	reqDuration := r.FormValue("duration")
@@ -78,13 +70,6 @@ func (h *Handler) CreateUserWorkout(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) EditUserWorkout(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 	workoutID, err := uuid.Parse(r.PathValue("id"))
-	if err != nil {
-		HandleInternalServerError(w, r)
-		log.Printf("%v", err)
-		return
-	}
-
-	err = r.ParseForm()
 	if err != nil {
 		HandleInternalServerError(w, r)
 		log.Printf("%v", err)

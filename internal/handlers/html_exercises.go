@@ -72,13 +72,6 @@ func (h *Handler) EditExercise(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = r.ParseForm()
-	if err != nil {
-		HandleInternalServerError(w, r)
-		log.Printf("Server Error: %v", err)
-		return
-	}
-
 	reqName := r.FormValue("exercise-name")
 	reqDescription := r.FormValue("exercise-description")
 	reqPrimaryMG := r.FormValue("primary-muscle-group")

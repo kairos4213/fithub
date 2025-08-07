@@ -28,13 +28,6 @@ func (h *Handler) GetAllGoals(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) AddNewGoal(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 
-	err := r.ParseForm()
-	if err != nil {
-		HandleInternalServerError(w, r)
-		log.Printf("%v", err)
-		return
-	}
-
 	reqGoalName := r.FormValue("goal-name")
 	reqDescription := r.FormValue("description")
 	reqGoalDate := r.FormValue("goal-date")
@@ -72,13 +65,6 @@ func (h *Handler) AddNewGoal(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) EditGoal(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 	goalID, err := uuid.Parse(r.PathValue("id"))
-	if err != nil {
-		HandleInternalServerError(w, r)
-		log.Printf("%v", err)
-		return
-	}
-
-	err = r.ParseForm()
 	if err != nil {
 		HandleInternalServerError(w, r)
 		log.Printf("%v", err)
