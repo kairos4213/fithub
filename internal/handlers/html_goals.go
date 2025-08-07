@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"database/sql"
+	"log"
 	"net/http"
 	"time"
 
@@ -15,7 +16,9 @@ func (h *Handler) GetAllGoals(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 	goals, err := h.DB.GetAllUserGoals(r.Context(), userID)
 	if err != nil {
-		return // TODO: handle error
+		HandleInternalServerError(w, r)
+		log.Printf("%v", err)
+		return
 	}
 
 	contents := templates.Goals(goals)
@@ -27,7 +30,9 @@ func (h *Handler) AddNewGoal(w http.ResponseWriter, r *http.Request) {
 
 	err := r.ParseForm()
 	if err != nil {
-		return // TODO: handle error
+		HandleInternalServerError(w, r)
+		log.Printf("%v", err)
+		return
 	}
 
 	reqGoalName := r.FormValue("goal-name")
@@ -37,7 +42,9 @@ func (h *Handler) AddNewGoal(w http.ResponseWriter, r *http.Request) {
 
 	goalDate, err := time.Parse(time.DateOnly, reqGoalDate)
 	if err != nil {
-		return // TODO: handle err
+		HandleInternalServerError(w, r)
+		log.Printf("%v", err)
+		return
 	}
 
 	notes := sql.NullString{Valid: false}
@@ -54,7 +61,9 @@ func (h *Handler) AddNewGoal(w http.ResponseWriter, r *http.Request) {
 		UserID:      userID,
 	})
 	if err != nil {
-		return // TODO: handle error
+		HandleInternalServerError(w, r)
+		log.Printf("%v", err)
+		return
 	}
 
 	templates.GoalDataRow(newGoal).Render(r.Context(), w)
@@ -64,12 +73,16 @@ func (h *Handler) EditGoal(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 	goalID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		return // TODO: Handle error
+		HandleInternalServerError(w, r)
+		log.Printf("%v", err)
+		return
 	}
 
 	err = r.ParseForm()
 	if err != nil {
-		return // TODO: handle error
+		HandleInternalServerError(w, r)
+		log.Printf("%v", err)
+		return
 	}
 
 	reqGoalName := r.FormValue("goal-name")
@@ -80,7 +93,9 @@ func (h *Handler) EditGoal(w http.ResponseWriter, r *http.Request) {
 
 	goalDate, err := time.Parse(time.DateOnly, reqGoalDate)
 	if err != nil {
-		return // TODO: handle err
+		HandleInternalServerError(w, r)
+		log.Printf("%v", err)
+		return
 	}
 
 	notes := sql.NullString{Valid: false}
@@ -106,7 +121,9 @@ func (h *Handler) EditGoal(w http.ResponseWriter, r *http.Request) {
 		UserID:         userID,
 	})
 	if err != nil {
-		return // TODO: handle err
+		HandleInternalServerError(w, r)
+		log.Printf("%v", err)
+		return
 	}
 
 	templates.GoalDataRow(updatedGoal).Render(r.Context(), w)
@@ -116,7 +133,9 @@ func (h *Handler) DeleteGoal(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 	goalID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		return // TODO: Handle error
+		HandleInternalServerError(w, r)
+		log.Printf("%v", err)
+		return
 	}
 
 	err = h.DB.DeleteGoal(r.Context(), database.DeleteGoalParams{
@@ -124,7 +143,9 @@ func (h *Handler) DeleteGoal(w http.ResponseWriter, r *http.Request) {
 		UserID: userID,
 	})
 	if err != nil {
-		return // TODO: handle error
+		HandleInternalServerError(w, r)
+		log.Printf("%v", err)
+		return
 	}
 
 	w.WriteHeader(http.StatusOK)

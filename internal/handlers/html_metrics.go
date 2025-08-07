@@ -15,19 +15,21 @@ func (h *Handler) GetAllMetrics(w http.ResponseWriter, r *http.Request) {
 
 	bodyweights, err := h.DB.GetAllBodyWeights(r.Context(), userID)
 	if err != nil {
-		log.Printf("error: %v", err)
-		// TODO: html error response
+		HandleInternalServerError(w, r)
+		log.Printf("%v", err)
 		return
 	}
 	muscleMasses, err := h.DB.GetAllMuscleMasses(r.Context(), userID)
 	if err != nil {
-		// TODO: html error response
+		HandleInternalServerError(w, r)
+		log.Printf("%v", err)
 		return
 	}
 
 	bfPercents, err := h.DB.GetAllBodyFatPercs(r.Context(), userID)
 	if err != nil {
-		// TODO: html error response
+		HandleInternalServerError(w, r)
+		log.Printf("%v", err)
 		return
 	}
 
@@ -44,7 +46,8 @@ func (h *Handler) LogMetrics(w http.ResponseWriter, r *http.Request) {
 		entry := r.FormValue("bodyweight")
 		bw, err := h.DB.AddBodyWeight(r.Context(), database.AddBodyWeightParams{UserID: userID, Measurement: entry})
 		if err != nil {
-			// TODO: handle error
+			HandleInternalServerError(w, r)
+			log.Printf("%v", err)
 			return
 		}
 
@@ -53,7 +56,9 @@ func (h *Handler) LogMetrics(w http.ResponseWriter, r *http.Request) {
 		entry := r.FormValue("muscle-mass")
 		mm, err := h.DB.AddMuscleMass(r.Context(), database.AddMuscleMassParams{UserID: userID, Measurement: entry})
 		if err != nil {
-			return // TODO: send error
+			HandleInternalServerError(w, r)
+			log.Printf("%v", err)
+			return
 		}
 
 		templates.MMDataRow(mm).Render(r.Context(), w)
@@ -61,7 +66,9 @@ func (h *Handler) LogMetrics(w http.ResponseWriter, r *http.Request) {
 		entry := r.FormValue("bf-percent")
 		bf, err := h.DB.AddBodyFatPerc(r.Context(), database.AddBodyFatPercParams{UserID: userID, Measurement: entry})
 		if err != nil {
-			return // TODO: send error
+			HandleInternalServerError(w, r)
+			log.Printf("%v", err)
+			return
 		}
 
 		templates.BFPercentDataRow(bf).Render(r.Context(), w)
@@ -74,7 +81,8 @@ func (h *Handler) EditMetrics(w http.ResponseWriter, r *http.Request) {
 	metricType := r.PathValue("type")
 	id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		// TODO: send error
+		HandleInternalServerError(w, r)
+		log.Printf("%v", err)
 		return
 	}
 	switch metricType {
@@ -83,7 +91,9 @@ func (h *Handler) EditMetrics(w http.ResponseWriter, r *http.Request) {
 
 		updatedBW, err := h.DB.UpdateBodyWeight(r.Context(), database.UpdateBodyWeightParams{Measurement: entry, ID: id, UserID: userID})
 		if err != nil {
-			return // TODO: send error
+			HandleInternalServerError(w, r)
+			log.Printf("%v", err)
+			return
 		}
 
 		templates.BWDataRow(updatedBW).Render(r.Context(), w)
@@ -92,7 +102,9 @@ func (h *Handler) EditMetrics(w http.ResponseWriter, r *http.Request) {
 
 		updatedMM, err := h.DB.UpdateMuscleMass(r.Context(), database.UpdateMuscleMassParams{Measurement: entry, ID: id, UserID: userID})
 		if err != nil {
-			return // TODO: send error
+			HandleInternalServerError(w, r)
+			log.Printf("%v", err)
+			return
 		}
 
 		templates.MMDataRow(updatedMM).Render(r.Context(), w)
@@ -101,7 +113,9 @@ func (h *Handler) EditMetrics(w http.ResponseWriter, r *http.Request) {
 
 		updatedBF, err := h.DB.UpdateBodyFatPerc(r.Context(), database.UpdateBodyFatPercParams{Measurement: entry, ID: id, UserID: userID})
 		if err != nil {
-			return // TODO: send error
+			HandleInternalServerError(w, r)
+			log.Printf("%v", err)
+			return
 		}
 
 		templates.BFPercentDataRow(updatedBF).Render(r.Context(), w)
@@ -114,28 +128,35 @@ func (h *Handler) DeleteMetrics(w http.ResponseWriter, r *http.Request) {
 	metricType := r.PathValue("type")
 	id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		// TODO: send error
+		HandleInternalServerError(w, r)
+		log.Printf("%v", err)
 		return
 	}
 	switch metricType {
 	case "bodyweights":
 		err := h.DB.DeleteBodyWeight(r.Context(), database.DeleteBodyWeightParams{ID: id, UserID: userID})
 		if err != nil {
-			return // TODO: send error
+			HandleInternalServerError(w, r)
+			log.Printf("%v", err)
+			return
 		}
 
 		w.WriteHeader(http.StatusOK)
 	case "muscleMasses":
 		err := h.DB.DeleteMuscleMass(r.Context(), database.DeleteMuscleMassParams{ID: id, UserID: userID})
 		if err != nil {
-			return // TODO: send error
+			HandleInternalServerError(w, r)
+			log.Printf("%v", err)
+			return
 		}
 
 		w.WriteHeader(http.StatusOK)
 	case "bfPercents":
 		err := h.DB.DeleteBodyFatPerc(r.Context(), database.DeleteBodyFatPercParams{ID: id, UserID: userID})
 		if err != nil {
-			return // TODO: send error
+			HandleInternalServerError(w, r)
+			log.Printf("%v", err)
+			return
 		}
 
 		w.WriteHeader(http.StatusOK)

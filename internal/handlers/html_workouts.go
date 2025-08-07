@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"database/sql"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -16,7 +17,9 @@ func (h *Handler) GetUserWorkouts(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 	workouts, err := h.DB.GetAllUserWorkouts(r.Context(), userID)
 	if err != nil {
-		return // TODO: handle err
+		HandleInternalServerError(w, r)
+		log.Printf("%v", err)
+		return
 	}
 
 	w.Header().Set("Content-Type", "text/html")
@@ -29,7 +32,10 @@ func (h *Handler) CreateUserWorkout(w http.ResponseWriter, r *http.Request) {
 
 	err := r.ParseForm()
 	if err != nil {
-		return // TODO: handle error
+		HandleInternalServerError(w, r)
+		log.Printf("%v", err)
+		return
+
 	}
 
 	reqTitle := r.FormValue("title")
@@ -45,19 +51,25 @@ func (h *Handler) CreateUserWorkout(w http.ResponseWriter, r *http.Request) {
 
 	duration, err := strconv.ParseInt(reqDuration, 10, 32)
 	if err != nil {
-		return // TODO: handle err
+		HandleInternalServerError(w, r)
+		log.Printf("%v", err)
+		return
 	}
 
 	plannedDate, err := time.Parse(time.DateOnly, reqPlannedDate)
 	if err != nil {
-		return // TODO: handle err
+		HandleInternalServerError(w, r)
+		log.Printf("%v", err)
+		return
 	}
 
 	newWorkout, err := h.DB.CreateWorkout(r.Context(), database.CreateWorkoutParams{
 		UserID: userID, Title: reqTitle, Description: description, DurationMinutes: int32(duration), PlannedDate: plannedDate,
 	})
 	if err != nil {
-		return // TODO: handle err
+		HandleInternalServerError(w, r)
+		log.Printf("%v", err)
+		return
 	}
 
 	templates.WorkoutDataRow(newWorkout).Render(r.Context(), w)
@@ -67,12 +79,16 @@ func (h *Handler) EditUserWorkout(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 	workoutID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		return // TODO: handle error
+		HandleInternalServerError(w, r)
+		log.Printf("%v", err)
+		return
 	}
 
 	err = r.ParseForm()
 	if err != nil {
-		return // TODO: handle error
+		HandleInternalServerError(w, r)
+		log.Printf("%v", err)
+		return
 	}
 
 	reqTitle := r.FormValue("title")
@@ -89,19 +105,25 @@ func (h *Handler) EditUserWorkout(w http.ResponseWriter, r *http.Request) {
 
 	duration, err := strconv.ParseInt(reqDuration, 10, 32)
 	if err != nil {
-		return // TODO: handle err
+		HandleInternalServerError(w, r)
+		log.Printf("%v", err)
+		return
 	}
 
 	plannedDate, err := time.Parse(time.DateOnly, reqPlannedDate)
 	if err != nil {
-		return // TODO: handle err
+		HandleInternalServerError(w, r)
+		log.Printf("%v", err)
+		return
 	}
 
 	dateCompleted := sql.NullTime{Valid: false}
 	if reqCompletionDate != "" {
 		date, err := time.Parse(time.DateOnly, reqCompletionDate)
 		if err != nil {
-			return // TODO: handle err
+			HandleInternalServerError(w, r)
+			log.Printf("%v", err)
+			return
 		}
 		dateCompleted.Time = date
 		dateCompleted.Valid = true
@@ -117,7 +139,9 @@ func (h *Handler) EditUserWorkout(w http.ResponseWriter, r *http.Request) {
 		UserID:          userID,
 	})
 	if err != nil {
-		return // TODO: handle err
+		HandleInternalServerError(w, r)
+		log.Printf("%v", err)
+		return
 	}
 
 	templates.WorkoutDataRow(updatedWorkout).Render(r.Context(), w)
@@ -127,7 +151,9 @@ func (h *Handler) DeleteUserWorkout(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 	workoutID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		return // TODO: handle error
+		HandleInternalServerError(w, r)
+		log.Printf("%v", err)
+		return
 	}
 
 	err = h.DB.DeleteWorkout(r.Context(), database.DeleteWorkoutParams{
@@ -135,7 +161,9 @@ func (h *Handler) DeleteUserWorkout(w http.ResponseWriter, r *http.Request) {
 		UserID: userID,
 	})
 	if err != nil {
-		return // TODO: handle error
+		HandleInternalServerError(w, r)
+		log.Printf("%v", err)
+		return
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -145,7 +173,9 @@ func (h *Handler) GetUserWorkoutExercises(w http.ResponseWriter, r *http.Request
 	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 	workoutID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		return // TODO: handle err
+		HandleInternalServerError(w, r)
+		log.Printf("%v", err)
+		return
 	}
 
 	title := r.FormValue("title")
@@ -162,19 +192,25 @@ func (h *Handler) GetUserWorkoutExercises(w http.ResponseWriter, r *http.Request
 
 	duration, err := strconv.ParseInt(reqDuration, 10, 32)
 	if err != nil {
-		return // TODO: handle err
+		HandleInternalServerError(w, r)
+		log.Printf("%v", err)
+		return
 	}
 
 	plannedDate, err := time.Parse(time.DateOnly, reqPlannedDate)
 	if err != nil {
-		return // TODO: handle err
+		HandleInternalServerError(w, r)
+		log.Printf("%v", err)
+		return
 	}
 
 	dateCompleted := sql.NullTime{Valid: false}
 	if reqCompletionDate != "" {
 		date, err := time.Parse(time.DateOnly, reqCompletionDate)
 		if err != nil {
-			return // TODO: handle err
+			HandleInternalServerError(w, r)
+			log.Printf("%v", err)
+			return
 		}
 		dateCompleted.Time = date
 		dateCompleted.Valid = true
@@ -192,7 +228,9 @@ func (h *Handler) GetUserWorkoutExercises(w http.ResponseWriter, r *http.Request
 
 	workoutExercises, err := h.DB.GetExercisesForWorkout(r.Context(), workoutID)
 	if err != nil {
-		return // TODO: handle err
+		HandleInternalServerError(w, r)
+		log.Printf("%v", err)
+		return
 	}
 
 	contents := templates.WorkoutPage(workout, workoutExercises, []database.Exercise{})
