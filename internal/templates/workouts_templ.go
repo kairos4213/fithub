@@ -453,46 +453,33 @@ func WorkoutPage(workout database.Workout, workoutExercises []database.WorkoutsE
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<div class=\"justify-end card-actions\"><button class=\"btn btn-outline btn-primary btn-ghost\">Edit Workout</button></div><div class=\"divider divider-accent\"></div><div class=\"overflow-x-auto rounded-box border border-base-content/5 bg-base-100 mx-2\"><table id=\"exercises-table\" class=\"table table-in-rows md:table-fixed table-auto text-md text-center\"><thead><tr><th class=\"w-1/8\">Exercise</th><th class=\"w-1/8\">Planned Sets</th><th class=\"w-1/8\">Planned Reps</th><th class=\"w-1/8\">Planned Weights (lbs)</th><th class=\"w-1/8\">Sets Completed</th><th class=\"w-1/8\">Reps Completed</th><th class=\"w-1/8\">Weights Completed (lbs)</th><th class=\"w-1/8\"></th></tr></thead> <tbody><!-- for _, workout := range workouts { --><!-- \t@WorkoutDataRow(workout) --><!-- } --></tbody><tfoot id=\"add-exercise-row\" x-data=\"{ open: false }\"><tr x-show=\"!open\"><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th><button class=\"btn btn-outline btn-primary btn-ghost\" @click=\"open = ! open\">Add Exercise</button></th></tr><tr x-cloak x-show=\"open\"><th><!-- TODO: work on active search feature for exercises --><input id=\"exercise-name\" class=\"input input-ghost text-center border-secondary\" type=\"text\" name=\"exercise-name\" placeholder=\"Exercise Name\" hx-post=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<div class=\"justify-end card-actions\"><button class=\"btn btn-outline btn-primary btn-ghost\">Edit Workout</button></div><div class=\"divider divider-accent\"></div><div class=\"overflow-x-auto rounded-box border border-base-content/5 bg-base-100 mx-2\"><table id=\"exercises-table\" class=\"table table-in-rows md:table-fixed table-auto text-md text-center\"><thead><tr><th class=\"w-1/8\">Exercise</th><th class=\"w-1/8\">Planned Sets</th><th class=\"w-1/8\">Planned Reps</th><th class=\"w-1/8\">Planned Weights (lbs)</th><th class=\"w-1/8\">Sets Completed</th><th class=\"w-1/8\">Reps Completed</th><th class=\"w-1/8\">Weights Completed (lbs)</th><th class=\"w-1/8\"></th></tr></thead> <tbody><!-- for _, workoutExercise := range workoutExercises { --><!-- \t@WorkoutExerciseDataRow(workout) --><!-- } --></tbody><tfoot id=\"add-exercise-row\" x-data=\"{ open: false }\"><tr x-show=\"!open\"><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th><button class=\"btn btn-outline btn-primary btn-ghost\" @click=\"open = ! open\">Add Exercise</button></th></tr><tr x-cloak x-show=\"open\"><th><input class=\"input input-ghost text-center border-secondary\" type=\"text\" name=\"exercise-name\" placeholder=\"Exercise Name\" required></th><th><input class=\"input validator\" type=\"number\" name=\"planned-sets\" placeholder=\"Number of Sets Planned\" min=\"1\" required></th><th><input class=\"input validator\" type=\"number\" name=\"planned-reps\" placeholder=\"Number of Reps/Set\" min=\"1\" required></th><th><input class=\"input validator\" type=\"number\" name=\"planned-weights\" placeholder=\"Planned Weights\" min=\"0\" required></th><th><input class=\"input validator\" type=\"number\" name=\"completed-sets\" placeholder=\"Number of Sets Completed\" min=\"0\" required></th><th><input class=\"input validator\" type=\"number\" name=\"completed-reps\" placeholder=\"Number of Reps/Sets Completed\" min=\"0\" required></th><th><input class=\"input validator\" type=\"number\" name=\"completed-weights\" placeholder=\"Weights Completed\" min=\"0\" required></th><th><button hx-post=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var28 string
-		templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(templ.URL("/exercises"))
+		templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(templ.URL(fmt.Sprintf("/workouts/%v", workout.ID)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 244, Col: 42}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 310, Col: 69}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "\" hx-trigger=\"input changed delay:500ms, keyup[key==&#39;Enter&#39;], load\" hx-target=\".exercise-name\" hx-indicator=\".htmx-indicator\" required></th><th><input class=\"input validator\" type=\"number\" name=\"planned-sets\" placeholder=\"Number of Sets Planned\" min=\"1\" required></th><th><input class=\"input validator\" type=\"number\" name=\"planned-reps\" placeholder=\"Number of Reps/Set\" min=\"1\" required></th><th><input class=\"input validator\" type=\"number\" name=\"planned-weights\" placeholder=\"Planned Weights\" min=\"0\" required></th><th><input class=\"input validator\" type=\"number\" name=\"completed-sets\" placeholder=\"Number of Sets Completed\" min=\"0\" required></th><th><input class=\"input validator\" type=\"number\" name=\"completed-reps\" placeholder=\"Number of Reps/Sets Completed\" min=\"0\" required></th><th><input class=\"input validator\" type=\"number\" name=\"completed-weights\" placeholder=\"Weights Completed\" min=\"0\" required></th><th><button hx-post=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "\" hx-include=\"#add-exercise-row\" hx-target=\"#exercises-table\" hx-swap=\"beforeend\" class=\"btn btn-outline btn-primary btn-ghost\" @click=\"open = ! open\">Add Exercise</button> <button class=\"btn btn-warning\" @click=\"open = ! open\">Cancel</button></th></tr></tfoot></table></div></div></div><div class=\"card w-auto bg-base-200 card-xl shadow-md m-4\"><div class=\"card-body h-96\"><h3>Exercise Quick Search<span class=\"htmx-indicator loading loading-ring loading-sm\"></span></h3><input class=\"form-control\" type=\"search\" name=\"exercise-search\" placeholder=\"Begin Typing To Find Exercises...\" hx-post=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var29 string
-		templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(templ.URL(fmt.Sprintf("/workouts/%v", workout.ID)))
+		templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(templ.URL("/exercises"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 316, Col: 69}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 336, Col: 37}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "\" hx-include=\"#add-exercise-row\" hx-target=\"#exercises-table\" hx-swap=\"beforeend\" class=\"btn btn-outline btn-primary btn-ghost\" @click=\"open = ! open\">Add Exercise</button> <button class=\"btn btn-warning\" @click=\"open = ! open\">Cancel</button></th></tr></tfoot></table></div></div></div><div class=\"card w-auto bg-base-200 card-xl shadow-md m-4\"><div class=\"card-body h-96\"><h3>Search Exercises<span class=\"htmx-indicator loading loading-ring loading-sm\"></span></h3><input class=\"form-control\" type=\"search\" name=\"exercise-search\" placeholder=\"Begin Typing To Find Exercises...\" hx-post=\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var30 string
-		templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(templ.URL("/exercises"))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 342, Col: 37}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "\" hx-trigger=\"input changed delay:500ms, keyup[key==&#39;Enter&#39;], load\" hx-indicator=\".htmx-indicator\" hx-target=\"#exercise-search-results\" required><div class=\"divider divider-accent\"></div><div class=\"overflow-x-auto rounded-box border border-base-content/5 bg-base-100 mx-2\"><div id=\"exercise-search-results\" class=\"\"></div></div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "\" hx-trigger=\"input changed delay:500ms, keyup[key==&#39;Enter&#39;], load\" hx-indicator=\".htmx-indicator\" hx-target=\"#exercise-search-results\" required><div class=\"divider divider-accent\"></div><div id=\"exercise-search-results\" class=\"overflow-x-auto\"></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -516,76 +503,68 @@ func ExerciseCards(exercises []database.Exercise) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var31 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var31 == nil {
-			templ_7745c5c3_Var31 = templ.NopComponent
+		templ_7745c5c3_Var30 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var30 == nil {
+			templ_7745c5c3_Var30 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<div class=\"carousel carousel-vertical rounded-box w-full pb-2\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
 		for _, exercise := range exercises {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<div class=\"carousel-item h-3/4\"><div class=\"card w-full bg-base-200 card-xl shadow-md m-4\"><div class=\"card-body\"><h4>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "<details class=\"collapse collapse-plus bg-base-100 border border-base-300\"><summary class=\"collapse-title font-semibold\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var31 string
+			templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(exercise.Name)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 351, Col: 64}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</summary><div class=\"collapse-content space-y-2\"><div><p class=\"badge badge-soft badge-primary mx-1\">Primary Muscle Group: ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var32 string
-			templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(exercise.Name)
+			templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(utils.TitleString(exercise.PrimaryMuscleGroup.String))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 362, Col: 25}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 354, Col: 129}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "</h4><span><p class=\"italic\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</p><p class=\"badge badge-soft badge-secondary mx-1\">Secondary Muscle Group: ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var33 string
-			templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(exercise.Description.String)
+			templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(utils.TitleString(exercise.SecondaryMuscleGroup.String))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 363, Col: 59}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 355, Col: 135}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</p></span> <span><p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "</p></div><div class=\"flex flex-col justify-between h-full bg-base-200 p-4 rounded-2xl\"><div><p class=\"text-sm mt-0 pt-0\">Description:</p><p class=\"text-lg\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var34 string
-			templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(utils.TitleString(exercise.PrimaryMuscleGroup.String))
+			templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(exercise.Description.String)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 364, Col: 70}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 360, Col: 54}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "</p></span> <span><p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</p></div><a href=\"\" class=\"link link-primary text-sm self-end\">See More</a></div></div></details>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var35 string
-			templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(utils.TitleString(exercise.SecondaryMuscleGroup.String))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 365, Col: 72}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</p></span></div></div></div>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "</div>")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
 		}
 		return nil
 	})

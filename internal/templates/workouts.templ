@@ -212,8 +212,8 @@ templ WorkoutPage(workout database.Workout, workoutExercises []database.Workouts
 						</tr>
 					</thead>
 					<tbody>
-						<!-- for _, workout := range workouts { -->
-						<!-- 	@WorkoutDataRow(workout) -->
+						<!-- for _, workoutExercise := range workoutExercises { -->
+						<!-- 	@WorkoutExerciseDataRow(workout) -->
 						<!-- } -->
 					</tbody>
 					<tfoot id="add-exercise-row" x-data="{ open: false }">
@@ -234,17 +234,11 @@ templ WorkoutPage(workout database.Workout, workoutExercises []database.Workouts
 						</tr>
 						<tr x-cloak x-show="open">
 							<th>
-								<!-- TODO: work on active search feature for exercises -->
 								<input
-									id="exercise-name"
 									class="input input-ghost text-center border-secondary"
 									type="text"
 									name="exercise-name"
 									placeholder="Exercise Name"
-									hx-post={ templ.URL("/exercises") }
-									hx-trigger="input changed delay:500ms, keyup[key=='Enter'], load"
-									hx-target=".exercise-name"
-									hx-indicator=".htmx-indicator"
 									required
 								/>
 							</th>
@@ -333,7 +327,7 @@ templ WorkoutPage(workout database.Workout, workoutExercises []database.Workouts
 	</div>
 	<div class="card w-auto bg-base-200 card-xl shadow-md m-4">
 		<div class="card-body h-96">
-			<h3>Search Exercises<span class="htmx-indicator loading loading-ring loading-sm"></span></h3>
+			<h3>Exercise Quick Search<span class="htmx-indicator loading loading-ring loading-sm"></span></h3>
 			<input
 				class="form-control"
 				type="search"
@@ -346,26 +340,28 @@ templ WorkoutPage(workout database.Workout, workoutExercises []database.Workouts
 				required
 			/>
 			<div class="divider divider-accent"></div>
-			<div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100 mx-2">
-				<div id="exercise-search-results" class=""></div>
-			</div>
+			<div id="exercise-search-results" class="overflow-x-auto"></div>
 		</div>
 	</div>
 }
 
 templ ExerciseCards(exercises []database.Exercise) {
-	<div class="carousel carousel-vertical rounded-box w-full pb-2">
-		for _, exercise := range exercises {
-			<div class="carousel-item h-3/4">
-				<div class="card w-full bg-base-200 card-xl shadow-md m-4">
-					<div class="card-body">
-						<h4>{ exercise.Name }</h4>
-						<span><p class="italic">{ exercise.Description.String }</p></span>
-						<span><p>{ utils.TitleString(exercise.PrimaryMuscleGroup.String) }</p></span>
-						<span><p>{ utils.TitleString(exercise.SecondaryMuscleGroup.String) }</p></span>
+	for _, exercise := range exercises {
+		<details class="collapse collapse-plus bg-base-100 border border-base-300">
+			<summary class="collapse-title font-semibold">{ exercise.Name }</summary>
+			<div class="collapse-content space-y-2">
+				<div>
+					<p class="badge badge-soft badge-primary mx-1">Primary Muscle Group: { utils.TitleString(exercise.PrimaryMuscleGroup.String) }</p>
+					<p class="badge badge-soft badge-secondary mx-1">Secondary Muscle Group: { utils.TitleString(exercise.SecondaryMuscleGroup.String) }</p>
+				</div>
+				<div class="flex flex-col justify-between h-full bg-base-200 p-4 rounded-2xl">
+					<div>
+						<p class="text-sm mt-0 pt-0">Description:</p>
+						<p class="text-lg">{ exercise.Description.String }</p>
 					</div>
+					<a href="" class="link link-primary text-sm self-end">See More</a>
 				</div>
 			</div>
-		}
-	</div>
+		</details>
+	}
 }
