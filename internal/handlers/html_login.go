@@ -23,47 +23,27 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 
 		user, err := h.DB.GetUser(r.Context(), email)
 		if err != nil {
-			w.Header().Set("Content-type", "text/html")
-			w.WriteHeader(http.StatusUnauthorized)
-
-			htmlErr := templates.HtmlErr{Code: http.StatusUnauthorized, Msg: "Username and/or password are incorrect. Please try again."}
-			templates.LoginPage(htmlErr).Render(r.Context(), w)
-
+			HandleLoginFailure(w, r)
 			log.Print("User email does not exist")
 			return
 		}
 
 		if err = auth.CheckPasswordHash(password, user.HashedPassword); err != nil {
-			w.Header().Set("Content-type", "text/html")
-			w.WriteHeader(http.StatusUnauthorized)
-
-			htmlErr := templates.HtmlErr{Code: http.StatusUnauthorized, Msg: "Username and/or password are incorrect. Please try again."}
-			templates.LoginPage(htmlErr).Render(r.Context(), w)
-
+			HandleLoginFailure(w, r)
 			log.Print("Incorrect password entered")
 			return
 		}
 
 		accessToken, err := auth.MakeJWT(user.ID, user.IsAdmin, h.PrivateKey)
 		if err != nil {
-			w.Header().Set("Content-type", "text/html")
-			w.WriteHeader(http.StatusInternalServerError)
-
-			htmlErr := templates.HtmlErr{Code: http.StatusInternalServerError, Msg: "Something went wrong! Please try later."}
-			templates.ErrorDisplay(htmlErr).Render(r.Context(), w)
-
+			HandleInternalServerError(w, r)
 			log.Printf("%v", err)
 			return
 		}
 
 		refreshToken, err := auth.MakeRefreshToken()
 		if err != nil {
-			w.Header().Set("Content-type", "text/html")
-			w.WriteHeader(http.StatusInternalServerError)
-
-			htmlErr := templates.HtmlErr{Code: http.StatusInternalServerError, Msg: "Something went wrong! Please try later."}
-			templates.ErrorDisplay(htmlErr).Render(r.Context(), w)
-
+			HandleInternalServerError(w, r)
 			log.Printf("%v", err)
 			return
 		}
@@ -74,12 +54,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 			ExpiresAt: time.Now().UTC().AddDate(0, 0, 60),
 		})
 		if err != nil {
-			w.Header().Set("Content-type", "text/html")
-			w.WriteHeader(http.StatusInternalServerError)
-
-			htmlErr := templates.HtmlErr{Code: http.StatusInternalServerError, Msg: "Something went wrong! Please try later."}
-			templates.ErrorDisplay(htmlErr).Render(r.Context(), w)
-
+			HandleInternalServerError(w, r)
 			log.Printf("%v", err)
 			return
 		}

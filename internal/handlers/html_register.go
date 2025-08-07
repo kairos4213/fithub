@@ -12,10 +12,9 @@ import (
 )
 
 func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
-	// TODO: decide on how to handle registration errors
 	if r.Method == http.MethodGet {
 		w.Header().Set("Content-type", "text/html")
-		contents := templates.RegisterPage(templates.RegErr{})
+		contents := templates.RegisterPage(templates.HtmlErr{})
 		templates.Layout(contents, "FitHub | Register", false).Render(r.Context(), w)
 		return
 	}
@@ -28,8 +27,8 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 
 		hashedPassword, err := auth.HashPassword(password)
 		if err != nil {
-			regErr := templates.RegErr{Generic: "Server issue!"}
-			templates.RegisterPage(regErr).Render(r.Context(), w)
+			HandleInternalServerError(w, r)
+			log.Printf("%v", err)
 			return
 		}
 
@@ -41,22 +40,25 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 		})
 		if err != nil {
 			if strings.Contains(err.Error(), "users_email_key") {
-				log.Printf("Duplicate email error: %v", err)
-				regErr := templates.RegErr{Email: "Email already exists"}
+				regErr := templates.HtmlErr{Msg: "That email already exists! Please try again."}
 				templates.RegisterPage(regErr).Render(r.Context(), w)
+
+				log.Printf("DB Duplicate email error: %v", err)
 				return
 			}
 		}
 
 		accessToken, err := auth.MakeJWT(user.ID, user.IsAdmin, h.PrivateKey)
 		if err != nil {
-			http.Error(w, "Issue creating access token", http.StatusInternalServerError)
+			HandleInternalServerError(w, r)
+			log.Printf("%v", err)
 			return
 		}
 
 		refreshToken, err := auth.MakeRefreshToken()
 		if err != nil {
-			http.Error(w, "Issue creating refresh token", http.StatusInternalServerError)
+			HandleInternalServerError(w, r)
+			log.Printf("%v", err)
 			return
 		}
 
@@ -66,7 +68,8 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 			ExpiresAt: time.Now().UTC().AddDate(0, 0, 60),
 		})
 		if err != nil {
-			http.Error(w, "Issue storing refresh token", http.StatusInternalServerError)
+			HandleInternalServerError(w, r)
+			log.Printf("%v", err)
 			return
 		}
 
@@ -82,4 +85,19 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("HX-Location", `{"path": "/workouts"}`)
 		w.WriteHeader(http.StatusCreated)
 	}
+}
+
+func (h *Handler) CheckUserEmail(w http.ResponseWriter, r *http.Request) {
+	email := r.FormValue("email")
+
+	_, err := h.DB.GetUser(r.Context(), email)
+	if err == nil {
+		htmlErr := templates.HtmlErr{Code: http.StatusConflict, Msg: "That email already exists!"}
+		templates.RegPageEmailAlert(htmlErr, email).Render(r.Context(), w)
+
+		log.Print("User email already exists")
+		return
+	}
+
+	templates.RegPageEmailAlert(templates.HtmlErr{}, email).Render(r.Context(), w)
 }

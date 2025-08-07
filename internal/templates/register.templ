@@ -1,44 +1,53 @@
 package templates
 
-type RegErr struct {
-	FirstName string
-	LastName  string
-	Email     string
-	Password  string
-	Generic   string
+templ RegisterPage(err HtmlErr) {
+	<section class="container mx-auto p-10 h-screen">
+		<form hx-post={ string(templ.URL("/register")) } hx-target="main" class="justify-self-center">
+			<h1 class="text-5xl">FitHub</h1>
+			<fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4">
+				<legend class="fieldset-legend text-lg">Register</legend>
+				<input class="input" type="text" name="first_name" placeholder="First Name" required/>
+				<input class="input" type="text" name="last_name" placeholder="Last Name" required/>
+				<div id="email-alert">
+					<input
+						class="input"
+						type="email"
+						name="email"
+						placeholder="Email"
+						hx-post={ templ.URL("/users/email") }
+						hx-target="#email-alert"
+						hx-swap="outerHTML"
+						required
+					/>
+					if err.Msg != "" {
+						<div role="alert" class="alert alert-warning alert-outline"><span>{ err.Msg }</span></div>
+					}
+				</div>
+				<input class="input" type="password" name="password" placeholder="Password" required/>
+				<button class="btn btn-secondary mt-4" type="submit">Register</button>
+			</fieldset>
+			<p class="text-lg px-6 mt-4 justify-self-center">
+				Already a member? <a href={ templ.URL("/login") } class="btn btn-primary ml-2">Login Here</a>
+			</p>
+		</form>
+	</section>
 }
 
-templ RegisterPage(err RegErr) {
-	if err.Generic != "" {
-		<h2>It looks like we're having some issues on our end!</h2>
-		<p>Please check back later to see if it's been resolved!</p>
-	} else {
-		<section class="container mx-auto p-10 h-screen">
-			<form hx-post={ string(templ.URL("/register")) } hx-target="main" class="justify-self-center">
-				<h1 class="text-5xl">FitHub</h1>
-				<fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4">
-					<legend class="fieldset-legend text-lg">Register</legend>
-					<input class="input" type="text" name="first_name" placeholder="First Name" required/>
-					<input class="input" type="text" name="last_name" placeholder="Last Name" required/>
-					<p>
-						<input class="input" type="email" name="email" placeholder="Email" required/>
-						if err.Email != "" {
-							<span class="alert alert-error alert-soft mt-1">{ err.Email }</span> // TODO: look into input validation
-						}
-					</p>
-					<p>
-						<input class="input" type="password" name="password" placeholder="Password" required/>
-						if err.Password != "" {
-							<span class="alert alert-error alert-soft">{ err.Password }</span>
-							// TODO: handle/add password validation alerts
-						}
-					</p>
-					<button class="btn btn-secondary mt-4" type="submit">Register</button>
-				</fieldset>
-				<p class="text-lg px-6 mt-4 justify-self-center">
-					Already a member? <a href={ templ.URL("/login") } class="btn btn-primary ml-2">Login Here</a>
-				</p>
-			</form>
-		</section>
-	}
+templ RegPageEmailAlert(err HtmlErr, emailInput string) {
+	<div id="email-alert">
+		<input
+			class="input"
+			type="email"
+			name="email"
+			placeholder="Email"
+			hx-post={ templ.URL("/users/email") }
+			hx-target="#email-alert"
+			hx-swap="outerHTML"
+			value={ emailInput }
+			required
+		/>
+		if err.Msg != "" {
+			<div role="alert" class="alert alert-warning alert-outline"><span>{ err.Msg }</span></div>
+		}
+	</div>
 }

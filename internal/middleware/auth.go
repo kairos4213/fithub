@@ -8,7 +8,7 @@ import (
 
 	"github.com/kairos4213/fithub/internal/auth"
 	"github.com/kairos4213/fithub/internal/cntx"
-	"github.com/kairos4213/fithub/internal/templates"
+	"github.com/kairos4213/fithub/internal/handlers"
 	"github.com/kairos4213/fithub/internal/utils"
 )
 
@@ -38,10 +38,7 @@ func (mw *Middleware) Auth(next http.Handler) http.Handler {
 			w.Header().Set("Content-type", "text/html")
 			w.WriteHeader(http.StatusUnauthorized)
 
-			htmlErr := templates.HtmlErr{Code: http.StatusUnauthorized, Msg: "You don't have access to this! Please login, or register!"}
-			contents := templates.ErrorDisplay(htmlErr)
-			templates.Layout(contents, "FitHub", false).Render(r.Context(), w)
-
+			handlers.HandleUnauthorizedError(w, r, handlers.NoAccessMsg)
 			log.Printf("%v", err)
 			return
 		}
@@ -53,18 +50,12 @@ func (mw *Middleware) Auth(next http.Handler) http.Handler {
 			w.WriteHeader(http.StatusUnauthorized)
 
 			if strings.Contains(err.Error(), "token is expired") {
-				htmlErr := templates.HtmlErr{Code: http.StatusUnauthorized, Msg: "Access Expired. Please login."}
-				contents := templates.ErrorDisplay(htmlErr)
-				templates.Layout(contents, "FitHub", false).Render(r.Context(), w)
-
+				handlers.HandleUnauthorizedError(w, r, handlers.AccessExpiredMsg)
 				log.Printf("%v", err)
 				return
 			}
 
-			htmlErr := templates.HtmlErr{Code: http.StatusUnauthorized, Msg: "You don't have access to this! Please login, or register!"}
-			contents := templates.ErrorDisplay(htmlErr)
-			templates.Layout(contents, "FitHub", false).Render(r.Context(), w)
-
+			handlers.HandleUnauthorizedError(w, r, handlers.NoAccessMsg)
 			log.Printf("%v", err)
 			return
 		}
@@ -91,15 +82,7 @@ func (mw *Middleware) AdminAuth(next http.Handler) http.Handler {
 			}
 
 			if !claims.IsAdmin {
-				w.Header().Set("Content-type", "text/html")
-				w.WriteHeader(http.StatusForbidden)
-
-				htmlErr := templates.HtmlErr{Code: http.StatusForbidden, Msg: "You don't have permission to access this resource"}
-				contents := templates.ErrorDisplay(htmlErr)
-				templates.Layout(contents, "FitHub", true).Render(r.Context(), w)
-
-				log.Println("Unauthorized admin GET request:")
-				log.Printf("\tUser ID: %v", claims.UserID)
+				utils.RespondWithError(w, http.StatusForbidden, "You don't have permission to view this!", err)
 				return
 			}
 
@@ -113,10 +96,7 @@ func (mw *Middleware) AdminAuth(next http.Handler) http.Handler {
 			w.Header().Set("Content-type", "text/html")
 			w.WriteHeader(http.StatusUnauthorized)
 
-			htmlErr := templates.HtmlErr{Code: http.StatusUnauthorized, Msg: "You don't have access to this! Please login, or register!"}
-			contents := templates.ErrorDisplay(htmlErr)
-			templates.Layout(contents, "FitHub", false).Render(r.Context(), w)
-
+			handlers.HandleUnauthorizedError(w, r, handlers.NoAccessMsg)
 			log.Printf("%v", err)
 			return
 		}
@@ -128,30 +108,18 @@ func (mw *Middleware) AdminAuth(next http.Handler) http.Handler {
 			w.WriteHeader(http.StatusUnauthorized)
 
 			if strings.Contains(err.Error(), "token expired") {
-				htmlErr := templates.HtmlErr{Code: http.StatusUnauthorized, Msg: "Access Expired. Please login."}
-				contents := templates.ErrorDisplay(htmlErr)
-				templates.Layout(contents, "FitHub", false).Render(r.Context(), w)
-
+				handlers.HandleUnauthorizedError(w, r, handlers.AccessExpiredMsg)
 				log.Printf("%v", err)
 				return
 			}
 
-			htmlErr := templates.HtmlErr{Code: http.StatusUnauthorized, Msg: "You don't have access to this! Please login, or register!"}
-			contents := templates.ErrorDisplay(htmlErr)
-			templates.Layout(contents, "FitHub", false).Render(r.Context(), w)
-
+			handlers.HandleUnauthorizedError(w, r, handlers.NoAccessMsg)
 			log.Printf("%v", err)
 			return
 		}
 
 		if !claims.IsAdmin {
-			w.Header().Set("Content-type", "text/html")
-			w.WriteHeader(http.StatusForbidden)
-
-			htmlErr := templates.HtmlErr{Code: http.StatusForbidden, Msg: "You don't have permission to access this resource"}
-			contents := templates.ErrorDisplay(htmlErr)
-			templates.Layout(contents, "FitHub", true).Render(r.Context(), w)
-
+			handlers.HandleAccessForbiddenError(w, r)
 			log.Println("Unauthorized admin GET request:")
 			log.Printf("\tUser ID: %v", claims.UserID)
 			return

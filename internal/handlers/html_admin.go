@@ -10,13 +10,7 @@ import (
 func (h *Handler) GetAdminHome(w http.ResponseWriter, r *http.Request) {
 	exercises, err := h.DB.GetAllExercises(r.Context())
 	if err != nil {
-		w.Header().Set("Content-type", "text/html")
-		w.WriteHeader(http.StatusInternalServerError)
-
-		htmlErr := templates.HtmlErr{Code: http.StatusInternalServerError, Msg: "Something went wrong. Please try later"}
-		contents := templates.ErrorDisplay(htmlErr)
-		templates.Layout(contents, "FitHub", false).Render(r.Context(), w)
-
+		HandleInternalServerError(w, r)
 		log.Printf("Server Error: %v", err)
 		return
 	}

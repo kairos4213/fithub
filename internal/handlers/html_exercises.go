@@ -14,13 +14,7 @@ import (
 func (h *Handler) GetAdminExercisesPage(w http.ResponseWriter, r *http.Request) {
 	exercises, err := h.DB.GetAllExercises(r.Context())
 	if err != nil {
-		w.Header().Set("Content-type", "text/html")
-		w.WriteHeader(http.StatusInternalServerError)
-
-		htmlErr := templates.HtmlErr{Code: http.StatusInternalServerError, Msg: "Something went wrong. Please try later"}
-		contents := templates.ErrorDisplay(htmlErr)
-		templates.Layout(contents, "FitHub", false).Render(r.Context(), w)
-
+		HandleInternalServerError(w, r)
 		log.Printf("Server Error: %v", err)
 		return
 	}
@@ -60,13 +54,7 @@ func (h *Handler) AddExercise(w http.ResponseWriter, r *http.Request) {
 		SecondaryMuscleGroup: secMG,
 	})
 	if err != nil {
-		w.Header().Set("Content-type", "text/html")
-		w.WriteHeader(http.StatusInternalServerError)
-
-		htmlErr := templates.HtmlErr{Code: http.StatusInternalServerError, Msg: "Something went wrong. Please try later"}
-		contents := templates.ErrorDisplay(htmlErr)
-		templates.Layout(contents, "FitHub", false).Render(r.Context(), w)
-
+		HandleInternalServerError(w, r)
 		log.Printf("Server Error: %v", err)
 		return
 	}
@@ -79,26 +67,14 @@ func (h *Handler) AddExercise(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) EditExercise(w http.ResponseWriter, r *http.Request) {
 	exerciseID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		w.Header().Set("Content-type", "text/html")
-		w.WriteHeader(http.StatusInternalServerError)
-
-		htmlErr := templates.HtmlErr{Code: http.StatusInternalServerError, Msg: "Something went wrong. Please try later"}
-		contents := templates.ErrorDisplay(htmlErr)
-		templates.Layout(contents, "FitHub", false).Render(r.Context(), w)
-
+		HandleInternalServerError(w, r)
 		log.Printf("Server Error: %v", err)
 		return
 	}
 
 	err = r.ParseForm()
 	if err != nil {
-		w.Header().Set("Content-type", "text/html")
-		w.WriteHeader(http.StatusInternalServerError)
-
-		htmlErr := templates.HtmlErr{Code: http.StatusInternalServerError, Msg: "Something went wrong. Please try later"}
-		contents := templates.ErrorDisplay(htmlErr)
-		templates.Layout(contents, "FitHub", false).Render(r.Context(), w)
-
+		HandleInternalServerError(w, r)
 		log.Printf("Server Error: %v", err)
 		return
 	}
@@ -134,13 +110,7 @@ func (h *Handler) EditExercise(w http.ResponseWriter, r *http.Request) {
 		ID:                   exerciseID,
 	})
 	if err != nil {
-		w.Header().Set("Content-type", "text/html")
-		w.WriteHeader(http.StatusInternalServerError)
-
-		htmlErr := templates.HtmlErr{Code: http.StatusInternalServerError, Msg: "Something went wrong. Please try later"}
-		contents := templates.ErrorDisplay(htmlErr)
-		templates.Layout(contents, "FitHub", false).Render(r.Context(), w)
-
+		HandleInternalServerError(w, r)
 		log.Printf("Server Error: %v", err)
 		return
 	}
@@ -151,26 +121,14 @@ func (h *Handler) EditExercise(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) DeleteExercise(w http.ResponseWriter, r *http.Request) {
 	exerciseID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		w.Header().Set("Content-type", "text/html")
-		w.WriteHeader(http.StatusInternalServerError)
-
-		htmlErr := templates.HtmlErr{Code: http.StatusInternalServerError, Msg: "Something went wrong. Please try later"}
-		contents := templates.ErrorDisplay(htmlErr)
-		templates.Layout(contents, "FitHub", false).Render(r.Context(), w)
-
+		HandleInternalServerError(w, r)
 		log.Printf("Server Error: %v", err)
 		return
 	}
 
 	err = h.DB.DeleteExercise(r.Context(), exerciseID)
 	if err != nil {
-		w.Header().Set("Content-type", "text/html")
-		w.WriteHeader(http.StatusInternalServerError)
-
-		htmlErr := templates.HtmlErr{Code: http.StatusInternalServerError, Msg: "Something went wrong. Please try later"}
-		contents := templates.ErrorDisplay(htmlErr)
-		templates.Layout(contents, "FitHub", false).Render(r.Context(), w)
-
+		HandleInternalServerError(w, r)
 		log.Printf("Server Error: %v", err)
 		return
 	}
@@ -184,13 +142,7 @@ func (h *Handler) GetExerciseByName(w http.ResponseWriter, r *http.Request) {
 
 	exercises, err := h.DB.GetExerciseByName(r.Context(), exerciseSearch)
 	if err != nil {
-		w.Header().Set("Content-type", "text/html")
-		w.WriteHeader(http.StatusInternalServerError)
-
-		htmlErr := templates.HtmlErr{Code: http.StatusInternalServerError, Msg: "Something went wrong. Please try later"}
-		contents := templates.ErrorDisplay(htmlErr)
-		templates.Layout(contents, "FitHub", false).Render(r.Context(), w)
-
+		HandleInternalServerError(w, r)
 		log.Printf("Server Error: %v", err)
 		return
 	}

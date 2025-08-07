@@ -11,6 +11,7 @@ const (
 	AccessForbidden  = "You don't have permission to access this resource"
 	NoAccessMsg      = "You don't have access to this! Please login, or register!"
 	AccessExpiredMsg = "Access Expired. Please login."
+	LoginFailMsg     = "Username and/or password are incorrect. Please try again."
 )
 
 func HandleInternalServerError(w http.ResponseWriter, r *http.Request) {
@@ -32,4 +33,9 @@ func HandleUnauthorizedError(w http.ResponseWriter, r *http.Request, errMsg stri
 	htmlErr := templates.HtmlErr{Code: http.StatusUnauthorized, Msg: errMsg}
 	contents := templates.ErrorDisplay(htmlErr)
 	templates.Layout(contents, "FitHub", false).Render(r.Context(), w)
+}
+
+func HandleLoginFailure(w http.ResponseWriter, r *http.Request) {
+	htmlErr := templates.HtmlErr{Code: http.StatusUnauthorized, Msg: LoginFailMsg}
+	templates.LoginPage(htmlErr).Render(r.Context(), w)
 }
