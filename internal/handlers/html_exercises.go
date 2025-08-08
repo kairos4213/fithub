@@ -23,7 +23,7 @@ func (h *Handler) GetAdminExercisesPage(w http.ResponseWriter, r *http.Request) 
 	templates.AdminLayout(contents, "FitHub-Admin | Home", true).Render(r.Context(), w)
 }
 
-func (h *Handler) AddExercise(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) AddDBExercise(w http.ResponseWriter, r *http.Request) {
 	name := r.FormValue("exercise-name")
 
 	exerciseDescription := r.FormValue("exercise-description")
@@ -64,7 +64,7 @@ func (h *Handler) AddExercise(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-func (h *Handler) EditExercise(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) EditDBExercise(w http.ResponseWriter, r *http.Request) {
 	exerciseID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		HandleInternalServerError(w, r)
@@ -111,7 +111,7 @@ func (h *Handler) EditExercise(w http.ResponseWriter, r *http.Request) {
 	templates.ExerciseDataRow(updatedExercise).Render(r.Context(), w)
 }
 
-func (h *Handler) DeleteExercise(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) DeleteDBExercise(w http.ResponseWriter, r *http.Request) {
 	exerciseID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		HandleInternalServerError(w, r)
@@ -132,6 +132,12 @@ func (h *Handler) DeleteExercise(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) GetExerciseByName(w http.ResponseWriter, r *http.Request) {
 	exerciseName := strings.ToLower(r.FormValue("exercise-search"))
 	exerciseSearch := sql.NullString{String: exerciseName, Valid: true}
+	workoutID, err := uuid.Parse(r.FormValue("workoutID"))
+	if err != nil {
+		HandleInternalServerError(w, r)
+		log.Printf("Server Error: %v", err)
+		return
+	}
 
 	exercises, err := h.DB.GetExerciseByName(r.Context(), exerciseSearch)
 	if err != nil {
@@ -140,5 +146,5 @@ func (h *Handler) GetExerciseByName(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	templates.ExerciseCards(exercises).Render(r.Context(), w)
+	templates.ExerciseSearchResults(exercises, workoutID).Render(r.Context(), w)
 }

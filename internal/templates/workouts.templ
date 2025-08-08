@@ -2,6 +2,7 @@ package templates
 
 import (
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/kairos4213/fithub/internal/database"
 	"github.com/kairos4213/fithub/internal/utils"
 	"sort"
@@ -10,88 +11,32 @@ import (
 templ Workouts(workouts []database.Workout) {
 	{{ sort.Slice(workouts, func(i, j int) bool { return workouts[i].PlannedDate.Before(workouts[j].PlannedDate) }) }}
 	<div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100 mx-2">
-		<table id="workouts-table" class="table table-in-rows md:table-fixed table-auto text-md text-center">
-			<thead>
-				<tr>
-					<th class="w-1/6">Title</th>
-					<th class="w-1/6">Description</th>
-					<th class="w-1/6">Duration (Minutes)</th>
-					<th class="w-1/6">Planned Date</th>
-					<th class="w-1/6">Completion Date</th>
-					<th class="w-1/6"></th>
-				</tr>
-			</thead>
-			<tbody>
-				for _, workout := range workouts {
-					@WorkoutDataRow(workout)
-				}
-			</tbody>
-			<tfoot id="add-workout-row" x-data="{ open: false }">
-				<tr x-show="!open">
-					<th></th>
-					<th></th>
-					<th></th>
-					<th></th>
-					<th></th>
-					<th>
-						<button
-							class="btn btn-outline btn-primary btn-ghost"
-							@click="open = ! open"
-						>Create Workout</button>
-					</th>
-				</tr>
-				<tr x-cloak x-show="open">
-					<th>
-						<input
-							class="input input-ghost text-center border-secondary"
-							type="text"
-							name="title"
-							placeholder="Workout Title"
-							required
-						/>
-					</th>
-					<th>
-						<textarea
-							class="textarea textarea-xs text-center border-secondary"
-							name="workout-description"
-							placeholder="Enter a description"
-						></textarea>
-					</th>
-					<th>
-						<input
-							class="input validator"
-							type="number"
-							name="duration"
-							placeholder="Planned Duration in Minutes"
-							min="0"
-							required
-						/>
-					</th>
-					<th>
-						<input class="input" type="date" name="planned-date"/>
-					</th>
-					<th>N/A</th>
-					<th>
-						<button
-							hx-post={ string(templ.URL("/workouts")) }
-							hx-include="#add-workout-row"
-							hx-target="#workouts-table"
-							hx-swap="beforeend"
-							class="btn btn-outline btn-primary btn-ghost"
-							@click="open = ! open"
-						>Create Workout</button>
-						<button
-							class="btn btn-warning"
-							@click="open = ! open"
-						>Cancel</button>
-					</th>
-				</tr>
-			</tfoot>
-		</table>
+		@WorkoutsTable(workouts)
 	</div>
 }
 
-templ WorkoutDataRow(workout database.Workout) {
+templ WorkoutsTable(workouts []database.Workout) {
+	<table id="workouts-table" class="table table-in-rows md:table-fixed table-auto text-md text-center">
+		<thead>
+			<tr>
+				<th class="w-1/6">Title</th>
+				<th class="w-1/6">Description</th>
+				<th class="w-1/6">Duration (Minutes)</th>
+				<th class="w-1/6">Planned Date</th>
+				<th class="w-1/6">Completion Date</th>
+				<th class="w-1/6"></th>
+			</tr>
+		</thead>
+		<tbody>
+			for _, workout := range workouts {
+				@WorkoutsDataRow(workout)
+			}
+		</tbody>
+		@WorkoutsTableFooter()
+	</table>
+}
+
+templ WorkoutsDataRow(workout database.Workout) {
 	<tr id={ fmt.Sprintf("workout-%v", workout.ID) } x-data="{ editing: false }">
 		<td x-show="!editing">
 			<a
@@ -163,7 +108,7 @@ templ WorkoutDataRow(workout database.Workout) {
 			>Edit</button>
 			<button
 				x-show="!editing"
-				hx-delete={ string(templ.URL(fmt.Sprintf("/workouts/%v", workout.ID))) }
+				hx-delete={ templ.URL(fmt.Sprintf("/workouts/%v", workout.ID)) }
 				hx-target={ fmt.Sprintf("#workout-%v", workout.ID) }
 				hx-swap="delete"
 				class="btn btn-warning"
@@ -183,185 +128,270 @@ templ WorkoutDataRow(workout database.Workout) {
 	</tr>
 }
 
+templ WorkoutsTableFooter() {
+	<tfoot id="add-workout-row" x-data="{ open: false }">
+		<tr x-show="!open">
+			<th></th>
+			<th></th>
+			<th></th>
+			<th></th>
+			<th></th>
+			<th>
+				<button
+					class="btn btn-outline btn-primary btn-ghost"
+					@click="open = ! open"
+				>Create Workout</button>
+			</th>
+		</tr>
+		<tr x-cloak x-show="open">
+			<th>
+				<input
+					class="input input-ghost text-center border-secondary"
+					type="text"
+					name="title"
+					placeholder="Workout Title"
+					required
+				/>
+			</th>
+			<th>
+				<textarea
+					class="textarea textarea-xs text-center border-secondary"
+					name="workout-description"
+					placeholder="Enter a description"
+				></textarea>
+			</th>
+			<th>
+				<input
+					class="input validator"
+					type="number"
+					name="duration"
+					placeholder="Planned Duration in Minutes"
+					min="0"
+					required
+				/>
+			</th>
+			<th>
+				<input class="input" type="date" name="planned-date"/>
+			</th>
+			<th>N/A</th>
+			<th>
+				<button
+					hx-post={ templ.URL("/workouts") }
+					hx-include="#add-workout-row"
+					hx-target="#workouts-table"
+					hx-swap="beforeend"
+					class="btn btn-outline btn-primary btn-ghost"
+					@click="open = ! open"
+				>Create Workout</button>
+				<button
+					class="btn btn-warning"
+					@click="open = ! open"
+				>Cancel</button>
+			</th>
+		</tr>
+	</tfoot>
+}
+
 templ WorkoutPage(workout database.Workout, workoutExercises []database.WorkoutsExercise, exercises []database.Exercise) {
-	<div class="card w-auto bg-base-200 card-xl shadow-md m-4">
+	<section class="card w-auto bg-base-200 card-xl shadow-md m-4">
 		<div class="card-body">
-			<h2 class="card-title">{ utils.TitleString(workout.Title) }</h2>
-			<p class="italic">{ workout.Description.String }</p>
-			<p><span class="font-bold">Est. Duration: </span>{ workout.DurationMinutes }min</p>
-			<p><span class="font-bold">Planned Date: </span>{ workout.PlannedDate.Format("Mon, Jan 02 2006") }</p>
-			if workout.DateCompleted.Valid {
-				<p><span class="font-bold">Last Completed: </span>{ workout.DateCompleted.Time.Format("Mon, Jan 02 2006") }</p>
-			}
-			<div class="justify-end card-actions">
-				<button class="btn btn-outline btn-primary btn-ghost">Edit Workout</button>
-			</div>
+			@WorkoutInfo(workout)
 			<div class="divider divider-accent"></div>
 			<div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100 mx-2">
-				<table id="exercises-table" class="table table-in-rows md:table-fixed table-auto text-md text-center">
-					<thead>
-						<tr>
-							<th class="w-1/8">Exercise</th>
-							<th class="w-1/8">Planned Sets</th>
-							<th class="w-1/8">Planned Reps</th>
-							<th class="w-1/8">Planned Weights (lbs)</th>
-							<th class="w-1/8">Sets Completed</th>
-							<th class="w-1/8">Reps Completed</th>
-							<th class="w-1/8">Weights Completed (lbs)</th>
-							<th class="w-1/8"></th>
-						</tr>
-					</thead>
-					<tbody>
-						<!-- for _, workoutExercise := range workoutExercises { -->
-						<!-- 	@WorkoutExerciseDataRow(workout) -->
-						<!-- } -->
-					</tbody>
-					<tfoot id="add-exercise-row" x-data="{ open: false }">
-						<tr x-show="!open">
-							<th></th>
-							<th></th>
-							<th></th>
-							<th></th>
-							<th></th>
-							<th></th>
-							<th></th>
-							<th>
-								<button
-									class="btn btn-outline btn-primary btn-ghost"
-									@click="open = ! open"
-								>Add Exercise</button>
-							</th>
-						</tr>
-						<tr x-cloak x-show="open">
-							<th>
-								<input
-									class="input input-ghost text-center border-secondary"
-									type="text"
-									name="exercise-name"
-									placeholder="Exercise Name"
-									required
-								/>
-							</th>
-							<th>
-								<input
-									class="input validator"
-									type="number"
-									name="planned-sets"
-									placeholder="Number of Sets Planned"
-									min="1"
-									required
-								/>
-							</th>
-							<th>
-								<input
-									class="input validator"
-									type="number"
-									name="planned-reps"
-									placeholder="Number of Reps/Set"
-									min="1"
-									required
-								/>
-							</th>
-							// TODO: Figure out how to do weights for every set
-							<th>
-								<input
-									class="input validator"
-									type="number"
-									name="planned-weights"
-									placeholder="Planned Weights"
-									min="0"
-									required
-								/>
-							</th>
-							<th>
-								<input
-									class="input validator"
-									type="number"
-									name="completed-sets"
-									placeholder="Number of Sets Completed"
-									min="0"
-									required
-								/>
-							</th>
-							// TODO: Figure out how to do reps for every set
-							<th>
-								<input
-									class="input validator"
-									type="number"
-									name="completed-reps"
-									placeholder="Number of Reps/Sets Completed"
-									min="0"
-									required
-								/>
-							</th>
-							// TODO: Figure out how to do weights for every set
-							<th>
-								<input
-									class="input validator"
-									type="number"
-									name="completed-weights"
-									placeholder="Weights Completed"
-									min="0"
-									required
-								/>
-							</th>
-							<th>
-								<button
-									hx-post={ templ.URL(fmt.Sprintf("/workouts/%v", workout.ID)) }
-									hx-include="#add-exercise-row"
-									hx-target="#exercises-table"
-									hx-swap="beforeend"
-									class="btn btn-outline btn-primary btn-ghost"
-									@click="open = ! open"
-								>Add Exercise</button>
-								<button
-									class="btn btn-warning"
-									@click="open = ! open"
-								>Cancel</button>
-							</th>
-						</tr>
-					</tfoot>
-				</table>
+				@WorkoutExercisesTable(workout, workoutExercises)
 			</div>
 		</div>
-	</div>
-	<div class="card w-auto bg-base-200 card-xl shadow-md m-4">
+	</section>
+	<section class="card w-auto bg-base-200 card-xl shadow-md m-4">
 		<div class="card-body h-96">
-			<h3>Exercise Quick Search<span class="htmx-indicator loading loading-ring loading-sm"></span></h3>
+			<h3>Quick Search<span class="htmx-indicator loading loading-ring loading-sm"></span></h3>
 			<input
 				class="form-control"
 				type="search"
 				name="exercise-search"
 				placeholder="Begin Typing To Find Exercises..."
 				hx-post={ templ.URL("/exercises") }
-				hx-trigger="input changed delay:500ms, keyup[key=='Enter'], load"
+				hx-vals={ fmt.Sprintf("{\"workoutID\": \"%v\"}", workout.ID) }
+				hx-trigger="input changed delay:500ms, keyup[key=='Enter']"
 				hx-indicator=".htmx-indicator"
 				hx-target="#exercise-search-results"
 				required
 			/>
 			<div class="divider divider-accent"></div>
-			<div id="exercise-search-results" class="overflow-x-auto"></div>
+			@ExerciseSearchResults(exercises, workout.ID)
 		</div>
+	</section>
+}
+
+templ WorkoutInfo(workout database.Workout) {
+	<h2 class="card-title">{ utils.TitleString(workout.Title) }</h2>
+	<p class="italic">{ workout.Description.String }</p>
+	<p><span class="font-bold">Est. Duration: </span>{ workout.DurationMinutes }min</p>
+	<p><span class="font-bold">Planned Date: </span>{ workout.PlannedDate.Format("Mon, Jan 02 2006") }</p>
+	if workout.DateCompleted.Valid {
+		<p><span class="font-bold">Last Completed: </span>{ workout.DateCompleted.Time.Format("Mon, Jan 02 2006") }</p>
+	}
+	<div class="justify-end card-actions">
+		<button class="btn btn-outline btn-primary btn-ghost">Edit Workout</button>
 	</div>
 }
 
-templ ExerciseCards(exercises []database.Exercise) {
-	for _, exercise := range exercises {
-		<details class="collapse collapse-plus bg-base-100 border border-base-300">
-			<summary class="collapse-title font-semibold">{ exercise.Name }</summary>
-			<div class="collapse-content space-y-2">
-				<div>
-					<p class="badge badge-soft badge-primary mx-1">Primary Muscle Group: { utils.TitleString(exercise.PrimaryMuscleGroup.String) }</p>
-					<p class="badge badge-soft badge-secondary mx-1">Secondary Muscle Group: { utils.TitleString(exercise.SecondaryMuscleGroup.String) }</p>
-				</div>
-				<div class="flex flex-col justify-between h-full bg-base-200 p-4 rounded-2xl">
+templ WorkoutExercisesTable(workout database.Workout, workoutExercises []database.WorkoutsExercise) {
+	<table id="exercises-table" class="table table-in-rows md:table-fixed table-auto text-md text-center">
+		<thead>
+			<tr>
+				<th class="w-1/8">Exercise</th>
+				<th class="w-1/8">Planned Sets</th>
+				<th class="w-1/8">Planned Reps</th>
+				<th class="w-1/8">Planned Weights (lbs)</th>
+				<th class="w-1/8">Sets Completed</th>
+				<th class="w-1/8">Reps Completed</th>
+				<th class="w-1/8">Weights Completed (lbs)</th>
+				<th class="w-1/8"></th>
+			</tr>
+		</thead>
+		<tbody>
+			<!-- for _, workoutExercise := range workoutExercises { -->
+			<!-- 	@WorkoutExerciseDataRow(workout) -->
+			<!-- } -->
+		</tbody>
+		@WorkoutExercisesTableFooter(workout)
+	</table>
+}
+
+templ WorkoutExercisesTableFooter(workout database.Workout) {
+	<tfoot id="add-exercise-row" x-data="{ open: false }">
+		<tr x-show="!open">
+			<th></th>
+			<th></th>
+			<th></th>
+			<th></th>
+			<th></th>
+			<th></th>
+			<th></th>
+			<th>
+				<button
+					class="btn btn-outline btn-primary btn-ghost"
+					@click="open = ! open"
+				>Add Exercise</button>
+			</th>
+		</tr>
+		<tr x-cloak x-show="open">
+			<th>
+				<input
+					class="input input-ghost text-center border-secondary"
+					type="text"
+					name="exercise-name"
+					placeholder="Exercise Name"
+					required
+				/>
+			</th>
+			<th>
+				<input
+					class="input validator"
+					type="number"
+					name="planned-sets"
+					placeholder="Number of Sets Planned"
+					min="1"
+					required
+				/>
+			</th>
+			<th>
+				<input
+					class="input validator"
+					type="number"
+					name="planned-reps"
+					placeholder="Number of Reps/Set"
+					min="1"
+					required
+				/>
+			</th>
+			// TODO: Figure out how to do weights for every set
+			<th>
+				<input
+					class="input validator"
+					type="number"
+					name="planned-weights"
+					placeholder="Planned Weights"
+					min="0"
+					required
+				/>
+			</th>
+			<th>
+				<input
+					class="input validator"
+					type="number"
+					name="completed-sets"
+					placeholder="Number of Sets Completed"
+					min="0"
+					required
+				/>
+			</th>
+			// TODO: Figure out how to do reps for every set
+			<th>
+				<input
+					class="input validator"
+					type="number"
+					name="completed-reps"
+					placeholder="Number of Reps/Sets Completed"
+					min="0"
+					required
+				/>
+			</th>
+			// TODO: Figure out how to do weights for every set
+			<th>
+				<input
+					class="input validator"
+					type="number"
+					name="completed-weights"
+					placeholder="Weights Completed"
+					min="0"
+					required
+				/>
+			</th>
+			<th>
+				<button
+					hx-post={ templ.URL(fmt.Sprintf("/workouts/%v", workout.ID)) }
+					hx-include="#add-exercise-row"
+					hx-target="#exercises-table"
+					hx-swap="beforeend"
+					class="btn btn-outline btn-primary btn-ghost"
+					@click="open = ! open"
+				>Add Exercise</button>
+				<button
+					class="btn btn-warning"
+					@click="open = ! open"
+				>Cancel</button>
+			</th>
+		</tr>
+	</tfoot>
+}
+
+templ ExerciseSearchResults(exercises []database.Exercise, workout uuid.UUID) {
+	<div id="exercise-search-results" class="overflow-x-auto">
+		for _, exercise := range exercises {
+			<details class="collapse collapse-plus bg-base-100 border border-base-300">
+				<summary class="collapse-title font-semibold">{ exercise.Name }</summary>
+				<div class="flex flex-col collapse-content space-y-2">
 					<div>
-						<p class="text-sm mt-0 pt-0">Description:</p>
-						<p class="text-lg">{ exercise.Description.String }</p>
+						<p class="badge badge-soft badge-primary mx-1">Primary Muscle Group: { utils.TitleString(exercise.PrimaryMuscleGroup.String) }</p>
+						<p class="badge badge-soft badge-secondary mx-1">Secondary Muscle Group: { utils.TitleString(exercise.SecondaryMuscleGroup.String) }</p>
 					</div>
-					<a href="" class="link link-primary text-sm self-end">See More</a>
+					<div class="flex flex-col justify-between bg-base-200 p-4 rounded-2xl">
+						<div class="overflow-y-auto">
+							<p class="text-sm mt-0 pt-0">Description:</p>
+							<p class="text-lg">{ exercise.Description.String }</p>
+						</div>
+						<a href="" class="link link-primary text-sm self-end">See More</a>
+					</div>
+					<button
+						hx-post={ templ.URL(fmt.Sprintf("/workouts/%v", workout)) }
+						hx-target="#exercises-table"
+						hx-swap="beforeend"
+						class="btn btn-outline btn-primary btn-ghost self-end"
+					>Add Exercise</button>
 				</div>
-			</div>
-		</details>
-	}
+			</details>
+		}
+	</div>
 }

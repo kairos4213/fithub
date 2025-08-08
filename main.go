@@ -93,9 +93,9 @@ func main() {
 	mux.Handle("GET /admin", mw.AdminAuth(http.HandlerFunc(handler.GetAdminHome)))
 
 	mux.Handle("GET /admin/exercises", mw.AdminAuth(http.HandlerFunc(handler.GetAdminExercisesPage)))
-	mux.Handle("POST /admin/exercises", mw.AdminAuth(http.HandlerFunc(handler.AddExercise)))
-	mux.Handle("PUT /admin/exercises/{id}", mw.AdminAuth(http.HandlerFunc(handler.EditExercise)))
-	mux.Handle("DELETE /admin/exercises/{id}", mw.AdminAuth(http.HandlerFunc(handler.DeleteExercise)))
+	mux.Handle("POST /admin/exercises", mw.AdminAuth(http.HandlerFunc(handler.AddDBExercise)))
+	mux.Handle("PUT /admin/exercises/{id}", mw.AdminAuth(http.HandlerFunc(handler.EditDBExercise)))
+	mux.Handle("DELETE /admin/exercises/{id}", mw.AdminAuth(http.HandlerFunc(handler.DeleteDBExercise)))
 
 	mux.HandleFunc("POST /api/v1/register", handler.CreateUser)
 	mux.HandleFunc("POST /api/v1/login", handler.LoginUser)

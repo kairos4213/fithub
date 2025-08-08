@@ -64,7 +64,7 @@ func (h *Handler) CreateUserWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	templates.WorkoutDataRow(newWorkout).Render(r.Context(), w)
+	templates.WorkoutsDataRow(newWorkout).Render(r.Context(), w)
 }
 
 func (h *Handler) EditUserWorkout(w http.ResponseWriter, r *http.Request) {
@@ -129,7 +129,7 @@ func (h *Handler) EditUserWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	templates.WorkoutDataRow(updatedWorkout).Render(r.Context(), w)
+	templates.WorkoutsDataRow(updatedWorkout).Render(r.Context(), w)
 }
 
 func (h *Handler) DeleteUserWorkout(w http.ResponseWriter, r *http.Request) {
