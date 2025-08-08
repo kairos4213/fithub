@@ -260,7 +260,38 @@ templ WorkoutExercisesTable(workout database.Workout, workoutExercises []databas
 }
 
 templ WorkoutExercisesTableFooter(workout database.Workout) {
-	<tfoot id="add-exercise-row" x-data="{ open: false }">
+	<tfoot
+		id="add-exercise-row"
+		x-data="{ 
+      open: false, 
+      plannedSets: 1,
+      plannedReps: [1],
+      plannedWeights: [0],
+      updateArrays(n) {
+        n = Number(n) || 0;
+        if (n < 0) {
+          n = 0;
+        }
+
+        if (this.plannedReps.length > n) {
+          this.plannedReps.splice(n);
+        } else {
+          for (let i = this.plannedReps.length; i < n; i++) {
+            this.plannedReps.push(1);
+          }
+        }
+
+        if (this.plannedWeights.length > n) {
+          this.plannedWeights.splice(n);
+        } else {
+          for (let i = this.plannedWeights.length; i < n; i++) {
+            this.plannedWeights.push(0);
+          }
+        }
+      }
+    }"
+		x-init="updateArrays(plannedSets)"
+	>
 		<tr x-show="!open">
 			<th></th>
 			<th></th>
@@ -288,67 +319,49 @@ templ WorkoutExercisesTableFooter(workout database.Workout) {
 			</th>
 			<th>
 				<input
-					class="input validator"
+					class="input validator w-28 text-center"
 					type="number"
 					name="planned-sets"
 					placeholder="Number of Sets Planned"
 					min="1"
+					x-model.number="plannedSets"
+					@input="updateArrays(plannedSets)"
 					required
 				/>
 			</th>
 			<th>
-				<input
-					class="input validator"
-					type="number"
-					name="planned-reps"
-					placeholder="Number of Reps/Set"
-					min="1"
-					required
-				/>
-			</th>
-			// TODO: Figure out how to do weights for every set
-			<th>
-				<input
-					class="input validator"
-					type="number"
-					name="planned-weights"
-					placeholder="Planned Weights"
-					min="0"
-					required
-				/>
+				<div class="flex flex-col gap-1 items-center">
+					<template x-for="(r, i) in plannedReps" :key="i">
+						<input
+							class="input validator w-28 text-center"
+							type="number"
+							name="planned-reps"
+							:placeholder="'Set ' + (i+1) + ' reps'"
+							min="1"
+							x-model="plannedReps[i]"
+							required
+						/>
+					</template>
+				</div>
 			</th>
 			<th>
-				<input
-					class="input validator"
-					type="number"
-					name="completed-sets"
-					placeholder="Number of Sets Completed"
-					min="0"
-					required
-				/>
+				<div class="flex flex-col gap-1 items-center">
+					<template x-for="(w, i) in plannedWeights" :key="i">
+						<input
+							class="input validator w-28 text-center"
+							type="number"
+							name="planned-weights"
+							:placeholder="'Set ' + (i+1) + ' weight'"
+							min="0"
+							x-model="plannedWeights[i]"
+							required
+						/>
+					</template>
+				</div>
 			</th>
-			// TODO: Figure out how to do reps for every set
-			<th>
-				<input
-					class="input validator"
-					type="number"
-					name="completed-reps"
-					placeholder="Number of Reps/Sets Completed"
-					min="0"
-					required
-				/>
-			</th>
-			// TODO: Figure out how to do weights for every set
-			<th>
-				<input
-					class="input validator"
-					type="number"
-					name="completed-weights"
-					placeholder="Weights Completed"
-					min="0"
-					required
-				/>
-			</th>
+			<th>N/A</th>
+			<th>N/A</th>
+			<th>N/A</th>
 			<th>
 				<button
 					hx-post={ templ.URL(fmt.Sprintf("/workouts/%v", workout.ID)) }
@@ -360,7 +373,12 @@ templ WorkoutExercisesTableFooter(workout database.Workout) {
 				>Add Exercise</button>
 				<button
 					class="btn btn-warning"
-					@click="open = ! open"
+					@click="
+          open = ! open;
+          plannedSets = 1; 
+          plannedReps = [1];
+          plannedWeights = [0];
+          updateArrays(plannedSets)"
 				>Cancel</button>
 			</th>
 		</tr>
