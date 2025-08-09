@@ -39,9 +39,11 @@ SELECT * FROM exercises;
 SELECT * FROM exercises
 WHERE name = $1;
 
--- name: GetExerciseByWordInName :many
+-- name: GetExerciseByKeyword :many
 SELECT * FROM exercises
-WHERE name ILIKE '%' || $1 || '%';
+WHERE
+    concat(name, ' ', primary_muscle_group, ' ', secondary_muscle_group)
+    ILIKE '%' || sqlc.arg(word)::text || '%';
 
 -- name: GetExercisesByPrimaryMG :many
 SELECT * FROM exercises

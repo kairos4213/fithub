@@ -130,9 +130,8 @@ func (h *Handler) DeleteDBExercise(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (h *Handler) GetExerciseByName(w http.ResponseWriter, r *http.Request) {
-	exerciseName := strings.ToLower(r.FormValue("exercise-search"))
-	exerciseSearch := sql.NullString{String: exerciseName, Valid: true}
+func (h *Handler) GetExerciseByKeyword(w http.ResponseWriter, r *http.Request) {
+	exerciseSearch := strings.ToLower(r.FormValue("exercise-search"))
 	workoutID, err := uuid.Parse(r.FormValue("workoutID"))
 	if err != nil {
 		HandleInternalServerError(w, r)
@@ -140,7 +139,7 @@ func (h *Handler) GetExerciseByName(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	exercises, err := h.DB.GetExerciseByWordInName(r.Context(), exerciseSearch)
+	exercises, err := h.DB.GetExerciseByKeyword(r.Context(), exerciseSearch)
 	if err != nil {
 		HandleInternalServerError(w, r)
 		log.Printf("Server Error: %v", err)
