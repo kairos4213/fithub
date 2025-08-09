@@ -192,7 +192,7 @@ templ WorkoutsTableFooter() {
 	</tfoot>
 }
 
-templ WorkoutPage(workout database.Workout, workoutExercises []database.WorkoutsExercise, exercises []database.Exercise) {
+templ WorkoutPage(workout database.Workout, workoutExercises []database.ExercisesForWorkoutRow, exercises []database.Exercise) {
 	<section class="card w-auto bg-base-200 card-xl shadow-md m-4">
 		<div class="card-body">
 			@WorkoutInfo(workout)
@@ -236,7 +236,8 @@ templ WorkoutInfo(workout database.Workout) {
 	</div>
 }
 
-templ WorkoutExercisesTable(workout database.Workout, workoutExercises []database.WorkoutsExercise) {
+templ WorkoutExercisesTable(workout database.Workout, workoutExercises []database.ExercisesForWorkoutRow) {
+	// TODO: fix / add order to the way exercises get displayed (add number order to DB?)
 	<table id="exercises-table" class="table table-in-rows md:table-fixed table-auto text-md text-center">
 		<thead>
 			<tr>
@@ -259,15 +260,15 @@ templ WorkoutExercisesTable(workout database.Workout, workoutExercises []databas
 	</table>
 }
 
-templ WorkoutExercisesDataRow(workoutExercise database.WorkoutsExercise) {
-	<tr id={ fmt.Sprintf("workout-exercise-%v", workoutExercise.ID) } x-data="{ editing: false }">
-		<th>{  }</th>
-		<th>{ fmt.Sprintf("%v", workoutExercise.SetsPlanned) }</th>
-		<th>{ fmt.Sprintf("%v", workoutExercise.RepsPerSetPlanned) }</th>
-		<th>{ fmt.Sprintf("%v", workoutExercise.WeightsPlannedLbs) }</th>
-		<th>{ fmt.Sprintf("%v", workoutExercise.SetsCompleted) }</th>
-		<th>{ fmt.Sprintf("%v", workoutExercise.RepsPerSetCompleted) }</th>
-		<th>{ fmt.Sprintf("%v", workoutExercise.WeightsCompletedLbs) }</th>
+templ WorkoutExercisesDataRow(workoutExercise database.ExercisesForWorkoutRow) {
+	<tr id={ fmt.Sprintf("workout-exercise-%v", workoutExercise.WorkoutsExercise.ID) } x-data="{ editing: false }">
+		<th>{ workoutExercise.Exercise.Name }</th>
+		<th>{ fmt.Sprintf("%v", workoutExercise.WorkoutsExercise.SetsPlanned) }</th>
+		<th>{ fmt.Sprintf("%v", workoutExercise.WorkoutsExercise.RepsPerSetPlanned) }</th>
+		<th>{ fmt.Sprintf("%v", workoutExercise.WorkoutsExercise.WeightsPlannedLbs) }</th>
+		<th>{ fmt.Sprintf("%v", workoutExercise.WorkoutsExercise.SetsCompleted) }</th>
+		<th>{ fmt.Sprintf("%v", workoutExercise.WorkoutsExercise.RepsPerSetCompleted) }</th>
+		<th>{ fmt.Sprintf("%v", workoutExercise.WorkoutsExercise.WeightsCompletedLbs) }</th>
 	</tr>
 }
 

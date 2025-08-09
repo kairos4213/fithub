@@ -25,6 +25,11 @@ INSERT INTO workouts_exercises (
     now()
 ) RETURNING *;
 
--- name: GetExercisesForWorkout :many
-SELECT * FROM workouts_exercises
-WHERE workout_id = $1;
+-- name: ExercisesForWorkout :many
+SELECT
+    sqlc.embed(workouts_exercises),
+    sqlc.embed(exercises)
+FROM workouts_exercises
+JOIN exercises
+    ON workouts_exercises.exercise_id = exercises.id
+WHERE workouts_exercises.workout_id = $1;

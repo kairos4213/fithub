@@ -213,5 +213,10 @@ func (h *Handler) AddExerciseToWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	templates.WorkoutExercisesDataRow(workoutExercise).Render(r.Context(), w)
+	exerciseForWorkout := database.ExercisesForWorkoutRow{
+		WorkoutsExercise: workoutExercise,
+		Exercise:         exercise,
+	}
+
+	templates.WorkoutExercisesDataRow(exerciseForWorkout).Render(r.Context(), w)
 }

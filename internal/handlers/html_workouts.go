@@ -211,7 +211,7 @@ func (h *Handler) GetUserWorkoutExercises(w http.ResponseWriter, r *http.Request
 		DateCompleted:   dateCompleted,
 	}
 
-	workoutExercises, err := h.DB.GetExercisesForWorkout(r.Context(), workoutID)
+	workoutExercises, err := h.DB.ExercisesForWorkout(r.Context(), workoutID)
 	if err != nil {
 		HandleInternalServerError(w, r)
 		log.Printf("%v", err)

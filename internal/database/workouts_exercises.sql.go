@@ -80,33 +80,50 @@ func (q *Queries) AddExerciseToWorkout(ctx context.Context, arg AddExerciseToWor
 	return i, err
 }
 
-const getExercisesForWorkout = `-- name: GetExercisesForWorkout :many
-SELECT id, workout_id, exercise_id, sets_planned, reps_per_set_planned, sets_completed, reps_per_set_completed, weights_planned_lbs, weights_completed_lbs, date_completed, updated_at, created_at FROM workouts_exercises
-WHERE workout_id = $1
+const exercisesForWorkout = `-- name: ExercisesForWorkout :many
+SELECT
+    workouts_exercises.id, workouts_exercises.workout_id, workouts_exercises.exercise_id, workouts_exercises.sets_planned, workouts_exercises.reps_per_set_planned, workouts_exercises.sets_completed, workouts_exercises.reps_per_set_completed, workouts_exercises.weights_planned_lbs, workouts_exercises.weights_completed_lbs, workouts_exercises.date_completed, workouts_exercises.updated_at, workouts_exercises.created_at,
+    exercises.id, exercises.name, exercises.description, exercises.primary_muscle_group, exercises.secondary_muscle_group, exercises.created_at, exercises.updated_at
+FROM workouts_exercises
+JOIN exercises
+    ON workouts_exercises.exercise_id = exercises.id
+WHERE workouts_exercises.workout_id = $1
 `
 
-func (q *Queries) GetExercisesForWorkout(ctx context.Context, workoutID uuid.UUID) ([]WorkoutsExercise, error) {
-	rows, err := q.db.QueryContext(ctx, getExercisesForWorkout, workoutID)
+type ExercisesForWorkoutRow struct {
+	WorkoutsExercise WorkoutsExercise
+	Exercise         Exercise
+}
+
+func (q *Queries) ExercisesForWorkout(ctx context.Context, workoutID uuid.UUID) ([]ExercisesForWorkoutRow, error) {
+	rows, err := q.db.QueryContext(ctx, exercisesForWorkout, workoutID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []WorkoutsExercise
+	var items []ExercisesForWorkoutRow
 	for rows.Next() {
-		var i WorkoutsExercise
+		var i ExercisesForWorkoutRow
 		if err := rows.Scan(
-			&i.ID,
-			&i.WorkoutID,
-			&i.ExerciseID,
-			&i.SetsPlanned,
-			pq.Array(&i.RepsPerSetPlanned),
-			&i.SetsCompleted,
-			pq.Array(&i.RepsPerSetCompleted),
-			pq.Array(&i.WeightsPlannedLbs),
-			pq.Array(&i.WeightsCompletedLbs),
-			&i.DateCompleted,
-			&i.UpdatedAt,
-			&i.CreatedAt,
+			&i.WorkoutsExercise.ID,
+			&i.WorkoutsExercise.WorkoutID,
+			&i.WorkoutsExercise.ExerciseID,
+			&i.WorkoutsExercise.SetsPlanned,
+			pq.Array(&i.WorkoutsExercise.RepsPerSetPlanned),
+			&i.WorkoutsExercise.SetsCompleted,
+			pq.Array(&i.WorkoutsExercise.RepsPerSetCompleted),
+			pq.Array(&i.WorkoutsExercise.WeightsPlannedLbs),
+			pq.Array(&i.WorkoutsExercise.WeightsCompletedLbs),
+			&i.WorkoutsExercise.DateCompleted,
+			&i.WorkoutsExercise.UpdatedAt,
+			&i.WorkoutsExercise.CreatedAt,
+			&i.Exercise.ID,
+			&i.Exercise.Name,
+			&i.Exercise.Description,
+			&i.Exercise.PrimaryMuscleGroup,
+			&i.Exercise.SecondaryMuscleGroup,
+			&i.Exercise.CreatedAt,
+			&i.Exercise.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}
