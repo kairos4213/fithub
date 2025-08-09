@@ -35,7 +35,11 @@ WHERE id = $1;
 -- name: GetAllExercises :many
 SELECT * FROM exercises;
 
--- name: GetExerciseByName :many
+-- name: GetExerciseByName :one
+SELECT * FROM exercises
+WHERE name = $1;
+
+-- name: GetExerciseByWordInName :many
 SELECT * FROM exercises
 WHERE name ILIKE '%' || $1 || '%';
 

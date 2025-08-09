@@ -98,12 +98,12 @@ type WorkoutsExercise struct {
 	ID                  uuid.UUID
 	WorkoutID           uuid.UUID
 	ExerciseID          uuid.UUID
-	SetsPlanned         int16
-	RepsPerSetPlanned   int16
-	SetsCompleted       int16
-	RepsPerSetCompleted int16
-	WeightsPlannedLbs   []int16
-	WeightsCompletedLbs []int16
+	SetsPlanned         int32
+	RepsPerSetPlanned   []int32
+	SetsCompleted       int32
+	RepsPerSetCompleted []int32
+	WeightsPlannedLbs   []int32
+	WeightsCompletedLbs []int32
 	DateCompleted       sql.NullTime
 	UpdatedAt           time.Time
 	CreatedAt           time.Time

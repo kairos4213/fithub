@@ -251,12 +251,24 @@ templ WorkoutExercisesTable(workout database.Workout, workoutExercises []databas
 			</tr>
 		</thead>
 		<tbody>
-			<!-- for _, workoutExercise := range workoutExercises { -->
-			<!-- 	@WorkoutExerciseDataRow(workout) -->
-			<!-- } -->
+			for _, workoutExercise := range workoutExercises {
+				@WorkoutExercisesDataRow(workoutExercise)
+			}
 		</tbody>
 		@WorkoutExercisesTableFooter(workout)
 	</table>
+}
+
+templ WorkoutExercisesDataRow(workoutExercise database.WorkoutsExercise) {
+	<tr id={ fmt.Sprintf("workout-exercise-%v", workoutExercise.ID) } x-data="{ editing: false }">
+		<th>{  }</th>
+		<th>{ fmt.Sprintf("%v", workoutExercise.SetsPlanned) }</th>
+		<th>{ fmt.Sprintf("%v", workoutExercise.RepsPerSetPlanned) }</th>
+		<th>{ fmt.Sprintf("%v", workoutExercise.WeightsPlannedLbs) }</th>
+		<th>{ fmt.Sprintf("%v", workoutExercise.SetsCompleted) }</th>
+		<th>{ fmt.Sprintf("%v", workoutExercise.RepsPerSetCompleted) }</th>
+		<th>{ fmt.Sprintf("%v", workoutExercise.WeightsCompletedLbs) }</th>
+	</tr>
 }
 
 templ WorkoutExercisesTableFooter(workout database.Workout) {
@@ -335,7 +347,7 @@ templ WorkoutExercisesTableFooter(workout database.Workout) {
 						<input
 							class="input validator w-28 text-center"
 							type="number"
-							name="planned-reps"
+							name="planned-reps[]"
 							:placeholder="'Set ' + (i+1) + ' reps'"
 							min="1"
 							x-model="plannedReps[i]"
@@ -350,7 +362,7 @@ templ WorkoutExercisesTableFooter(workout database.Workout) {
 						<input
 							class="input validator w-28 text-center"
 							type="number"
-							name="planned-weights"
+							name="planned-weights[]"
 							:placeholder="'Set ' + (i+1) + ' weight'"
 							min="0"
 							x-model="plannedWeights[i]"

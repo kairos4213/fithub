@@ -43,12 +43,12 @@ INSERT INTO workouts_exercises (
 type AddExerciseToWorkoutParams struct {
 	WorkoutID           uuid.UUID
 	ExerciseID          uuid.UUID
-	SetsPlanned         int16
-	RepsPerSetPlanned   int16
-	SetsCompleted       int16
-	RepsPerSetCompleted int16
-	WeightsPlannedLbs   []int16
-	WeightsCompletedLbs []int16
+	SetsPlanned         int32
+	RepsPerSetPlanned   []int32
+	SetsCompleted       int32
+	RepsPerSetCompleted []int32
+	WeightsPlannedLbs   []int32
+	WeightsCompletedLbs []int32
 }
 
 func (q *Queries) AddExerciseToWorkout(ctx context.Context, arg AddExerciseToWorkoutParams) (WorkoutsExercise, error) {
@@ -56,9 +56,9 @@ func (q *Queries) AddExerciseToWorkout(ctx context.Context, arg AddExerciseToWor
 		arg.WorkoutID,
 		arg.ExerciseID,
 		arg.SetsPlanned,
-		arg.RepsPerSetPlanned,
+		pq.Array(arg.RepsPerSetPlanned),
 		arg.SetsCompleted,
-		arg.RepsPerSetCompleted,
+		pq.Array(arg.RepsPerSetCompleted),
 		pq.Array(arg.WeightsPlannedLbs),
 		pq.Array(arg.WeightsCompletedLbs),
 	)
@@ -68,9 +68,9 @@ func (q *Queries) AddExerciseToWorkout(ctx context.Context, arg AddExerciseToWor
 		&i.WorkoutID,
 		&i.ExerciseID,
 		&i.SetsPlanned,
-		&i.RepsPerSetPlanned,
+		pq.Array(&i.RepsPerSetPlanned),
 		&i.SetsCompleted,
-		&i.RepsPerSetCompleted,
+		pq.Array(&i.RepsPerSetCompleted),
 		pq.Array(&i.WeightsPlannedLbs),
 		pq.Array(&i.WeightsCompletedLbs),
 		&i.DateCompleted,
@@ -99,9 +99,9 @@ func (q *Queries) GetExercisesForWorkout(ctx context.Context, workoutID uuid.UUI
 			&i.WorkoutID,
 			&i.ExerciseID,
 			&i.SetsPlanned,
-			&i.RepsPerSetPlanned,
+			pq.Array(&i.RepsPerSetPlanned),
 			&i.SetsCompleted,
-			&i.RepsPerSetCompleted,
+			pq.Array(&i.RepsPerSetCompleted),
 			pq.Array(&i.WeightsPlannedLbs),
 			pq.Array(&i.WeightsCompletedLbs),
 			&i.DateCompleted,

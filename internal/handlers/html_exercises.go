@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/google/uuid"
@@ -139,7 +140,7 @@ func (h *Handler) GetExerciseByName(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	exercises, err := h.DB.GetExerciseByName(r.Context(), exerciseSearch)
+	exercises, err := h.DB.GetExerciseByWordInName(r.Context(), exerciseSearch)
 	if err != nil {
 		HandleInternalServerError(w, r)
 		log.Printf("Server Error: %v", err)
@@ -147,4 +148,71 @@ func (h *Handler) GetExerciseByName(w http.ResponseWriter, r *http.Request) {
 	}
 
 	templates.ExerciseSearchResults(exercises, workoutID).Render(r.Context(), w)
+}
+
+func (h *Handler) AddExerciseToWorkout(w http.ResponseWriter, r *http.Request) {
+	workoutID, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		HandleInternalServerError(w, r)
+		log.Printf("Server err: %v", err)
+		return
+	}
+
+	exerciseName := r.FormValue("exercise-name")
+	exercise, err := h.DB.GetExerciseByName(r.Context(), exerciseName)
+	if err != nil {
+		HandleInternalServerError(w, r)
+		log.Printf("Server err: %v", err)
+		return
+	}
+
+	plannedSets, err := strconv.ParseInt(r.FormValue("planned-sets"), 10, 32)
+	if err != nil {
+		HandleInternalServerError(w, r)
+		log.Printf("Server err: %v", err)
+		return
+	}
+
+	plannedRepsSlice := r.PostForm["planned-reps[]"]
+	plannedReps := make([]int32, len(plannedRepsSlice))
+	for i, plannedRep := range plannedRepsSlice {
+		rep, err := strconv.ParseInt(plannedRep, 10, 32)
+		if err != nil {
+			HandleInternalServerError(w, r)
+			log.Printf("Server err: %v", err)
+			return
+		}
+		plannedReps[i] = int32(rep)
+	}
+
+	plannedWeightsSlice := r.PostForm["planned-weights[]"]
+	plannedWeights := make([]int32, len(plannedWeightsSlice))
+	log.Printf("%v", plannedWeightsSlice)
+	for i, plannedWeight := range plannedWeightsSlice {
+		weight, err := strconv.ParseInt(plannedWeight, 10, 32)
+		if err != nil {
+			HandleInternalServerError(w, r)
+			log.Printf("Server err: %v", err)
+			return
+		}
+		plannedWeights[i] = int32(weight)
+	}
+
+	workoutExercise, err := h.DB.AddExerciseToWorkout(r.Context(), database.AddExerciseToWorkoutParams{
+		WorkoutID:           workoutID,
+		ExerciseID:          exercise.ID,
+		SetsPlanned:         int32(plannedSets),
+		RepsPerSetPlanned:   plannedReps,
+		SetsCompleted:       0,
+		RepsPerSetCompleted: []int32{},
+		WeightsPlannedLbs:   plannedWeights,
+		WeightsCompletedLbs: []int32{},
+	})
+	if err != nil {
+		HandleInternalServerError(w, r)
+		log.Printf("Server err: %v", err)
+		return
+	}
+
+	templates.WorkoutExercisesDataRow(workoutExercise).Render(r.Context(), w)
 }

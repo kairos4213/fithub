@@ -104,13 +104,33 @@ func (q *Queries) GetAllExercises(ctx context.Context) ([]Exercise, error) {
 	return items, nil
 }
 
-const getExerciseByName = `-- name: GetExerciseByName :many
+const getExerciseByName = `-- name: GetExerciseByName :one
+SELECT id, name, description, primary_muscle_group, secondary_muscle_group, created_at, updated_at FROM exercises
+WHERE name = $1
+`
+
+func (q *Queries) GetExerciseByName(ctx context.Context, name string) (Exercise, error) {
+	row := q.db.QueryRowContext(ctx, getExerciseByName, name)
+	var i Exercise
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Description,
+		&i.PrimaryMuscleGroup,
+		&i.SecondaryMuscleGroup,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getExerciseByWordInName = `-- name: GetExerciseByWordInName :many
 SELECT id, name, description, primary_muscle_group, secondary_muscle_group, created_at, updated_at FROM exercises
 WHERE name ILIKE '%' || $1 || '%'
 `
 
-func (q *Queries) GetExerciseByName(ctx context.Context, dollar_1 sql.NullString) ([]Exercise, error) {
-	rows, err := q.db.QueryContext(ctx, getExerciseByName, dollar_1)
+func (q *Queries) GetExerciseByWordInName(ctx context.Context, dollar_1 sql.NullString) ([]Exercise, error) {
+	rows, err := q.db.QueryContext(ctx, getExerciseByWordInName, dollar_1)
 	if err != nil {
 		return nil, err
 	}
