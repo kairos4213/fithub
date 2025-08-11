@@ -107,4 +107,5 @@ type WorkoutsExercise struct {
 	DateCompleted       sql.NullTime
 	UpdatedAt           time.Time
 	CreatedAt           time.Time
+	SortOrder           int32
 }

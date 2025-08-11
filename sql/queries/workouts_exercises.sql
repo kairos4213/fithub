@@ -10,7 +10,8 @@ INSERT INTO workouts_exercises (
     weights_planned_lbs,
     weights_completed_lbs,
     updated_at,
-    created_at
+    created_at,
+    sort_order
 ) VALUES (
     gen_random_uuid(),
     $1,
@@ -22,14 +23,19 @@ INSERT INTO workouts_exercises (
     $7,
     $8,
     now(),
-    now()
+    now(),
+    (
+        SELECT coalesce(max(sort_order), 0) + 1 FROM workouts_exercises
+        WHERE workout_id = $1
+    )
 ) RETURNING *;
 
 -- name: ExercisesForWorkout :many
 SELECT
-    sqlc.embed(workouts_exercises),
-    sqlc.embed(exercises)
-FROM workouts_exercises
-JOIN exercises
-    ON workouts_exercises.exercise_id = exercises.id
-WHERE workouts_exercises.workout_id = $1;
+    sqlc.embed(we),
+    sqlc.embed(e)
+FROM workouts_exercises AS we
+JOIN exercises AS e
+    ON we.exercise_id = e.id
+WHERE we.workout_id = $1
+ORDER BY we.sort_order;

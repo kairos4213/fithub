@@ -237,7 +237,7 @@ templ WorkoutInfo(workout database.Workout) {
 }
 
 templ WorkoutExercisesTable(workout database.Workout, workoutExercises []database.ExercisesForWorkoutRow) {
-	// TODO: fix / add order to the way exercises get displayed (add number order to DB?)
+	// TODO: Add re-ordering of exercises
 	<table id="exercises-table" class="table table-in-rows md:table-fixed table-auto text-md text-center">
 		<thead>
 			<tr>

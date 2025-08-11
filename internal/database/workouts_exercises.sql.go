@@ -24,7 +24,8 @@ INSERT INTO workouts_exercises (
     weights_planned_lbs,
     weights_completed_lbs,
     updated_at,
-    created_at
+    created_at,
+    sort_order
 ) VALUES (
     gen_random_uuid(),
     $1,
@@ -36,8 +37,12 @@ INSERT INTO workouts_exercises (
     $7,
     $8,
     now(),
-    now()
-) RETURNING id, workout_id, exercise_id, sets_planned, reps_per_set_planned, sets_completed, reps_per_set_completed, weights_planned_lbs, weights_completed_lbs, date_completed, updated_at, created_at
+    now(),
+    (
+        SELECT coalesce(max(sort_order), 0) + 1 FROM workouts_exercises
+        WHERE workout_id = $1
+    )
+) RETURNING id, workout_id, exercise_id, sets_planned, reps_per_set_planned, sets_completed, reps_per_set_completed, weights_planned_lbs, weights_completed_lbs, date_completed, updated_at, created_at, sort_order
 `
 
 type AddExerciseToWorkoutParams struct {
@@ -76,18 +81,20 @@ func (q *Queries) AddExerciseToWorkout(ctx context.Context, arg AddExerciseToWor
 		&i.DateCompleted,
 		&i.UpdatedAt,
 		&i.CreatedAt,
+		&i.SortOrder,
 	)
 	return i, err
 }
 
 const exercisesForWorkout = `-- name: ExercisesForWorkout :many
 SELECT
-    workouts_exercises.id, workouts_exercises.workout_id, workouts_exercises.exercise_id, workouts_exercises.sets_planned, workouts_exercises.reps_per_set_planned, workouts_exercises.sets_completed, workouts_exercises.reps_per_set_completed, workouts_exercises.weights_planned_lbs, workouts_exercises.weights_completed_lbs, workouts_exercises.date_completed, workouts_exercises.updated_at, workouts_exercises.created_at,
-    exercises.id, exercises.name, exercises.description, exercises.primary_muscle_group, exercises.secondary_muscle_group, exercises.created_at, exercises.updated_at
-FROM workouts_exercises
-JOIN exercises
-    ON workouts_exercises.exercise_id = exercises.id
-WHERE workouts_exercises.workout_id = $1
+    we.id, we.workout_id, we.exercise_id, we.sets_planned, we.reps_per_set_planned, we.sets_completed, we.reps_per_set_completed, we.weights_planned_lbs, we.weights_completed_lbs, we.date_completed, we.updated_at, we.created_at, we.sort_order,
+    e.id, e.name, e.description, e.primary_muscle_group, e.secondary_muscle_group, e.created_at, e.updated_at
+FROM workouts_exercises AS we
+JOIN exercises AS e
+    ON we.exercise_id = e.id
+WHERE we.workout_id = $1
+ORDER BY we.sort_order
 `
 
 type ExercisesForWorkoutRow struct {
@@ -117,6 +124,7 @@ func (q *Queries) ExercisesForWorkout(ctx context.Context, workoutID uuid.UUID) 
 			&i.WorkoutsExercise.DateCompleted,
 			&i.WorkoutsExercise.UpdatedAt,
 			&i.WorkoutsExercise.CreatedAt,
+			&i.WorkoutsExercise.SortOrder,
 			&i.Exercise.ID,
 			&i.Exercise.Name,
 			&i.Exercise.Description,

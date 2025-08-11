@@ -11,8 +11,12 @@ CREATE TABLE workouts_exercises (
     weights_completed_lbs INT [] NOT NULL,
     date_completed TIMESTAMP,
     updated_at TIMESTAMP NOT NULL,
-    created_at TIMESTAMP NOT NULL
+    created_at TIMESTAMP NOT NULL,
+    sort_order INT NOT NULL DEFAULT 0
 );
+
+CREATE UNIQUE INDEX workout_id_sort_order_idx
+ON workouts_exercises (workout_id, sort_order);
 
 -- +goose Down
 DROP TABLE workouts_exercises;
