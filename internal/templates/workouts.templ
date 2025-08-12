@@ -194,8 +194,9 @@ templ WorkoutsTableFooter() {
 
 templ WorkoutPage(workout database.Workout, workoutExercises []database.ExercisesForWorkoutRow, exercises []database.Exercise) {
 	<section class="card w-auto bg-base-200 card-xl shadow-md m-4">
-		<div class="card-body">
+		<div class="card-body" x-data="{ editingWorkout: false }">
 			@WorkoutInfo(workout)
+			@EditWorkoutInfoForm(workout)
 			<div class="divider divider-accent"></div>
 			<div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100 mx-2">
 				@WorkoutExercisesTable(workout, workoutExercises)
@@ -224,20 +225,82 @@ templ WorkoutPage(workout database.Workout, workoutExercises []database.Exercise
 }
 
 templ WorkoutInfo(workout database.Workout) {
-	<h2 class="card-title">{ utils.TitleString(workout.Title) }</h2>
-	<p class="italic">{ workout.Description.String }</p>
-	<p><span class="font-bold">Est. Duration: </span>{ workout.DurationMinutes }min</p>
-	<p><span class="font-bold">Planned Date: </span>{ workout.PlannedDate.Format("Mon, Jan 02 2006") }</p>
-	if workout.DateCompleted.Valid {
-		<p><span class="font-bold">Last Completed: </span>{ workout.DateCompleted.Time.Format("Mon, Jan 02 2006") }</p>
-	}
-	<div class="justify-end card-actions">
-		<button class="btn btn-outline btn-primary btn-ghost">Edit Workout</button>
+	<div x-show="!editingWorkout">
+		<h2 class="card-title">{ utils.TitleString(workout.Title) }</h2>
+		if workout.Description.Valid {
+			<p class="italic">{ workout.Description.String }</p>
+		} else {
+			<p class="italic">No Description</p>
+		}
+		<p><span class="font-bold">Est. Duration: </span>{ workout.DurationMinutes }min</p>
+		<p><span class="font-bold">Planned Date: </span>{ workout.PlannedDate.Format("Mon, Jan 02 2006") }</p>
+		if workout.DateCompleted.Valid {
+			<p><span class="font-bold">Last Completed: </span>{ workout.DateCompleted.Time.Format("Mon, Jan 02 2006") }</p>
+		}
+		<div class="justify-end card-actions">
+			<button
+				class="btn btn-secondary"
+				@click="editingWorkout = !editingWorkout"
+			>Edit</button>
+			<button
+				hx-delete={ templ.URL(fmt.Sprintf("/workouts/%v", workout.ID)) }
+				class="btn btn-warning"
+			>Delete</button>
+		</div>
 	</div>
+}
+
+templ EditWorkoutInfoForm(workout database.Workout) {
+	<form x-cloak x-show="editingWorkout">
+		<input
+			class="input input-ghost text-center border-secondary"
+			type="text"
+			name="title"
+			value={ fmt.Sprintf("%v", workout.Title) }
+			required
+		/>
+		<textarea
+			class="textarea textarea-md text-center border-secondary"
+			name="workout-description"
+			placeholder="Enter a description"
+		>{ workout.Description.String }</textarea>
+		<input
+			class="input validator"
+			type="number"
+			name="duration"
+			placeholder="Planned Duration in Minutes"
+			min="0"
+			value={ workout.DurationMinutes }
+			required
+		/>
+		<input
+			class="input"
+			type="date"
+			name="planned-date"
+			value={ workout.PlannedDate.Format("2006-01-02") }
+		/>
+		if workout.DateCompleted.Valid {
+			<input
+				class="input"
+				type="date"
+				name="date-completed"
+				value={ workout.DateCompleted.Time.Format("Mon, Jan 02 2006") }
+			/>
+		}
+		<button
+			class="btn btn-primary"
+			@click="editingWorkout = !editingWorkout"
+		>Submit</button>
+		<button
+			class="btn btn-warning"
+			@click="editingWorkout = !editingWorkout"
+		>Cancel</button>
+	</form>
 }
 
 templ WorkoutExercisesTable(workout database.Workout, workoutExercises []database.ExercisesForWorkoutRow) {
 	// TODO: Add re-ordering of exercises
+	// TODO: Edit / Delete Exercises feature
 	<table id="exercises-table" class="table table-in-rows md:table-fixed table-auto text-md text-center">
 		<thead>
 			<tr>
