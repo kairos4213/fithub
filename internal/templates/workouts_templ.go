@@ -675,7 +675,7 @@ func EditWorkoutInfoForm(workout database.Workout) templ.Component {
 		var templ_7745c5c3_Var35 string
 		templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%v", workout.Title))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 259, Col: 43}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 260, Col: 43}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
 		if templ_7745c5c3_Err != nil {
@@ -688,7 +688,7 @@ func EditWorkoutInfoForm(workout database.Workout) templ.Component {
 		var templ_7745c5c3_Var36 string
 		templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(workout.Description.String)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 266, Col: 31}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 267, Col: 31}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
 		if templ_7745c5c3_Err != nil {
@@ -701,7 +701,7 @@ func EditWorkoutInfoForm(workout database.Workout) templ.Component {
 		var templ_7745c5c3_Var37 string
 		templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinStringErrs(workout.DurationMinutes)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 273, Col: 34}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 274, Col: 34}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var37))
 		if templ_7745c5c3_Err != nil {
@@ -714,7 +714,7 @@ func EditWorkoutInfoForm(workout database.Workout) templ.Component {
 		var templ_7745c5c3_Var38 string
 		templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(workout.PlannedDate.Format("2006-01-02"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 280, Col: 51}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 281, Col: 51}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var38))
 		if templ_7745c5c3_Err != nil {
@@ -732,7 +732,7 @@ func EditWorkoutInfoForm(workout database.Workout) templ.Component {
 			var templ_7745c5c3_Var39 string
 			templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinStringErrs(workout.DateCompleted.Time.Format("Mon, Jan 02 2006"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 287, Col: 65}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 288, Col: 65}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
 			if templ_7745c5c3_Err != nil {
@@ -826,7 +826,7 @@ func WorkoutExercisesDataRow(workoutExercise database.ExercisesForWorkoutRow) te
 		var templ_7745c5c3_Var42 string
 		templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("workout-exercise-%v", workoutExercise.WorkoutsExercise.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 327, Col: 81}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 328, Col: 81}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var42))
 		if templ_7745c5c3_Err != nil {
@@ -839,7 +839,7 @@ func WorkoutExercisesDataRow(workoutExercise database.ExercisesForWorkoutRow) te
 		var templ_7745c5c3_Var43 string
 		templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinStringErrs(workoutExercise.Exercise.Name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 328, Col: 37}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 329, Col: 37}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var43))
 		if templ_7745c5c3_Err != nil {
@@ -852,7 +852,7 @@ func WorkoutExercisesDataRow(workoutExercise database.ExercisesForWorkoutRow) te
 		var templ_7745c5c3_Var44 string
 		templ_7745c5c3_Var44, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%v", workoutExercise.WorkoutsExercise.SetsPlanned))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 329, Col: 71}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 330, Col: 71}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var44))
 		if templ_7745c5c3_Err != nil {
@@ -865,7 +865,7 @@ func WorkoutExercisesDataRow(workoutExercise database.ExercisesForWorkoutRow) te
 		var templ_7745c5c3_Var45 string
 		templ_7745c5c3_Var45, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%v", workoutExercise.WorkoutsExercise.RepsPerSetPlanned))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 330, Col: 77}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 331, Col: 77}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var45))
 		if templ_7745c5c3_Err != nil {
@@ -878,7 +878,7 @@ func WorkoutExercisesDataRow(workoutExercise database.ExercisesForWorkoutRow) te
 		var templ_7745c5c3_Var46 string
 		templ_7745c5c3_Var46, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%v", workoutExercise.WorkoutsExercise.WeightsPlannedLbs))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 331, Col: 77}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 332, Col: 77}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var46))
 		if templ_7745c5c3_Err != nil {
@@ -891,7 +891,7 @@ func WorkoutExercisesDataRow(workoutExercise database.ExercisesForWorkoutRow) te
 		var templ_7745c5c3_Var47 string
 		templ_7745c5c3_Var47, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%v", workoutExercise.WorkoutsExercise.SetsCompleted))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 332, Col: 73}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 333, Col: 73}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var47))
 		if templ_7745c5c3_Err != nil {
@@ -904,7 +904,7 @@ func WorkoutExercisesDataRow(workoutExercise database.ExercisesForWorkoutRow) te
 		var templ_7745c5c3_Var48 string
 		templ_7745c5c3_Var48, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%v", workoutExercise.WorkoutsExercise.RepsPerSetCompleted))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 333, Col: 79}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 334, Col: 79}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var48))
 		if templ_7745c5c3_Err != nil {
@@ -917,7 +917,7 @@ func WorkoutExercisesDataRow(workoutExercise database.ExercisesForWorkoutRow) te
 		var templ_7745c5c3_Var49 string
 		templ_7745c5c3_Var49, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%v", workoutExercise.WorkoutsExercise.WeightsCompletedLbs))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 334, Col: 79}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 335, Col: 79}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var49))
 		if templ_7745c5c3_Err != nil {
@@ -959,7 +959,7 @@ func WorkoutExercisesTableFooter(workout database.Workout) templ.Component {
 		var templ_7745c5c3_Var51 string
 		templ_7745c5c3_Var51, templ_7745c5c3_Err = templ.JoinStringErrs(templ.URL(fmt.Sprintf("/workouts/%v", workout.ID)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 443, Col: 65}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 444, Col: 65}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var51))
 		if templ_7745c5c3_Err != nil {
@@ -1006,7 +1006,7 @@ func ExerciseSearchResults(exercises []database.Exercise, workout uuid.UUID) tem
 			var templ_7745c5c3_Var53 string
 			templ_7745c5c3_Var53, templ_7745c5c3_Err = templ.JoinStringErrs(exercise.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 468, Col: 65}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 469, Col: 65}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var53))
 			if templ_7745c5c3_Err != nil {
@@ -1019,7 +1019,7 @@ func ExerciseSearchResults(exercises []database.Exercise, workout uuid.UUID) tem
 			var templ_7745c5c3_Var54 string
 			templ_7745c5c3_Var54, templ_7745c5c3_Err = templ.JoinStringErrs(utils.TitleString(exercise.PrimaryMuscleGroup.String))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 471, Col: 130}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 472, Col: 130}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var54))
 			if templ_7745c5c3_Err != nil {
@@ -1032,7 +1032,7 @@ func ExerciseSearchResults(exercises []database.Exercise, workout uuid.UUID) tem
 			var templ_7745c5c3_Var55 string
 			templ_7745c5c3_Var55, templ_7745c5c3_Err = templ.JoinStringErrs(utils.TitleString(exercise.SecondaryMuscleGroup.String))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 472, Col: 136}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 473, Col: 136}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var55))
 			if templ_7745c5c3_Err != nil {
@@ -1045,7 +1045,7 @@ func ExerciseSearchResults(exercises []database.Exercise, workout uuid.UUID) tem
 			var templ_7745c5c3_Var56 string
 			templ_7745c5c3_Var56, templ_7745c5c3_Err = templ.JoinStringErrs(exercise.Description.String)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 477, Col: 55}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 478, Col: 55}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var56))
 			if templ_7745c5c3_Err != nil {
@@ -1058,7 +1058,7 @@ func ExerciseSearchResults(exercises []database.Exercise, workout uuid.UUID) tem
 			var templ_7745c5c3_Var57 string
 			templ_7745c5c3_Var57, templ_7745c5c3_Err = templ.JoinStringErrs(templ.URL(fmt.Sprintf("/workouts/%v", workout)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 482, Col: 63}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 483, Col: 63}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var57))
 			if templ_7745c5c3_Err != nil {

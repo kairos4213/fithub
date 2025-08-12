@@ -35,9 +35,6 @@ func (mw *Middleware) Auth(next http.Handler) http.Handler {
 
 		cookie, err := r.Cookie("access_token")
 		if err != nil {
-			w.Header().Set("Content-type", "text/html")
-			w.WriteHeader(http.StatusUnauthorized)
-
 			handlers.HandleUnauthorizedError(w, r, handlers.NoAccessMsg)
 			log.Printf("%v", err)
 			return
@@ -46,9 +43,6 @@ func (mw *Middleware) Auth(next http.Handler) http.Handler {
 		accessToken := cookie.Value
 		claims, err := auth.ValidateJWT(accessToken, mw.PublicKey)
 		if err != nil {
-			w.Header().Set("Content-type", "text/html")
-			w.WriteHeader(http.StatusUnauthorized)
-
 			if strings.Contains(err.Error(), "token is expired") {
 				handlers.HandleUnauthorizedError(w, r, handlers.AccessExpiredMsg)
 				log.Printf("%v", err)
@@ -93,9 +87,6 @@ func (mw *Middleware) AdminAuth(next http.Handler) http.Handler {
 
 		cookie, err := r.Cookie("access_token")
 		if err != nil {
-			w.Header().Set("Content-type", "text/html")
-			w.WriteHeader(http.StatusUnauthorized)
-
 			handlers.HandleUnauthorizedError(w, r, handlers.NoAccessMsg)
 			log.Printf("%v", err)
 			return
@@ -104,9 +95,6 @@ func (mw *Middleware) AdminAuth(next http.Handler) http.Handler {
 		accessToken := cookie.Value
 		claims, err := auth.ValidateJWT(accessToken, mw.PublicKey)
 		if err != nil {
-			w.Header().Set("Content-type", "text/html")
-			w.WriteHeader(http.StatusUnauthorized)
-
 			if strings.Contains(err.Error(), "token expired") {
 				handlers.HandleUnauthorizedError(w, r, handlers.AccessExpiredMsg)
 				log.Printf("%v", err)

@@ -15,9 +15,11 @@ const (
 )
 
 func HandleInternalServerError(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-type", "text/html")
+	w.WriteHeader(http.StatusInternalServerError)
+
 	htmlErr := templates.HtmlErr{Code: http.StatusInternalServerError, Msg: ServerErrMsg}
-	contents := templates.ErrorDisplay(htmlErr)
-	templates.Layout(contents, "FitHub", false).Render(r.Context(), w)
+	templates.ErrorDisplay(htmlErr).Render(r.Context(), w)
 }
 
 func HandleAccessForbiddenError(w http.ResponseWriter, r *http.Request) {
@@ -30,12 +32,18 @@ func HandleAccessForbiddenError(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleUnauthorizedError(w http.ResponseWriter, r *http.Request, errMsg string) {
+	w.Header().Set("Content-type", "text/html")
+	w.WriteHeader(http.StatusUnauthorized)
+
 	htmlErr := templates.HtmlErr{Code: http.StatusUnauthorized, Msg: errMsg}
 	contents := templates.ErrorDisplay(htmlErr)
 	templates.Layout(contents, "FitHub", false).Render(r.Context(), w)
 }
 
 func HandleLoginFailure(w http.ResponseWriter, r *http.Request) {
-	htmlErr := templates.HtmlErr{Code: http.StatusUnauthorized, Msg: LoginFailMsg}
-	templates.LoginPage(htmlErr).Render(r.Context(), w)
+	w.Header().Set("Content-type", "text/html")
+	w.WriteHeader(http.StatusUnprocessableEntity)
+
+	htmlErr := templates.HtmlErr{Code: http.StatusUnprocessableEntity, Msg: LoginFailMsg}
+	templates.LoginFailure(htmlErr).Render(r.Context(), w)
 }

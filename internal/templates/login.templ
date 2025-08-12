@@ -1,16 +1,21 @@
 package templates
 
-templ LoginPage(err HtmlErr) {
+templ LoginPage() {
 	<section class="container mx-auto p-10 h-screen">
-		<form hx-post={ templ.URL("/login") } hx-target="main" class="justify-self-center">
+		<form
+			hx-post={ templ.URL("/login") }
+			hx-target="main"
+			hx-target-422="#login-failure"
+			hx-target-500="body"
+			hx-swap="outerHTML"
+			class="justify-self-center"
+		>
 			<h1 class="text-5xl">FitHub</h1>
 			<fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4">
 				<legend class="fieldset-legend text-lg">Login</legend>
 				<input class="input" type="email" name="email" placeholder="Email" required/>
 				<input class="input" type="password" name="password" placeholder="Password" required/>
-				if err.Msg != "" {
-					<div role="alert" class="alert alert-warning alert-outline"><span>{ err.Msg }</span></div>
-				}
+				<div id="login-failure" class="hidden"></div>
 				<button class="btn btn-primary mt-4" type="submit">Login</button>
 			</fieldset>
 			<p class="text-lg px-6 mt-4 justify-self-center">
@@ -19,4 +24,14 @@ templ LoginPage(err HtmlErr) {
 			</p>
 		</form>
 	</section>
+}
+
+templ LoginFailure(err HtmlErr) {
+	if err.Msg != "" {
+		<div id="login-failure">
+			<span role="alert" class="alert alert-warning alert-outline">{ err.Msg }</span>
+		</div>
+	} else {
+		<div id="login-failure" class="hidden"></div>
+	}
 }

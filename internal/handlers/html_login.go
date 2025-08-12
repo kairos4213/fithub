@@ -12,7 +12,7 @@ import (
 
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-		contents := templates.LoginPage(templates.HtmlErr{})
+		contents := templates.LoginPage()
 		templates.Layout(contents, "FitHub | Login", false).Render(r.Context(), w)
 		return
 	}

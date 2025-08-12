@@ -14,7 +14,7 @@ import (
 func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		w.Header().Set("Content-type", "text/html")
-		contents := templates.RegisterPage(templates.HtmlErr{})
+		contents := templates.RegisterPage()
 		templates.Layout(contents, "FitHub | Register", false).Render(r.Context(), w)
 		return
 	}
@@ -40,8 +40,11 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 		})
 		if err != nil {
 			if strings.Contains(err.Error(), "users_email_key") {
-				regErr := templates.HtmlErr{Msg: "That email already exists! Please try again."}
-				templates.RegisterPage(regErr).Render(r.Context(), w)
+				w.Header().Set("Content-type", "text/html")
+				w.WriteHeader(http.StatusConflict)
+
+				regErr := templates.HtmlErr{Code: http.StatusConflict, Msg: "That email already exists! Please try again."}
+				templates.RegPageEmailAlert(regErr, email).Render(r.Context(), w)
 
 				log.Printf("DB Duplicate email error: %v", err)
 				return
@@ -92,6 +95,9 @@ func (h *Handler) CheckUserEmail(w http.ResponseWriter, r *http.Request) {
 
 	_, err := h.DB.GetUser(r.Context(), email)
 	if err == nil {
+		w.Header().Set("Content-type", "text/html")
+		w.WriteHeader(http.StatusConflict)
+
 		htmlErr := templates.HtmlErr{Code: http.StatusConflict, Msg: "That email already exists!"}
 		templates.RegPageEmailAlert(htmlErr, email).Render(r.Context(), w)
 
