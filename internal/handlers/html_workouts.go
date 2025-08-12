@@ -129,6 +129,10 @@ func (h *Handler) EditUserWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if r.URL.Path == "/workouts/"+workoutID.String() {
+		templates.EditWorkoutInfoForm(updatedWorkout).Render(r.Context(), w)
+	}
+
 	templates.WorkoutsDataRow(updatedWorkout).Render(r.Context(), w)
 }
 
@@ -150,8 +154,6 @@ func (h *Handler) DeleteUserWorkout(w http.ResponseWriter, r *http.Request) {
 		log.Printf("%v", err)
 		return
 	}
-
-	log.Print(r.URL.Path)
 
 	if r.URL.Path == "/workouts/"+workoutID.String() {
 		w.Header().Set("HX-Location", `{ "path": "/workouts" }`)
