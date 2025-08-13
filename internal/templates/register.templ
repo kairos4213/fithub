@@ -21,6 +21,7 @@ templ RegisterPage() {
 					placeholder="Email"
 					hx-post={ templ.URL("/users/email") }
 					hx-target="#email-alert"
+					hx-trigger="input changed delay:500ms, keyup[key=='Enter']"
 					hx-swap="outerHTML"
 					required
 				/>
@@ -35,7 +36,7 @@ templ RegisterPage() {
 	</section>
 }
 
-templ RegPageEmailAlert(err HtmlErr, emailInput string) {
+templ RegPageEmailAlert(err HtmlErr) {
 	if err.Msg != "" {
 		<div id="email-alert">
 			<span role="alert" class="alert alert-warning alert-outline">{ err.Msg }</span>

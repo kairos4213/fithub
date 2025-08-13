@@ -40,12 +40,7 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 		})
 		if err != nil {
 			if strings.Contains(err.Error(), "users_email_key") {
-				w.Header().Set("Content-type", "text/html")
-				w.WriteHeader(http.StatusConflict)
-
-				regErr := templates.HtmlErr{Code: http.StatusConflict, Msg: "That email already exists! Please try again."}
-				templates.RegPageEmailAlert(regErr, email).Render(r.Context(), w)
-
+				HandleRegPageEmailAlert(w, r)
 				log.Printf("DB Duplicate email error: %v", err)
 				return
 			}
@@ -95,15 +90,10 @@ func (h *Handler) CheckUserEmail(w http.ResponseWriter, r *http.Request) {
 
 	_, err := h.DB.GetUser(r.Context(), email)
 	if err == nil {
-		w.Header().Set("Content-type", "text/html")
-		w.WriteHeader(http.StatusConflict)
-
-		htmlErr := templates.HtmlErr{Code: http.StatusConflict, Msg: "That email already exists!"}
-		templates.RegPageEmailAlert(htmlErr, email).Render(r.Context(), w)
-
+		HandleRegPageEmailAlert(w, r)
 		log.Print("User email already exists")
 		return
 	}
 
-	templates.RegPageEmailAlert(templates.HtmlErr{}, email).Render(r.Context(), w)
+	templates.RegPageEmailAlert(templates.HtmlErr{}).Render(r.Context(), w)
 }
