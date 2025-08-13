@@ -35,6 +35,13 @@ func (h *Handler) CreateUserWorkout(w http.ResponseWriter, r *http.Request) {
 	reqDuration := r.FormValue("duration")
 	reqPlannedDate := r.FormValue("planned-date")
 
+	if reqTitle == "" || reqDuration == "" || reqPlannedDate == "" {
+		HandleInternalServerError(w, r)
+		log.Printf("Bad 'Add Workout' request from user: %v", userID)
+		log.Print("Missing form information")
+		return
+	}
+
 	description := sql.NullString{Valid: false}
 	if reqDescription != "" {
 		description.String = reqDescription
@@ -55,7 +62,7 @@ func (h *Handler) CreateUserWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	newWorkout, err := h.DB.CreateWorkout(r.Context(), database.CreateWorkoutParams{
+	_, err = h.DB.CreateWorkout(r.Context(), database.CreateWorkoutParams{
 		UserID: userID, Title: reqTitle, Description: description, DurationMinutes: int32(duration), PlannedDate: plannedDate,
 	})
 	if err != nil {
@@ -64,7 +71,14 @@ func (h *Handler) CreateUserWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	templates.WorkoutsDataRow(newWorkout).Render(r.Context(), w)
+	workouts, err := h.DB.GetAllUserWorkouts(r.Context(), userID)
+	if err != nil {
+		HandleInternalServerError(w, r)
+		log.Printf("%v", err)
+		return
+	}
+
+	templates.WorkoutsTableBody(workouts).Render(r.Context(), w)
 }
 
 func (h *Handler) EditUserWorkout(w http.ResponseWriter, r *http.Request) {
@@ -129,11 +143,18 @@ func (h *Handler) EditUserWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if r.URL.Path == "/workouts/"+workoutID.String() {
+	if r.Header.Get("HX-Current-URL") == "/workouts/"+workoutID.String() {
 		templates.EditWorkoutInfoForm(updatedWorkout).Render(r.Context(), w)
 	}
 
-	templates.WorkoutsDataRow(updatedWorkout).Render(r.Context(), w)
+	workouts, err := h.DB.GetAllUserWorkouts(r.Context(), userID)
+	if err != nil {
+		HandleInternalServerError(w, r)
+		log.Printf("%v", err)
+		return
+	}
+
+	templates.WorkoutsTableBody(workouts).Render(r.Context(), w)
 }
 
 func (h *Handler) DeleteUserWorkout(w http.ResponseWriter, r *http.Request) {

@@ -218,5 +218,5 @@ func (h *Handler) AddExerciseToWorkout(w http.ResponseWriter, r *http.Request) {
 		Exercise:         exercise,
 	}
 
-	templates.WorkoutExercisesDataRow(exerciseForWorkout).Render(r.Context(), w)
+	templates.WorkoutExercisesTableDataRow(exerciseForWorkout).Render(r.Context(), w)
 }

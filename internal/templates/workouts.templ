@@ -9,7 +9,6 @@ import (
 )
 
 templ Workouts(workouts []database.Workout) {
-	{{ sort.Slice(workouts, func(i, j int) bool { return workouts[i].PlannedDate.Before(workouts[j].PlannedDate) }) }}
 	<div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100 mx-2">
 		@WorkoutsTable(workouts)
 	</div>
@@ -27,16 +26,21 @@ templ WorkoutsTable(workouts []database.Workout) {
 				<th class="w-1/6"></th>
 			</tr>
 		</thead>
-		<tbody>
-			for _, workout := range workouts {
-				@WorkoutsDataRow(workout)
-			}
-		</tbody>
+		@WorkoutsTableBody(workouts)
 		@WorkoutsTableFooter()
 	</table>
 }
 
-templ WorkoutsDataRow(workout database.Workout) {
+templ WorkoutsTableBody(workouts []database.Workout) {
+	<tbody>
+		{{ sort.Slice(workouts, func(i, j int) bool { return workouts[i].PlannedDate.Before(workouts[j].PlannedDate) }) }}
+		for _, workout := range workouts {
+			@WorkoutsTableDataRow(workout)
+		}
+	</tbody>
+}
+
+templ WorkoutsTableDataRow(workout database.Workout) {
 	<tr id={ fmt.Sprintf("workout-%v", workout.ID) } x-data="{ editing: false }">
 		<td x-show="!editing">
 			<a
@@ -104,7 +108,7 @@ templ WorkoutsDataRow(workout database.Workout) {
 			<button
 				x-show="!editing"
 				class="btn btn-secondary m-1"
-				@click="editing = ! editing"
+				@click="editing = !editing"
 			>Edit</button>
 			<button
 				x-show="!editing"
@@ -118,12 +122,13 @@ templ WorkoutsDataRow(workout database.Workout) {
 				x-show="editing"
 				hx-put={ templ.URL(fmt.Sprintf("/workouts/%v", workout.ID)) }
 				hx-include={ fmt.Sprintf("#workout-%v", workout.ID) }
-				hx-target={ fmt.Sprintf("#workout-%v", workout.ID) }
+				hx-target="tbody"
 				hx-swap="outerHTML"
+				type="submit"
 				class="btn btn-primary"
-				@click="editing = ! editing"
+				@click="editing = !editing"
 			>Submit</button>
-			<button x-cloak x-show="editing" class="btn btn-warning" @click="editing = ! editing">Cancel</button>
+			<button x-cloak x-show="editing" class="btn btn-warning" @click="editing = !editing">Cancel</button>
 		</td>
 	</tr>
 }
@@ -146,7 +151,7 @@ templ WorkoutsTableFooter() {
 		<tr x-cloak x-show="open">
 			<th>
 				<input
-					class="input input-ghost text-center border-secondary"
+					class="input text-center"
 					type="text"
 					name="title"
 					placeholder="Workout Title"
@@ -155,7 +160,7 @@ templ WorkoutsTableFooter() {
 			</th>
 			<th>
 				<textarea
-					class="textarea textarea-xs text-center border-secondary"
+					class="textarea textarea-xs text-center"
 					name="workout-description"
 					placeholder="Enter a description"
 				></textarea>
@@ -171,16 +176,17 @@ templ WorkoutsTableFooter() {
 				/>
 			</th>
 			<th>
-				<input class="input" type="date" name="planned-date"/>
+				<input class="input" type="date" name="planned-date" required/>
 			</th>
 			<th>N/A</th>
 			<th>
 				<button
 					hx-post={ templ.URL("/workouts") }
 					hx-include="#add-workout-row"
-					hx-target="#workouts-table"
-					hx-swap="beforeend"
-					class="btn btn-outline btn-primary btn-ghost"
+					hx-target="tbody"
+					hx-swap="outerHTML"
+					class="btn btn-primary"
+					type="submit"
 					@click="open = ! open"
 				>Create Workout</button>
 				<button
@@ -317,14 +323,14 @@ templ WorkoutExercisesTable(workout database.Workout, workoutExercises []databas
 		</thead>
 		<tbody>
 			for _, workoutExercise := range workoutExercises {
-				@WorkoutExercisesDataRow(workoutExercise)
+				@WorkoutExercisesTableDataRow(workoutExercise)
 			}
 		</tbody>
 		@WorkoutExercisesTableFooter(workout)
 	</table>
 }
 
-templ WorkoutExercisesDataRow(workoutExercise database.ExercisesForWorkoutRow) {
+templ WorkoutExercisesTableDataRow(workoutExercise database.ExercisesForWorkoutRow) {
 	<tr id={ fmt.Sprintf("workout-exercise-%v", workoutExercise.WorkoutsExercise.ID) } x-data="{ editing: false }">
 		<th>{ workoutExercise.Exercise.Name }</th>
 		<th>{ fmt.Sprintf("%v", workoutExercise.WorkoutsExercise.SetsPlanned) }</th>
