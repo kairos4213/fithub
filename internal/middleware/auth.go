@@ -35,21 +35,20 @@ func (mw *Middleware) Auth(next http.Handler) http.Handler {
 
 		cookie, err := r.Cookie("access_token")
 		if err != nil {
-			handlers.HandleUnauthorizedError(w, r, handlers.NoAccessMsg)
+			handlers.GetUnauthorizedPage(w, r)
 			log.Printf("%v", err)
 			return
 		}
-
 		accessToken := cookie.Value
 		claims, err := auth.ValidateJWT(accessToken, mw.PublicKey)
 		if err != nil {
 			if strings.Contains(err.Error(), "token is expired") {
-				handlers.HandleUnauthorizedError(w, r, handlers.AccessExpiredMsg)
+				http.Redirect(w, r, "/unauthorized?reason=expired", http.StatusSeeOther)
 				log.Printf("%v", err)
 				return
 			}
 
-			handlers.HandleUnauthorizedError(w, r, handlers.NoAccessMsg)
+			handlers.GetUnauthorizedPage(w, r)
 			log.Printf("%v", err)
 			return
 		}
@@ -77,6 +76,10 @@ func (mw *Middleware) AdminAuth(next http.Handler) http.Handler {
 
 			if !claims.IsAdmin {
 				utils.RespondWithError(w, http.StatusForbidden, "You don't have permission to view this!", err)
+				log.Println("Unauthorized admin request:")
+				log.Printf("\tUser ID: %v", claims.UserID)
+				log.Printf("\tRequest type: %v", r.Method)
+				log.Printf("\tRequest body: %v", r.Body)
 				return
 			}
 
@@ -87,7 +90,7 @@ func (mw *Middleware) AdminAuth(next http.Handler) http.Handler {
 
 		cookie, err := r.Cookie("access_token")
 		if err != nil {
-			handlers.HandleUnauthorizedError(w, r, handlers.NoAccessMsg)
+			handlers.GetUnauthorizedPage(w, r)
 			log.Printf("%v", err)
 			return
 		}
@@ -96,20 +99,22 @@ func (mw *Middleware) AdminAuth(next http.Handler) http.Handler {
 		claims, err := auth.ValidateJWT(accessToken, mw.PublicKey)
 		if err != nil {
 			if strings.Contains(err.Error(), "token expired") {
-				handlers.HandleUnauthorizedError(w, r, handlers.AccessExpiredMsg)
+				http.Redirect(w, r, "/unauthorized?reason=expired", http.StatusSeeOther)
 				log.Printf("%v", err)
 				return
 			}
 
-			handlers.HandleUnauthorizedError(w, r, handlers.NoAccessMsg)
+			handlers.GetUnauthorizedPage(w, r)
 			log.Printf("%v", err)
 			return
 		}
 
 		if !claims.IsAdmin {
-			handlers.HandleAccessForbiddenError(w, r)
-			log.Println("Unauthorized admin GET request:")
+			handlers.GetForbiddenPage(w, r)
+			log.Println("Unauthorized admin request:")
 			log.Printf("\tUser ID: %v", claims.UserID)
+			log.Printf("\tRequest type: %v", r.Method)
+			log.Printf("\tRequest body: %v", r.Body)
 			return
 		}
 

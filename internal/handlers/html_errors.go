@@ -23,7 +23,7 @@ func HandleInternalServerError(w http.ResponseWriter, r *http.Request) {
 	templates.ErrorDisplay(htmlErr).Render(r.Context(), w)
 }
 
-func HandleAccessForbiddenError(w http.ResponseWriter, r *http.Request) {
+func GetForbiddenPage(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-type", "text/html")
 	w.WriteHeader(http.StatusForbidden)
 
@@ -32,7 +32,13 @@ func HandleAccessForbiddenError(w http.ResponseWriter, r *http.Request) {
 	templates.Layout(contents, "FitHub", true).Render(r.Context(), w)
 }
 
-func HandleUnauthorizedError(w http.ResponseWriter, r *http.Request, errMsg string) {
+func GetUnauthorizedPage(w http.ResponseWriter, r *http.Request) {
+	err := r.URL.Query().Get("reason")
+	errMsg := NoAccessMsg
+	if err == "expired" {
+		errMsg = AccessExpiredMsg
+	}
+
 	w.Header().Set("Content-type", "text/html")
 	w.WriteHeader(http.StatusUnauthorized)
 
@@ -54,5 +60,13 @@ func HandleRegPageEmailAlert(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusConflict)
 
 	htmlErr := templates.HtmlErr{Code: http.StatusConflict, Msg: DuplicateEmailMsg}
+	templates.RegPageEmailAlert(htmlErr).Render(r.Context(), w)
+}
+
+func HandleBadRequest(w http.ResponseWriter, r *http.Request, errMsg string) {
+	w.Header().Set("Content-type", "text/html")
+	w.WriteHeader(http.StatusBadRequest)
+
+	htmlErr := templates.HtmlErr{Code: http.StatusBadRequest, Msg: errMsg}
 	templates.RegPageEmailAlert(htmlErr).Render(r.Context(), w)
 }

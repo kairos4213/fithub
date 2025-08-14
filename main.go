@@ -91,6 +91,9 @@ func main() {
 	mux.Handle("PUT /goals/{id}", mw.Auth(http.HandlerFunc(handler.EditGoal)))
 	mux.Handle("DELETE /goals/{id}", mw.Auth(http.HandlerFunc(handler.DeleteGoal)))
 
+	mux.Handle("GET /unauthorized", http.HandlerFunc(handlers.GetUnauthorizedPage))
+	mux.Handle("GET /forbidden", http.HandlerFunc(handlers.GetForbiddenPage))
+
 	mux.Handle("GET /admin", mw.AdminAuth(http.HandlerFunc(handler.GetAdminHome)))
 
 	mux.Handle("GET /admin/exercises", mw.AdminAuth(http.HandlerFunc(handler.GetAdminExercisesPage)))
