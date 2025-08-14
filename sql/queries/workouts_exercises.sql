@@ -30,7 +30,7 @@ INSERT INTO workouts_exercises (
     )
 ) RETURNING *;
 
--- name: ExercisesForWorkout :many
+-- name: WorkoutAndExercises :many
 SELECT
     sqlc.embed(we),
     sqlc.embed(e)

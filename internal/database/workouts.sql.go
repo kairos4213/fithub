@@ -129,6 +129,28 @@ func (q *Queries) GetAllUserWorkouts(ctx context.Context, userID uuid.UUID) ([]W
 	return items, nil
 }
 
+const getWorkoutByID = `-- name: GetWorkoutByID :one
+SELECT id, user_id, title, description, duration_minutes, planned_date, date_completed, created_at, updated_at FROM workouts
+WHERE id = $1
+`
+
+func (q *Queries) GetWorkoutByID(ctx context.Context, id uuid.UUID) (Workout, error) {
+	row := q.db.QueryRowContext(ctx, getWorkoutByID, id)
+	var i Workout
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Title,
+		&i.Description,
+		&i.DurationMinutes,
+		&i.PlannedDate,
+		&i.DateCompleted,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const updateWorkout = `-- name: UpdateWorkout :one
 UPDATE workouts
 SET

@@ -86,7 +86,7 @@ func (q *Queries) AddExerciseToWorkout(ctx context.Context, arg AddExerciseToWor
 	return i, err
 }
 
-const exercisesForWorkout = `-- name: ExercisesForWorkout :many
+const workoutAndExercises = `-- name: WorkoutAndExercises :many
 SELECT
     we.id, we.workout_id, we.exercise_id, we.sets_planned, we.reps_per_set_planned, we.sets_completed, we.reps_per_set_completed, we.weights_planned_lbs, we.weights_completed_lbs, we.date_completed, we.updated_at, we.created_at, we.sort_order,
     e.id, e.name, e.description, e.primary_muscle_group, e.secondary_muscle_group, e.created_at, e.updated_at
@@ -97,20 +97,20 @@ WHERE we.workout_id = $1
 ORDER BY we.sort_order
 `
 
-type ExercisesForWorkoutRow struct {
+type WorkoutAndExercisesRow struct {
 	WorkoutsExercise WorkoutsExercise
 	Exercise         Exercise
 }
 
-func (q *Queries) ExercisesForWorkout(ctx context.Context, workoutID uuid.UUID) ([]ExercisesForWorkoutRow, error) {
-	rows, err := q.db.QueryContext(ctx, exercisesForWorkout, workoutID)
+func (q *Queries) WorkoutAndExercises(ctx context.Context, workoutID uuid.UUID) ([]WorkoutAndExercisesRow, error) {
+	rows, err := q.db.QueryContext(ctx, workoutAndExercises, workoutID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ExercisesForWorkoutRow
+	var items []WorkoutAndExercisesRow
 	for rows.Next() {
-		var i ExercisesForWorkoutRow
+		var i WorkoutAndExercisesRow
 		if err := rows.Scan(
 			&i.WorkoutsExercise.ID,
 			&i.WorkoutsExercise.WorkoutID,

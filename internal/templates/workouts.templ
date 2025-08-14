@@ -46,7 +46,6 @@ templ WorkoutsTableDataRow(workout database.Workout) {
 			<a
 				class="link link-primary link-hover"
 				href={ templ.URL(fmt.Sprintf("workouts/%v", workout.ID)) }
-				hx-include={ fmt.Sprintf("#workout-%v", workout.ID) }
 			>{ workout.Title }</a>
 		</td>
 		<td x-cloak x-show="editing">
@@ -198,7 +197,7 @@ templ WorkoutsTableFooter() {
 	</tfoot>
 }
 
-templ WorkoutPage(workout database.Workout, workoutExercises []database.ExercisesForWorkoutRow, exercises []database.Exercise) {
+templ WorkoutPage(workout database.Workout, workoutExercises []database.WorkoutAndExercisesRow, exercises []database.Exercise) {
 	<section class="card w-auto bg-base-200 card-xl shadow-md m-4">
 		<div class="card-body" x-data="{ editingWorkout: false }">
 			@WorkoutInfo(workout)
@@ -231,7 +230,7 @@ templ WorkoutPage(workout database.Workout, workoutExercises []database.Exercise
 }
 
 templ WorkoutInfo(workout database.Workout) {
-	<div x-show="!editingWorkout">
+	<div id="workout-info" x-show="!editingWorkout">
 		<h2 class="card-title">{ utils.TitleString(workout.Title) }</h2>
 		if workout.Description.Valid {
 			<p class="italic">{ workout.Description.String }</p>
@@ -295,6 +294,9 @@ templ EditWorkoutInfoForm(workout database.Workout) {
 			/>
 		}
 		<button
+			type="submit"
+			hx-put={ templ.URL(fmt.Sprintf("/workouts/%v", workout.ID)) }
+			hx-target="#workout-info"
 			class="btn btn-primary"
 			@click="editingWorkout = !editingWorkout"
 		>Submit</button>
@@ -305,7 +307,7 @@ templ EditWorkoutInfoForm(workout database.Workout) {
 	</form>
 }
 
-templ WorkoutExercisesTable(workout database.Workout, workoutExercises []database.ExercisesForWorkoutRow) {
+templ WorkoutExercisesTable(workout database.Workout, workoutExercises []database.WorkoutAndExercisesRow) {
 	// TODO: Add re-ordering of exercises
 	// TODO: Edit / Delete Exercises feature
 	<table id="exercises-table" class="table table-in-rows md:table-fixed table-auto text-md text-center">
@@ -330,7 +332,7 @@ templ WorkoutExercisesTable(workout database.Workout, workoutExercises []databas
 	</table>
 }
 
-templ WorkoutExercisesTableDataRow(workoutExercise database.ExercisesForWorkoutRow) {
+templ WorkoutExercisesTableDataRow(workoutExercise database.WorkoutAndExercisesRow) {
 	<tr id={ fmt.Sprintf("workout-exercise-%v", workoutExercise.WorkoutsExercise.ID) } x-data="{ editing: false }">
 		<th>{ workoutExercise.Exercise.Name }</th>
 		<th>{ fmt.Sprintf("%v", workoutExercise.WorkoutsExercise.SetsPlanned) }</th>

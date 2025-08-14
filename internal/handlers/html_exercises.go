@@ -213,7 +213,7 @@ func (h *Handler) AddExerciseToWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	exerciseForWorkout := database.ExercisesForWorkoutRow{
+	exerciseForWorkout := database.WorkoutAndExercisesRow{
 		WorkoutsExercise: workoutExercise,
 		Exercise:         exercise,
 	}
