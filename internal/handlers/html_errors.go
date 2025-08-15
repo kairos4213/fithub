@@ -25,6 +25,8 @@ func HandleInternalServerError(w http.ResponseWriter, r *http.Request) {
 
 func GetForbiddenPage(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-type", "text/html")
+	w.Header().Set("HX-Retarget", "body")
+	w.Header().Set("HX-Reswap", "outerHTML")
 	w.WriteHeader(http.StatusForbidden)
 
 	htmlErr := templates.HtmlErr{Code: http.StatusForbidden, Msg: AccessForbidden}
@@ -40,6 +42,8 @@ func GetUnauthorizedPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-type", "text/html")
+	w.Header().Set("HX-Retarget", "body")
+	w.Header().Set("HX-Reswap", "outerHTML")
 	w.WriteHeader(http.StatusUnauthorized)
 
 	htmlErr := templates.HtmlErr{Code: http.StatusUnauthorized, Msg: errMsg}

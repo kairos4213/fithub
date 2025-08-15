@@ -114,6 +114,7 @@ templ WorkoutsTableDataRow(workout database.Workout) {
 				hx-delete={ templ.URL(fmt.Sprintf("/workouts/%v", workout.ID)) }
 				hx-target={ fmt.Sprintf("#workout-%v", workout.ID) }
 				hx-swap="delete"
+				hx-target-4*="body"
 				class="btn btn-warning"
 			>Delete</button>
 			<button
@@ -123,7 +124,7 @@ templ WorkoutsTableDataRow(workout database.Workout) {
 				hx-include={ fmt.Sprintf("#workout-%v", workout.ID) }
 				hx-target="tbody"
 				hx-swap="outerHTML"
-				type="submit"
+				hx-target-4*="body"
 				class="btn btn-primary"
 				@click="editing = !editing"
 			>Submit</button>

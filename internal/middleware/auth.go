@@ -8,7 +8,6 @@ import (
 
 	"github.com/kairos4213/fithub/internal/auth"
 	"github.com/kairos4213/fithub/internal/cntx"
-	"github.com/kairos4213/fithub/internal/handlers"
 	"github.com/kairos4213/fithub/internal/utils"
 )
 
@@ -35,7 +34,7 @@ func (mw *Middleware) Auth(next http.Handler) http.Handler {
 
 		cookie, err := r.Cookie("access_token")
 		if err != nil {
-			handlers.GetUnauthorizedPage(w, r)
+			http.Redirect(w, r, "/unauthorized?reason=invalid_missing", http.StatusSeeOther)
 			log.Printf("%v", err)
 			return
 		}
@@ -48,7 +47,7 @@ func (mw *Middleware) Auth(next http.Handler) http.Handler {
 				return
 			}
 
-			handlers.GetUnauthorizedPage(w, r)
+			http.Redirect(w, r, "/unauthorized?reason=invalid_missing", http.StatusSeeOther)
 			log.Printf("%v", err)
 			return
 		}
@@ -90,7 +89,7 @@ func (mw *Middleware) AdminAuth(next http.Handler) http.Handler {
 
 		cookie, err := r.Cookie("access_token")
 		if err != nil {
-			handlers.GetUnauthorizedPage(w, r)
+			http.Redirect(w, r, "/unauthorized?reason=invalid_missing", http.StatusSeeOther)
 			log.Printf("%v", err)
 			return
 		}
@@ -104,13 +103,13 @@ func (mw *Middleware) AdminAuth(next http.Handler) http.Handler {
 				return
 			}
 
-			handlers.GetUnauthorizedPage(w, r)
+			http.Redirect(w, r, "/unauthorized?reason=invalid_missing", http.StatusSeeOther)
 			log.Printf("%v", err)
 			return
 		}
 
 		if !claims.IsAdmin {
-			handlers.GetForbiddenPage(w, r)
+			http.Redirect(w, r, "/forbidden", http.StatusSeeOther)
 			log.Println("Unauthorized admin request:")
 			log.Printf("\tUser ID: %v", claims.UserID)
 			log.Printf("\tRequest type: %v", r.Method)

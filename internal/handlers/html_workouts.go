@@ -179,9 +179,11 @@ func (h *Handler) DeleteUserWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if r.URL.Path == "/workouts/"+workoutID.String() {
+	currentURL := r.Header.Get("HX-Current-URL")
+	if strings.Contains(currentURL, "/workouts/"+workoutID.String()) {
 		w.Header().Set("HX-Location", `{ "path": "/workouts" }`)
 		w.WriteHeader(http.StatusNoContent)
+		return
 	}
 	w.WriteHeader(http.StatusOK)
 }
