@@ -139,6 +139,11 @@ func (h *Handler) GetExerciseByKeyword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if exerciseSearch == "" {
+		templates.ExerciseSearchResults([]database.Exercise{}, workoutID).Render(r.Context(), w)
+		return
+	}
+
 	exercises, err := h.DB.GetExerciseByKeyword(r.Context(), exerciseSearch)
 	if err != nil {
 		HandleInternalServerError(w, r)
