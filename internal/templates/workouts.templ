@@ -218,7 +218,7 @@ templ WorkoutPage(workout database.Workout, workoutExercises []database.WorkoutA
 				name="exercise-search"
 				placeholder="Begin Typing To Find Exercises..."
 				hx-post={ templ.URL("/exercises") }
-				hx-vals={ fmt.Sprintf("{\"workoutID\": \"%v\"}", workout.ID) }
+				hx-vals={ fmt.Sprintf(`{"workoutID": "%v"}`, workout.ID) }
 				hx-trigger="input changed delay:500ms, keyup[key=='Enter']"
 				hx-indicator=".htmx-indicator"
 				hx-target="#exercise-search-results"
@@ -486,10 +486,17 @@ templ ExerciseSearchResults(exercises []database.Exercise, workout uuid.UUID) {
 							<p class="text-sm mt-0 pt-0">Description:</p>
 							<p class="text-lg">{ exercise.Description.String }</p>
 						</div>
+						// TODO: Connect anchor to exercises page when that is created
 						<a href="" class="link link-primary text-sm self-end">See More</a>
 					</div>
 					<button
 						hx-post={ templ.URL(fmt.Sprintf("/workouts/%v", workout)) }
+						hx-vals={ fmt.Sprintf(`{
+              "exercise-name": "%v", 
+              "planned-sets": "%v", 
+              "planned-reps[]": ["%v"], 
+              "planned-weights[]": ["%v"]
+              }`, exercise.Name, 1, 1, 0) }
 						hx-target="#exercises-table"
 						hx-swap="beforeend"
 						class="btn btn-outline btn-primary btn-ghost self-end"
