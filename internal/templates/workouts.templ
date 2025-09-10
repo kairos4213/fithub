@@ -334,14 +334,56 @@ templ WorkoutExercisesTable(workout database.Workout, workoutExercises []databas
 }
 
 templ WorkoutExercisesTableDataRow(workoutExercise database.WorkoutAndExercisesRow) {
+	{{
+	plannedReps := ""
+	for index, setReps := range workoutExercise.WorkoutsExercise.RepsPerSetPlanned {
+		if index+1 == len(workoutExercise.WorkoutsExercise.RepsPerSetPlanned) {
+			plannedReps += fmt.Sprintf("%v", setReps)
+		} else {
+			plannedReps += fmt.Sprintf("%v / ", setReps)
+		}
+	}
+	plannedWeights := ""
+	for index, setWeights := range workoutExercise.WorkoutsExercise.WeightsPlannedLbs {
+		if index+1 == len(workoutExercise.WorkoutsExercise.WeightsPlannedLbs) {
+			plannedWeights += fmt.Sprintf("%v", setWeights)
+		} else {
+			plannedWeights += fmt.Sprintf("%v / ", setWeights)
+		}
+	}
+	repsCompleted := ""
+	for index, setReps := range workoutExercise.WorkoutsExercise.RepsPerSetCompleted {
+		if index+1 == len(workoutExercise.WorkoutsExercise.RepsPerSetCompleted) {
+			repsCompleted += fmt.Sprintf("%v", setReps)
+		} else {
+			repsCompleted += fmt.Sprintf("%v / ", setReps)
+		}
+	}
+	weightsCompleted := ""
+	for index, setWeights := range workoutExercise.WorkoutsExercise.WeightsCompletedLbs {
+		if index+1 == len(workoutExercise.WorkoutsExercise.WeightsCompletedLbs) {
+			weightsCompleted += fmt.Sprintf("%v", setWeights)
+		} else {
+			weightsCompleted += fmt.Sprintf("%v / ", setWeights)
+		}
+	}
+	}}
 	<tr id={ fmt.Sprintf("workout-exercise-%v", workoutExercise.WorkoutsExercise.ID) } x-data="{ editing: false }">
-		<th>{ workoutExercise.Exercise.Name }</th>
-		<th>{ fmt.Sprintf("%v", workoutExercise.WorkoutsExercise.SetsPlanned) }</th>
-		<th>{ fmt.Sprintf("%v", workoutExercise.WorkoutsExercise.RepsPerSetPlanned) }</th>
-		<th>{ fmt.Sprintf("%v", workoutExercise.WorkoutsExercise.WeightsPlannedLbs) }</th>
-		<th>{ fmt.Sprintf("%v", workoutExercise.WorkoutsExercise.SetsCompleted) }</th>
-		<th>{ fmt.Sprintf("%v", workoutExercise.WorkoutsExercise.RepsPerSetCompleted) }</th>
-		<th>{ fmt.Sprintf("%v", workoutExercise.WorkoutsExercise.WeightsCompletedLbs) }</th>
+		<td>{ workoutExercise.Exercise.Name }</td>
+		<td>{ fmt.Sprintf("%v", workoutExercise.WorkoutsExercise.SetsPlanned) }</td>
+		<td>{ plannedReps }</td>
+		<td>{ plannedWeights }</td>
+		<td>{ fmt.Sprintf("%v", workoutExercise.WorkoutsExercise.SetsCompleted) }</td>
+		if len(workoutExercise.WorkoutsExercise.RepsPerSetCompleted) == 0 {
+			<td>N/A</td>
+		} else {
+			<td>repsCompleted</td>
+		}
+		if len(workoutExercise.WorkoutsExercise.WeightsCompletedLbs) == 0 {
+			<td>N/A</td>
+		} else {
+			<td>weightsCompleted</td>
+		}
 	</tr>
 }
 
