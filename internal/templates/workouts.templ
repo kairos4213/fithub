@@ -335,55 +335,218 @@ templ WorkoutExercisesTable(workout database.Workout, workoutExercises []databas
 
 templ WorkoutExercisesTableDataRow(workoutExercise database.WorkoutAndExercisesRow) {
 	{{
-	plannedReps := ""
+	plannedSets := workoutExercise.WorkoutsExercise.SetsPlanned
+	plannedReps := workoutExercise.WorkoutsExercise.RepsPerSetPlanned
+	plannedWeights := workoutExercise.WorkoutsExercise.WeightsPlannedLbs
+
+	plannedRepsStr := ""
 	for index, setReps := range workoutExercise.WorkoutsExercise.RepsPerSetPlanned {
 		if index+1 == len(workoutExercise.WorkoutsExercise.RepsPerSetPlanned) {
-			plannedReps += fmt.Sprintf("%v", setReps)
+			plannedRepsStr += fmt.Sprintf("%v", setReps)
 		} else {
-			plannedReps += fmt.Sprintf("%v / ", setReps)
+			plannedRepsStr += fmt.Sprintf("%v / ", setReps)
 		}
 	}
-	plannedWeights := ""
+	plannedWeightsStr := ""
 	for index, setWeights := range workoutExercise.WorkoutsExercise.WeightsPlannedLbs {
 		if index+1 == len(workoutExercise.WorkoutsExercise.WeightsPlannedLbs) {
-			plannedWeights += fmt.Sprintf("%v", setWeights)
+			plannedWeightsStr += fmt.Sprintf("%v", setWeights)
 		} else {
-			plannedWeights += fmt.Sprintf("%v / ", setWeights)
+			plannedWeightsStr += fmt.Sprintf("%v / ", setWeights)
 		}
 	}
-	repsCompleted := ""
+	repsCompletedStr := ""
 	for index, setReps := range workoutExercise.WorkoutsExercise.RepsPerSetCompleted {
 		if index+1 == len(workoutExercise.WorkoutsExercise.RepsPerSetCompleted) {
-			repsCompleted += fmt.Sprintf("%v", setReps)
+			repsCompletedStr += fmt.Sprintf("%v", setReps)
 		} else {
-			repsCompleted += fmt.Sprintf("%v / ", setReps)
+			repsCompletedStr += fmt.Sprintf("%v / ", setReps)
 		}
 	}
-	weightsCompleted := ""
+	weightsCompletedStr := ""
 	for index, setWeights := range workoutExercise.WorkoutsExercise.WeightsCompletedLbs {
 		if index+1 == len(workoutExercise.WorkoutsExercise.WeightsCompletedLbs) {
-			weightsCompleted += fmt.Sprintf("%v", setWeights)
+			weightsCompletedStr += fmt.Sprintf("%v", setWeights)
 		} else {
-			weightsCompleted += fmt.Sprintf("%v / ", setWeights)
+			weightsCompletedStr += fmt.Sprintf("%v / ", setWeights)
 		}
 	}
 	}}
-	<tr id={ fmt.Sprintf("workout-exercise-%v", workoutExercise.WorkoutsExercise.ID) } x-data="{ editing: false }">
+	<tr
+		id={ fmt.Sprintf("workout-exercise-%v", workoutExercise.WorkoutsExercise.ID) }
+		x-data={ fmt.Sprintf(`{ 
+      editingExercise: false, 
+      plannedSets: %v,
+      plannedReps: %v,
+      plannedWeights: %v,
+      completedSets: 1,
+      completedReps: [0],
+      completedWeights: [0],
+      updateArrays(array, n) {
+        n = Number(n) || 0;
+        if (n < 0) {
+          n = 0;
+        }
+
+        if (array == "plannedReps") {
+          if (this.plannedReps.length > n) {
+            this.plannedReps.splice(n);
+          } else {
+            for (let i = this.plannedReps.length; i < n; i++) {
+              this.plannedReps.push(1);
+            }
+          }
+
+          if (this.plannedWeights.length > n) {
+            this.plannedWeights.splice(n);
+          } else {
+            for (let i = this.plannedWeights.length; i < n; i++) {
+              this.plannedWeights.push(0);
+            }
+          }
+        } else {
+          if (this.completedReps.length > n) {
+            this.completedReps.splice(n);
+          } else {
+            for (let i = this.completedReps.length; i < n; i++) {
+              this.completedReps.push(0);
+            }
+          }
+
+          if (this.completedWeights.length > n) {
+            this.completedWeights.splice(n);
+          } else {
+            for (let i = this.completedWeights.length; i < n; i++) {
+              this.completedWeights.push(0);
+            }
+          }
+        }
+      }
+    }`, plannedSets, plannedReps, plannedWeights) }
+		x-init="updateArrays(plannedSets)"
+	>
 		<td>{ workoutExercise.Exercise.Name }</td>
-		<td>{ fmt.Sprintf("%v", workoutExercise.WorkoutsExercise.SetsPlanned) }</td>
-		<td>{ plannedReps }</td>
-		<td>{ plannedWeights }</td>
-		<td>{ fmt.Sprintf("%v", workoutExercise.WorkoutsExercise.SetsCompleted) }</td>
+		<td x-show="!editingExercise">{ fmt.Sprintf("%v", workoutExercise.WorkoutsExercise.SetsPlanned) }</td>
+		<td x-show="!editingExercise">{ plannedRepsStr }</td>
+		<td x-show="!editingExercise">{ plannedWeightsStr }</td>
+		<td x-show="!editingExercise">{ fmt.Sprintf("%v", workoutExercise.WorkoutsExercise.SetsCompleted) }</td>
 		if len(workoutExercise.WorkoutsExercise.RepsPerSetCompleted) == 0 {
-			<td>N/A</td>
+			<td x-show="!editingExercise">N/A</td>
 		} else {
-			<td>repsCompleted</td>
+			<td x-show="!editingExercise">repsCompleted</td>
 		}
 		if len(workoutExercise.WorkoutsExercise.WeightsCompletedLbs) == 0 {
-			<td>N/A</td>
+			<td x-show="!editingExercise">N/A</td>
 		} else {
-			<td>weightsCompleted</td>
+			<td x-show="!editingExercise">weightsCompleted</td>
 		}
+		<td x-show="!editingExercise">
+			<button
+				class="btn btn-secondary m-1"
+				@click="editingExercise = !editingExercise"
+			>Edit</button>
+			<button
+				class="btn btn-warning"
+				@click="editingExercise = !editingExercise"
+			>Delete</button>
+		</td>
+		<td x-cloak x-show="editingExercise">
+			<input
+				class="input validator w-28 text-center"
+				type="number"
+				name="planned-sets"
+				placeholder="Number of Sets Planned"
+				min="1"
+				x-model.number="plannedSets"
+				@input="updateArrays('plannedSets', plannedSets)"
+				required
+			/>
+		</td>
+		<td x-cloak x-show="editingExercise">
+			<div class="flex flex-col gap-1 items-center">
+				<template x-for="(r, i) in plannedReps" :key="i">
+					<input
+						class="input validator w-28 text-center"
+						type="number"
+						name="planned-reps[]"
+						:placeholder="'Set ' + (i+1) + ' reps'"
+						min="1"
+						x-model="plannedReps[i]"
+						required
+					/>
+				</template>
+			</div>
+		</td>
+		<td x-cloak x-show="editingExercise">
+			<div class="flex flex-col gap-1 items-center">
+				<template x-for="(w, i) in plannedWeights" :key="i">
+					<input
+						class="input validator w-28 text-center"
+						type="number"
+						name="planned-weights[]"
+						:placeholder="'Set ' + (i+1) + ' weight'"
+						min="0"
+						x-model="plannedWeights[i]"
+						required
+					/>
+				</template>
+			</div>
+		</td>
+		<td x-cloak x-show="editingExercise">
+			<input
+				class="input validator w-28 text-center"
+				type="number"
+				name="completed-sets"
+				placeholder="Number of Sets Completed"
+				min="0"
+				x-model.number="completedSets"
+				@input="updateArrays('completedSets', completedSets)"
+				required
+			/>
+		</td>
+		<td x-cloak x-show="editingExercise">
+			<div class="flex flex-col gap-1 items-center">
+				<template x-for="(r, i) in completedReps" :key="i">
+					<input
+						class="input validator w-28 text-center"
+						type="number"
+						name="completed-reps[]"
+						:placeholder="'Set ' + (i+1) + ' reps'"
+						min="0"
+						x-model="completedReps[i]"
+						required
+					/>
+				</template>
+			</div>
+		</td>
+		<td x-cloak x-show="editingExercise">
+			<div class="flex flex-col gap-1 items-center">
+				<template x-for="(w, i) in completedWeights" :key="i">
+					<input
+						class="input validator w-28 text-center"
+						type="number"
+						name="completed-weights[]"
+						:placeholder="'Set ' + (i+1) + ' weight'"
+						min="0"
+						x-model="completedWeights[i]"
+						required
+					/>
+				</template>
+			</div>
+		</td>
+		<td
+			x-cloak
+			x-show="editingExercise"
+		>
+			<button
+				class="btn btn-secondary"
+				@click="editingExercise = !editingExercise"
+			>Submit</button>
+			<button
+				class="btn btn-warning"
+				@click="editingExercise = !editingExercise"
+			>Cancel</button>
+		</td>
 	</tr>
 }
 
