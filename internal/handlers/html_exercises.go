@@ -227,7 +227,6 @@ func (h *Handler) AddExerciseToWorkout(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) DeleteExerciseFromWorkout(w http.ResponseWriter, r *http.Request) {
-	workoutID := r.PathValue("workoutID")
 	workoutExerciseID, err := uuid.Parse(r.PathValue("workoutExerciseID"))
 	if err != nil {
 		HandleInternalServerError(w, r)
@@ -242,11 +241,5 @@ func (h *Handler) DeleteExerciseFromWorkout(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	currentURL := r.Header.Get("HX-Current-URL")
-	if strings.Contains(currentURL, "/workouts/"+workoutID+"/"+workoutExerciseID.String()) {
-		w.Header().Set("HX-Location", `{ "path": "/workouts" }`)
-		w.WriteHeader(http.StatusNoContent)
-		return
-	}
 	w.WriteHeader(http.StatusOK)
 }
