@@ -373,55 +373,60 @@ templ WorkoutExercisesTableDataRow(workoutExercise database.WorkoutAndExercisesR
 		}
 	}
 	}}
-	<tr
-		id={ fmt.Sprintf("workout-exercise-%v", workoutExercise.WorkoutsExercise.ID) }
-		x-data={ fmt.Sprintf(`{
-  editingExercise: false,
-  plannedSets: %v,
-  plannedReps: %v,
-  plannedWeights: %v,
-  completedSets: 1,
-  completedReps: [0],
-  completedWeights: [0],
-  updateArrays(array, n) {
-    n = Number(n) || 0;
-    if (n < 0) { n = 0; }
+	<script>
+    function workoutExerciseRow(plannedSets, plannedReps, plannedWeights) {
+      return {
+        editingExercise: false,
+        plannedSets: plannedSets,
+        plannedReps: plannedReps,
+        plannedWeights: plannedWeights,
+        completedSets: 1,
+        completedReps: [0],
+        completedWeights: [0],
+        updateArrays(array, n) {
+          n = Number(n) || 0;
+          if (n < 0) { n = 0; }
 
-    if (array == "plannedSets") {
-      if (this.plannedReps.length > n) {
-        this.plannedReps.splice(n);
-      } else {
-        for (let i = this.plannedReps.length; i < n; i++) {
-          this.plannedReps.push(1);
-        }
-      }
+          if (array == "plannedSets") {
+            if (this.plannedReps.length > n) {
+              this.plannedReps.splice(n);
+            } else {
+              for (let i = this.plannedReps.length; i < n; i++) {
+                this.plannedReps.push(1);
+              }
+            }
 
-      if (this.plannedWeights.length > n) {
-        this.plannedWeights.splice(n);
-      } else {
-        for (let i = this.plannedWeights.length; i < n; i++) {
-          this.plannedWeights.push(0);
-        }
-      }
-    } else {
-      if (this.completedReps.length > n) {
-        this.completedReps.splice(n);
-      } else {
-        for (let i = this.completedReps.length; i < n; i++) {
-          this.completedReps.push(0);
-        }
-      }
+            if (this.plannedWeights.length > n) {
+              this.plannedWeights.splice(n);
+            } else {
+              for (let i = this.plannedWeights.length; i < n; i++) {
+                this.plannedWeights.push(0);
+              }
+            }
+          } else {
+            if (this.completedReps.length > n) {
+              this.completedReps.splice(n);
+            } else {
+              for (let i = this.completedReps.length; i < n; i++) {
+                this.completedReps.push(0);
+              }
+            }
 
-      if (this.completedWeights.length > n) {
-        this.completedWeights.splice(n);
-      } else {
-        for (let i = this.completedWeights.length; i < n; i++) {
-          this.completedWeights.push(0);
+            if (this.completedWeights.length > n) {
+              this.completedWeights.splice(n);
+            } else {
+              for (let i = this.completedWeights.length; i < n; i++) {
+                this.completedWeights.push(0);
+              }
+            }
+          }
         }
       }
     }
-  }
-}`, plannedSets, string(plannedReps), string(plannedWeights)) }
+  </script>
+	<tr
+		id={ fmt.Sprintf("workout-exercise-%v", workoutExercise.WorkoutsExercise.ID) }
+		x-data={ fmt.Sprintf("workoutExerciseRow(%v, %v, %v)", plannedSets, string(plannedReps), string(plannedWeights)) }
 		x-init="updateArrays('plannedSets', plannedSets)"
 	>
 		<td>{ workoutExercise.Exercise.Name }</td>
@@ -550,36 +555,41 @@ templ WorkoutExercisesTableDataRow(workoutExercise database.WorkoutAndExercisesR
 }
 
 templ WorkoutExercisesTableFooter(workout database.Workout) {
-	<tfoot
-		id="add-exercise-row"
-		x-data="{ 
-      open: false, 
-      plannedSets: 1,
-      plannedReps: [1],
-      plannedWeights: [0],
-      updateArrays(n) {
-        n = Number(n) || 0;
-        if (n < 0) {
-          n = 0;
-        }
-
-        if (this.plannedReps.length > n) {
-          this.plannedReps.splice(n);
-        } else {
-          for (let i = this.plannedReps.length; i < n; i++) {
-            this.plannedReps.push(1);
+	<script>
+    function workoutExerciseFooter() {
+      return { 
+        open: false, 
+        plannedSets: 1,
+        plannedReps: [1],
+        plannedWeights: [0],
+        updateArrays(n) {
+          n = Number(n) || 0;
+          if (n < 0) {
+            n = 0;
           }
-        }
 
-        if (this.plannedWeights.length > n) {
-          this.plannedWeights.splice(n);
-        } else {
-          for (let i = this.plannedWeights.length; i < n; i++) {
-            this.plannedWeights.push(0);
+          if (this.plannedReps.length > n) {
+            this.plannedReps.splice(n);
+          } else {
+            for (let i = this.plannedReps.length; i < n; i++) {
+              this.plannedReps.push(1);
+            }
+          }
+
+          if (this.plannedWeights.length > n) {
+            this.plannedWeights.splice(n);
+          } else {
+            for (let i = this.plannedWeights.length; i < n; i++) {
+              this.plannedWeights.push(0);
+            }
           }
         }
       }
-    }"
+    }
+  </script>
+	<tfoot
+		id="add-exercise-row"
+		x-data="workoutExerciseFooter()"
 		x-init="updateArrays(plannedSets)"
 	>
 		<tr x-show="!open">

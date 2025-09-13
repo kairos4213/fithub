@@ -877,14 +877,14 @@ func WorkoutExercisesTableDataRow(workoutExercise database.WorkoutAndExercisesRo
 				weightsCompletedStr += fmt.Sprintf("%v / ", setWeights)
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "<tr id=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "<script>\n    function workoutExerciseRow(plannedSets, plannedReps, plannedWeights) {\n      return {\n        editingExercise: false,\n        plannedSets: plannedSets,\n        plannedReps: plannedReps,\n        plannedWeights: plannedWeights,\n        completedSets: 1,\n        completedReps: [0],\n        completedWeights: [0],\n        updateArrays(array, n) {\n          n = Number(n) || 0;\n          if (n < 0) { n = 0; }\n\n          if (array == \"plannedSets\") {\n            if (this.plannedReps.length > n) {\n              this.plannedReps.splice(n);\n            } else {\n              for (let i = this.plannedReps.length; i < n; i++) {\n                this.plannedReps.push(1);\n              }\n            }\n\n            if (this.plannedWeights.length > n) {\n              this.plannedWeights.splice(n);\n            } else {\n              for (let i = this.plannedWeights.length; i < n; i++) {\n                this.plannedWeights.push(0);\n              }\n            }\n          } else {\n            if (this.completedReps.length > n) {\n              this.completedReps.splice(n);\n            } else {\n              for (let i = this.completedReps.length; i < n; i++) {\n                this.completedReps.push(0);\n              }\n            }\n\n            if (this.completedWeights.length > n) {\n              this.completedWeights.splice(n);\n            } else {\n              for (let i = this.completedWeights.length; i < n; i++) {\n                this.completedWeights.push(0);\n              }\n            }\n          }\n        }\n      }\n    }\n  </script><tr id=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var42 string
 		templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("workout-exercise-%v", workoutExercise.WorkoutsExercise.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 377, Col: 78}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 428, Col: 78}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var42))
 		if templ_7745c5c3_Err != nil {
@@ -895,55 +895,9 @@ func WorkoutExercisesTableDataRow(workoutExercise database.WorkoutAndExercisesRo
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var43 string
-		templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf(`{
-  editingExercise: false,
-  plannedSets: %v,
-  plannedReps: %v,
-  plannedWeights: %v,
-  completedSets: 1,
-  completedReps: [0],
-  completedWeights: [0],
-  updateArrays(array, n) {
-    n = Number(n) || 0;
-    if (n < 0) { n = 0; }
-
-    if (array == "plannedSets") {
-      if (this.plannedReps.length > n) {
-        this.plannedReps.splice(n);
-      } else {
-        for (let i = this.plannedReps.length; i < n; i++) {
-          this.plannedReps.push(1);
-        }
-      }
-
-      if (this.plannedWeights.length > n) {
-        this.plannedWeights.splice(n);
-      } else {
-        for (let i = this.plannedWeights.length; i < n; i++) {
-          this.plannedWeights.push(0);
-        }
-      }
-    } else {
-      if (this.completedReps.length > n) {
-        this.completedReps.splice(n);
-      } else {
-        for (let i = this.completedReps.length; i < n; i++) {
-          this.completedReps.push(0);
-        }
-      }
-
-      if (this.completedWeights.length > n) {
-        this.completedWeights.splice(n);
-      } else {
-        for (let i = this.completedWeights.length; i < n; i++) {
-          this.completedWeights.push(0);
-        }
-      }
-    }
-  }
-}`, plannedSets, string(plannedReps), string(plannedWeights)))
+		templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("workoutExerciseRow(%v, %v, %v)", plannedSets, string(plannedReps), string(plannedWeights)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 424, Col: 61}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 429, Col: 114}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var43))
 		if templ_7745c5c3_Err != nil {
@@ -956,7 +910,7 @@ func WorkoutExercisesTableDataRow(workoutExercise database.WorkoutAndExercisesRo
 		var templ_7745c5c3_Var44 string
 		templ_7745c5c3_Var44, templ_7745c5c3_Err = templ.JoinStringErrs(workoutExercise.Exercise.Name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 427, Col: 37}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 432, Col: 37}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var44))
 		if templ_7745c5c3_Err != nil {
@@ -969,7 +923,7 @@ func WorkoutExercisesTableDataRow(workoutExercise database.WorkoutAndExercisesRo
 		var templ_7745c5c3_Var45 string
 		templ_7745c5c3_Var45, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%v", workoutExercise.WorkoutsExercise.SetsPlanned))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 428, Col: 97}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 433, Col: 97}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var45))
 		if templ_7745c5c3_Err != nil {
@@ -982,7 +936,7 @@ func WorkoutExercisesTableDataRow(workoutExercise database.WorkoutAndExercisesRo
 		var templ_7745c5c3_Var46 string
 		templ_7745c5c3_Var46, templ_7745c5c3_Err = templ.JoinStringErrs(plannedRepsStr)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 429, Col: 48}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 434, Col: 48}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var46))
 		if templ_7745c5c3_Err != nil {
@@ -995,7 +949,7 @@ func WorkoutExercisesTableDataRow(workoutExercise database.WorkoutAndExercisesRo
 		var templ_7745c5c3_Var47 string
 		templ_7745c5c3_Var47, templ_7745c5c3_Err = templ.JoinStringErrs(plannedWeightsStr)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 430, Col: 51}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 435, Col: 51}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var47))
 		if templ_7745c5c3_Err != nil {
@@ -1008,7 +962,7 @@ func WorkoutExercisesTableDataRow(workoutExercise database.WorkoutAndExercisesRo
 		var templ_7745c5c3_Var48 string
 		templ_7745c5c3_Var48, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%v", workoutExercise.WorkoutsExercise.SetsCompleted))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 431, Col: 99}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 436, Col: 99}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var48))
 		if templ_7745c5c3_Err != nil {
@@ -1069,14 +1023,14 @@ func WorkoutExercisesTableFooter(workout database.Workout) templ.Component {
 			templ_7745c5c3_Var49 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "<tfoot id=\"add-exercise-row\" x-data=\"{ \n      open: false, \n      plannedSets: 1,\n      plannedReps: [1],\n      plannedWeights: [0],\n      updateArrays(n) {\n        n = Number(n) || 0;\n        if (n &lt; 0) {\n          n = 0;\n        }\n\n        if (this.plannedReps.length &gt; n) {\n          this.plannedReps.splice(n);\n        } else {\n          for (let i = this.plannedReps.length; i &lt; n; i++) {\n            this.plannedReps.push(1);\n          }\n        }\n\n        if (this.plannedWeights.length &gt; n) {\n          this.plannedWeights.splice(n);\n        } else {\n          for (let i = this.plannedWeights.length; i &lt; n; i++) {\n            this.plannedWeights.push(0);\n          }\n        }\n      }\n    }\" x-init=\"updateArrays(plannedSets)\"><tr x-show=\"!open\"><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th><button class=\"btn btn-outline btn-primary btn-ghost\" @click=\"open = ! open\">Add Exercise</button></th></tr><tr x-cloak x-show=\"open\"><th><input class=\"input input-ghost text-center border-secondary\" type=\"text\" name=\"exercise-name\" placeholder=\"Exercise Name\" required></th><th><input class=\"input validator w-28 text-center\" type=\"number\" name=\"planned-sets\" placeholder=\"Number of Sets Planned\" min=\"1\" x-model.number=\"plannedSets\" @input=\"updateArrays(plannedSets)\" required></th><th><div class=\"flex flex-col gap-1 items-center\"><template x-for=\"(r, i) in plannedReps\" :key=\"i\"><input class=\"input validator w-28 text-center\" type=\"number\" name=\"planned-reps[]\" :placeholder=\"&#39;Set &#39; + (i+1) + &#39; reps&#39;\" min=\"1\" x-model=\"plannedReps[i]\" required></template></div></th><th><div class=\"flex flex-col gap-1 items-center\"><template x-for=\"(w, i) in plannedWeights\" :key=\"i\"><input class=\"input validator w-28 text-center\" type=\"number\" name=\"planned-weights[]\" :placeholder=\"&#39;Set &#39; + (i+1) + &#39; weight&#39;\" min=\"0\" x-model=\"plannedWeights[i]\" required></template></div></th><th>N/A</th><th>N/A</th><th>N/A</th><th><button hx-post=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "<script>\n    function workoutExerciseFooter() {\n      return { \n        open: false, \n        plannedSets: 1,\n        plannedReps: [1],\n        plannedWeights: [0],\n        updateArrays(n) {\n          n = Number(n) || 0;\n          if (n < 0) {\n            n = 0;\n          }\n\n          if (this.plannedReps.length > n) {\n            this.plannedReps.splice(n);\n          } else {\n            for (let i = this.plannedReps.length; i < n; i++) {\n              this.plannedReps.push(1);\n            }\n          }\n\n          if (this.plannedWeights.length > n) {\n            this.plannedWeights.splice(n);\n          } else {\n            for (let i = this.plannedWeights.length; i < n; i++) {\n              this.plannedWeights.push(0);\n            }\n          }\n        }\n      }\n    }\n  </script><tfoot id=\"add-exercise-row\" x-data=\"workoutExerciseFooter()\" x-init=\"updateArrays(plannedSets)\"><tr x-show=\"!open\"><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th><button class=\"btn btn-outline btn-primary btn-ghost\" @click=\"open = ! open\">Add Exercise</button></th></tr><tr x-cloak x-show=\"open\"><th><input class=\"input input-ghost text-center border-secondary\" type=\"text\" name=\"exercise-name\" placeholder=\"Exercise Name\" required></th><th><input class=\"input validator w-28 text-center\" type=\"number\" name=\"planned-sets\" placeholder=\"Number of Sets Planned\" min=\"1\" x-model.number=\"plannedSets\" @input=\"updateArrays(plannedSets)\" required></th><th><div class=\"flex flex-col gap-1 items-center\"><template x-for=\"(r, i) in plannedReps\" :key=\"i\"><input class=\"input validator w-28 text-center\" type=\"number\" name=\"planned-reps[]\" :placeholder=\"&#39;Set &#39; + (i+1) + &#39; reps&#39;\" min=\"1\" x-model=\"plannedReps[i]\" required></template></div></th><th><div class=\"flex flex-col gap-1 items-center\"><template x-for=\"(w, i) in plannedWeights\" :key=\"i\"><input class=\"input validator w-28 text-center\" type=\"number\" name=\"planned-weights[]\" :placeholder=\"&#39;Set &#39; + (i+1) + &#39; weight&#39;\" min=\"0\" x-model=\"plannedWeights[i]\" required></template></div></th><th>N/A</th><th>N/A</th><th>N/A</th><th><button hx-post=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var50 string
 		templ_7745c5c3_Var50, templ_7745c5c3_Err = templ.JoinStringErrs(templ.URL(fmt.Sprintf("/workouts/%v", workout.ID)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 657, Col: 65}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 667, Col: 65}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var50))
 		if templ_7745c5c3_Err != nil {
@@ -1123,7 +1077,7 @@ func ExerciseSearchResults(exercises []database.Exercise, workout uuid.UUID) tem
 			var templ_7745c5c3_Var52 string
 			templ_7745c5c3_Var52, templ_7745c5c3_Err = templ.JoinStringErrs(exercise.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 682, Col: 65}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 692, Col: 65}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var52))
 			if templ_7745c5c3_Err != nil {
@@ -1136,7 +1090,7 @@ func ExerciseSearchResults(exercises []database.Exercise, workout uuid.UUID) tem
 			var templ_7745c5c3_Var53 string
 			templ_7745c5c3_Var53, templ_7745c5c3_Err = templ.JoinStringErrs(utils.TitleString(exercise.PrimaryMuscleGroup.String))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 685, Col: 130}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 695, Col: 130}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var53))
 			if templ_7745c5c3_Err != nil {
@@ -1149,7 +1103,7 @@ func ExerciseSearchResults(exercises []database.Exercise, workout uuid.UUID) tem
 			var templ_7745c5c3_Var54 string
 			templ_7745c5c3_Var54, templ_7745c5c3_Err = templ.JoinStringErrs(utils.TitleString(exercise.SecondaryMuscleGroup.String))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 686, Col: 136}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 696, Col: 136}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var54))
 			if templ_7745c5c3_Err != nil {
@@ -1162,7 +1116,7 @@ func ExerciseSearchResults(exercises []database.Exercise, workout uuid.UUID) tem
 			var templ_7745c5c3_Var55 string
 			templ_7745c5c3_Var55, templ_7745c5c3_Err = templ.JoinStringErrs(exercise.Description.String)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 691, Col: 55}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 701, Col: 55}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var55))
 			if templ_7745c5c3_Err != nil {
@@ -1175,7 +1129,7 @@ func ExerciseSearchResults(exercises []database.Exercise, workout uuid.UUID) tem
 			var templ_7745c5c3_Var56 string
 			templ_7745c5c3_Var56, templ_7745c5c3_Err = templ.JoinStringErrs(templ.URL(fmt.Sprintf("/workouts/%v", workout)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 697, Col: 63}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 707, Col: 63}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var56))
 			if templ_7745c5c3_Err != nil {
@@ -1193,7 +1147,7 @@ func ExerciseSearchResults(exercises []database.Exercise, workout uuid.UUID) tem
               "planned-weights[]": ["%v"]
               }`, exercise.Name, 1, 1, 0))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 703, Col: 41}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/workouts.templ`, Line: 713, Col: 41}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var57))
 			if templ_7745c5c3_Err != nil {
