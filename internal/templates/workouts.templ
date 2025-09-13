@@ -429,7 +429,7 @@ templ WorkoutExercisesTableDataRow(workoutExercise database.WorkoutAndExercisesR
 		x-data={ fmt.Sprintf("workoutExerciseRow(%v, %v, %v)", plannedSets, string(plannedReps), string(plannedWeights)) }
 		x-init="updateArrays('plannedSets', plannedSets)"
 	>
-		<td>{ workoutExercise.Exercise.Name }</td>
+		<td>{ utils.TitleString(workoutExercise.Exercise.Name) }</td>
 		<td x-show="!editingExercise">{ fmt.Sprintf("%v", workoutExercise.WorkoutsExercise.SetsPlanned) }</td>
 		<td x-show="!editingExercise">{ plannedRepsStr }</td>
 		<td x-show="!editingExercise">{ plannedWeightsStr }</td>
@@ -451,6 +451,10 @@ templ WorkoutExercisesTableDataRow(workoutExercise database.WorkoutAndExercisesR
 			>Edit</button>
 			<button
 				class="btn btn-warning"
+				hx-delete={ templ.URL(fmt.Sprintf("/workouts/%v/%v", workoutExercise.WorkoutsExercise.WorkoutID, workoutExercise.WorkoutsExercise.ID)) }
+				hx-target={ fmt.Sprintf("#workout-exercise-%v", workoutExercise.WorkoutsExercise.ID) }
+				hx-swap="delete"
+				hx-target-4*="body"
 				@click="editingExercise = !editingExercise"
 			>Delete</button>
 		</td>

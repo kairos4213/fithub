@@ -86,6 +86,16 @@ func (q *Queries) AddExerciseToWorkout(ctx context.Context, arg AddExerciseToWor
 	return i, err
 }
 
+const deleteExerciseFromWorkout = `-- name: DeleteExerciseFromWorkout :exec
+DELETE FROM workouts_exercises
+WHERE id = $1
+`
+
+func (q *Queries) DeleteExerciseFromWorkout(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteExerciseFromWorkout, id)
+	return err
+}
+
 const workoutAndExercises = `-- name: WorkoutAndExercises :many
 SELECT
     we.id, we.workout_id, we.exercise_id, we.sets_planned, we.reps_per_set_planned, we.sets_completed, we.reps_per_set_completed, we.weights_planned_lbs, we.weights_completed_lbs, we.date_completed, we.updated_at, we.created_at, we.sort_order,

@@ -39,3 +39,7 @@ JOIN exercises AS e
     ON we.exercise_id = e.id
 WHERE we.workout_id = $1
 ORDER BY we.sort_order;
+
+-- name: DeleteExerciseFromWorkout :exec
+DELETE FROM workouts_exercises
+WHERE id = $1;
