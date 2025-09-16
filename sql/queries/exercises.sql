@@ -39,6 +39,10 @@ SELECT * FROM exercises;
 SELECT * FROM exercises
 WHERE name = $1;
 
+-- name: GetExerciseByID :one
+SELECT * FROM exercises
+WHERE id = $1;
+
 -- name: GetExerciseByKeyword :many
 SELECT * FROM exercises
 WHERE

@@ -313,39 +313,27 @@ templ WorkoutExercisesTable(workout database.Workout, workoutExercises []databas
 	// TODO: Add re-ordering of exercises
 	// TODO: Edit / Delete Exercises feature
 	<script>
-    function sortExercises(item, position) {
-      const rows = Array.from(document.querySelectorAll("#workout-exercises tr"));
-      rows.forEach((row, idx) => {
-        const id = row.id.replace("workout-exercise-", "");
-        const input = row.querySelector("input[name='sort-order']");
-        input.value = idx;
-      });
-
-      htmx.trigger("#sort-form", "submitForm");
-    }
   </script>
-	<form hx-put={ templ.URL(fmt.Sprintf("/workouts/%v/sort", workout.ID)) } hx-trigger="submit">
-		<table id="exercises-table" class="table table-in-rows md:table-fixed table-auto text-md text-center">
-			<thead>
-				<tr>
-					<th class="w-1/8">Exercise</th>
-					<th class="w-1/8">Planned Sets</th>
-					<th class="w-1/8">Planned Reps</th>
-					<th class="w-1/8">Planned Weights (lbs)</th>
-					<th class="w-1/8">Sets Completed</th>
-					<th class="w-1/8">Reps Completed</th>
-					<th class="w-1/8">Weights Completed (lbs)</th>
-					<th class="w-1/8"></th>
-				</tr>
-			</thead>
-			<tbody id="workout-exercises" x-data="{workoutExercisesOrder}" x-sort="sortExercises">
-				for _, workoutExercise := range workoutExercises {
-					@WorkoutExercisesTableDataRow(workoutExercise)
-				}
-			</tbody>
-			@WorkoutExercisesTableFooter(workout)
-		</table>
-	</form>
+	<table id="exercises-table" class="table table-in-rows md:table-fixed table-auto text-md text-center">
+		<thead>
+			<tr>
+				<th class="w-1/8">Exercise</th>
+				<th class="w-1/8">Planned Sets</th>
+				<th class="w-1/8">Planned Reps</th>
+				<th class="w-1/8">Planned Weights (lbs)</th>
+				<th class="w-1/8">Sets Completed</th>
+				<th class="w-1/8">Reps Completed</th>
+				<th class="w-1/8">Weights Completed (lbs)</th>
+				<th class="w-1/8"></th>
+			</tr>
+		</thead>
+		<tbody id="workout-exercises" x-data="{workoutExercisesOrder}" x-sort="sortExercises">
+			for _, workoutExercise := range workoutExercises {
+				@WorkoutExercisesTableDataRow(workoutExercise)
+			}
+		</tbody>
+		@WorkoutExercisesTableFooter(workout)
+	</table>
 }
 
 templ WorkoutExercisesTableDataRow(workoutExercise database.WorkoutAndExercisesRow) {
@@ -394,7 +382,7 @@ templ WorkoutExercisesTableDataRow(workoutExercise database.WorkoutAndExercisesR
         plannedSets: plannedSets,
         plannedReps: plannedReps,
         plannedWeights: plannedWeights,
-        completedSets: 1,
+        completedSets: 0,
         completedReps: [0],
         completedWeights: [0],
         updateArrays(array, n) {
@@ -444,11 +432,6 @@ templ WorkoutExercisesTableDataRow(workoutExercise database.WorkoutAndExercisesR
 		x-data={ fmt.Sprintf("workoutExerciseRow(%v, %v, %v)", plannedSets, string(plannedReps), string(plannedWeights)) }
 		x-init="updateArrays('plannedSets', plannedSets)"
 	>
-		<input
-			type="hidden"
-			name={ fmt.Sprintf("sort-order[%v]", workoutExercise.WorkoutsExercise.ID) }
-			value={ fmt.Sprintf("%v", workoutExercise.WorkoutsExercise.ID) }
-		/>
 		<td x-show="!editingExercise">{ utils.TitleString(workoutExercise.Exercise.Name) }</td>
 		<td x-show="!editingExercise">{ fmt.Sprintf("%v", workoutExercise.WorkoutsExercise.SetsPlanned) }</td>
 		<td x-show="!editingExercise">{ plannedRepsStr }</td>
@@ -457,12 +440,12 @@ templ WorkoutExercisesTableDataRow(workoutExercise database.WorkoutAndExercisesR
 		if len(workoutExercise.WorkoutsExercise.RepsPerSetCompleted) == 0 {
 			<td x-show="!editingExercise">N/A</td>
 		} else {
-			<td x-show="!editingExercise">repsCompleted</td>
+			<td x-show="!editingExercise">{ repsCompletedStr }</td>
 		}
 		if len(workoutExercise.WorkoutsExercise.WeightsCompletedLbs) == 0 {
 			<td x-show="!editingExercise">N/A</td>
 		} else {
-			<td x-show="!editingExercise">weightsCompleted</td>
+			<td x-show="!editingExercise">{ weightsCompletedStr }</td>
 		}
 		<td x-show="!editingExercise">
 			<button
@@ -475,11 +458,12 @@ templ WorkoutExercisesTableDataRow(workoutExercise database.WorkoutAndExercisesR
 				hx-target={ fmt.Sprintf("#workout-exercise-%v", workoutExercise.WorkoutsExercise.ID) }
 				hx-swap="delete"
 				hx-target-4*="body"
+				hx-target-5*="body"
 				@click="editingExercise = !editingExercise"
 			>Delete</button>
 		</td>
 		<td x-cloak x-show="editingExercise">
-			<input value={ workoutExercise.Exercise.Name } name="exercise-name" disabled class="hidden"/>{ utils.TitleString(workoutExercise.Exercise.Name) }
+			<input value={ fmt.Sprintf("%v", workoutExercise.Exercise.ID) } name="exercise" class="hidden"/>{ utils.TitleString(workoutExercise.Exercise.Name) }
 		</td>
 		<td x-cloak x-show="editingExercise">
 			<input
@@ -570,6 +554,12 @@ templ WorkoutExercisesTableDataRow(workoutExercise database.WorkoutAndExercisesR
 			x-show="editingExercise"
 		>
 			<button
+				hx-put={ templ.URL(fmt.Sprintf("/workouts/%v/%v", workoutExercise.WorkoutsExercise.WorkoutID, workoutExercise.WorkoutsExercise.ID)) }
+				hx-include={ fmt.Sprintf("#workout-exercise-%v", workoutExercise.WorkoutsExercise.ID) }
+				hx-target={ fmt.Sprintf("#workout-exercise-%v", workoutExercise.WorkoutsExercise.ID) }
+				hx-swap="outerHTML"
+				hx-target-4*="body"
+				hx-target-5*="body"
 				class="btn btn-secondary"
 				@click="editingExercise = !editingExercise"
 			>Submit</button>
@@ -693,7 +683,7 @@ templ WorkoutExercisesTableFooter(workout database.Workout) {
 				<button
 					hx-post={ templ.URL(fmt.Sprintf("/workouts/%v", workout.ID)) }
 					hx-include="#add-exercise-row"
-					hx-target="workout-exercises"
+					hx-target="#workout-exercises"
 					hx-swap="beforeend"
 					class="btn btn-outline btn-primary btn-ghost"
 					@click="open = ! open"

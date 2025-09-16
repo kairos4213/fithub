@@ -104,6 +104,26 @@ func (q *Queries) GetAllExercises(ctx context.Context) ([]Exercise, error) {
 	return items, nil
 }
 
+const getExerciseByID = `-- name: GetExerciseByID :one
+SELECT id, name, description, primary_muscle_group, secondary_muscle_group, created_at, updated_at FROM exercises
+WHERE id = $1
+`
+
+func (q *Queries) GetExerciseByID(ctx context.Context, id uuid.UUID) (Exercise, error) {
+	row := q.db.QueryRowContext(ctx, getExerciseByID, id)
+	var i Exercise
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Description,
+		&i.PrimaryMuscleGroup,
+		&i.SecondaryMuscleGroup,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const getExerciseByKeyword = `-- name: GetExerciseByKeyword :many
 SELECT id, name, description, primary_muscle_group, secondary_muscle_group, created_at, updated_at FROM exercises
 WHERE

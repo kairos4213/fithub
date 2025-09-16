@@ -239,11 +239,17 @@ func (h *Handler) UpdateWorkoutExercise(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	exerciseName := r.FormValue("exercise-name")
-	exercise, err := h.DB.GetExerciseByName(r.Context(), exerciseName)
+	exerciseID, err := uuid.Parse(r.FormValue("exercise"))
 	if err != nil {
 		HandleInternalServerError(w, r)
-		log.Printf("Server err: %v", err)
+		log.Printf("Server Error with parsing exercise id: %v", err)
+		return
+	}
+
+	exercise, err := h.DB.GetExerciseByID(r.Context(), exerciseID)
+	if err != nil {
+		HandleInternalServerError(w, r)
+		log.Printf("Server err with fetching exercise by id: %v", err)
 		return
 	}
 
