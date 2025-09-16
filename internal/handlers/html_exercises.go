@@ -191,7 +191,6 @@ func (h *Handler) AddExerciseToWorkout(w http.ResponseWriter, r *http.Request) {
 
 	plannedWeightsSlice := r.PostForm["planned-weights[]"]
 	plannedWeights := make([]int32, len(plannedWeightsSlice))
-	log.Printf("%v", plannedWeightsSlice)
 	for i, plannedWeight := range plannedWeightsSlice {
 		weight, err := strconv.ParseInt(plannedWeight, 10, 32)
 		if err != nil {
@@ -224,6 +223,150 @@ func (h *Handler) AddExerciseToWorkout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	templates.WorkoutExercisesTableDataRow(exerciseForWorkout).Render(r.Context(), w)
+}
+
+func (h *Handler) UpdateWorkoutExercise(w http.ResponseWriter, r *http.Request) {
+	workoutID, err := uuid.Parse(r.PathValue("workoutID"))
+	if err != nil {
+		HandleInternalServerError(w, r)
+		log.Printf("Server Error: %v", err)
+		return
+	}
+	workoutExerciseID, err := uuid.Parse(r.PathValue("workoutExerciseID"))
+	if err != nil {
+		HandleInternalServerError(w, r)
+		log.Printf("Server Error: %v", err)
+		return
+	}
+
+	exerciseName := r.FormValue("exercise-name")
+	exercise, err := h.DB.GetExerciseByName(r.Context(), exerciseName)
+	if err != nil {
+		HandleInternalServerError(w, r)
+		log.Printf("Server err: %v", err)
+		return
+	}
+
+	plannedSets, err := strconv.ParseInt(r.FormValue("planned-sets"), 10, 32)
+	if err != nil {
+		HandleInternalServerError(w, r)
+		log.Printf("Server err: %v", err)
+		return
+	}
+
+	plannedRepsSlice := r.PostForm["planned-reps[]"]
+	plannedReps := make([]int32, len(plannedRepsSlice))
+	for i, plannedRep := range plannedRepsSlice {
+		rep, err := strconv.ParseInt(plannedRep, 10, 32)
+		if err != nil {
+			HandleInternalServerError(w, r)
+			log.Printf("Server err: %v", err)
+			return
+		}
+		plannedReps[i] = int32(rep)
+	}
+
+	plannedWeightsSlice := r.PostForm["planned-weights[]"]
+	plannedWeights := make([]int32, len(plannedWeightsSlice))
+	for i, plannedWeight := range plannedWeightsSlice {
+		weight, err := strconv.ParseInt(plannedWeight, 10, 32)
+		if err != nil {
+			HandleInternalServerError(w, r)
+			log.Printf("Server err: %v", err)
+			return
+		}
+		plannedWeights[i] = int32(weight)
+	}
+
+	completedSets, err := strconv.ParseInt(r.FormValue("completed-sets"), 10, 32)
+	if err != nil {
+		HandleInternalServerError(w, r)
+		log.Printf("Server err: %v", err)
+		return
+	}
+
+	completedRepsSlice := r.PostForm["completed-reps[]"]
+	completedReps := make([]int32, len(completedRepsSlice))
+	for i, completedRep := range completedRepsSlice {
+		rep, err := strconv.ParseInt(completedRep, 10, 32)
+		if err != nil {
+			HandleInternalServerError(w, r)
+			log.Printf("Server err: %v", err)
+			return
+		}
+		completedReps[i] = int32(rep)
+	}
+
+	completedWeightsSlice := r.PostForm["completed-weights[]"]
+	completedWeights := make([]int32, len(completedWeightsSlice))
+	for i, completedWeight := range completedRepsSlice {
+		weight, err := strconv.ParseInt(completedWeight, 10, 32)
+		if err != nil {
+			HandleInternalServerError(w, r)
+			log.Printf("Server err: %v", err)
+			return
+		}
+		completedWeights[i] = int32(weight)
+	}
+
+	updatedWorkoutExercise, err := h.DB.UpdateWorkoutExercise(r.Context(), database.UpdateWorkoutExerciseParams{
+		SetsPlanned:         int32(plannedSets),
+		RepsPerSetPlanned:   plannedReps,
+		SetsCompleted:       int32(completedSets),
+		RepsPerSetCompleted: completedReps,
+		WeightsPlannedLbs:   plannedWeights,
+		WeightsCompletedLbs: completedWeights,
+		ID:                  workoutExerciseID,
+		WorkoutID:           workoutID,
+	})
+	if err != nil {
+		HandleInternalServerError(w, r)
+		log.Printf("Server err: %v", err)
+		return
+	}
+
+	exerciseForWorkout := database.WorkoutAndExercisesRow{
+		WorkoutsExercise: updatedWorkoutExercise,
+		Exercise:         exercise,
+	}
+
+	templates.WorkoutExercisesTableDataRow(exerciseForWorkout).Render(r.Context(), w)
+}
+
+func (h *Handler) UpdateWorkoutExercisesSortOrder(w http.ResponseWriter, r *http.Request) {
+	workoutID, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		HandleInternalServerError(w, r)
+		log.Printf("Server Error: %v", err)
+		return
+	}
+
+	id, err := uuid.Parse(r.FormValue("id"))
+	if err != nil {
+		HandleInternalServerError(w, r)
+		log.Printf("Server Error: %v", err)
+		return
+	}
+
+	sortOrder, err := strconv.ParseInt(r.FormValue("sort-order"), 10, 32)
+	if err != nil {
+		HandleInternalServerError(w, r)
+		log.Printf("Server Error: %v", err)
+		return
+	}
+
+	err = h.DB.UpdateWorkoutExercisesSortOrder(r.Context(), database.UpdateWorkoutExercisesSortOrderParams{
+		SortOrder: int32(sortOrder),
+		ID:        id,
+		WorkoutID: workoutID,
+	})
+	if err != nil {
+		HandleInternalServerError(w, r)
+		log.Printf("Server Error: %v", err)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (h *Handler) DeleteExerciseFromWorkout(w http.ResponseWriter, r *http.Request) {

@@ -40,6 +40,26 @@ JOIN exercises AS e
 WHERE we.workout_id = $1
 ORDER BY we.sort_order;
 
+-- name: UpdateWorkoutExercise :one
+UPDATE workouts_exercises
+SET
+    updated_at = now(),
+    sets_planned = $1,
+    reps_per_set_planned = $2,
+    sets_completed = $3,
+    reps_per_set_completed = $4,
+    weights_planned_lbs = $5,
+    weights_completed_lbs = $6
+WHERE id = $7 AND workout_id = $8
+RETURNING *;
+
+-- name: UpdateWorkoutExercisesSortOrder :exec
+UPDATE workouts_exercises
+SET
+    updated_at = now(),
+    sort_order = $1
+WHERE id = $2 AND workout_id = $3;
+
 -- name: DeleteExerciseFromWorkout :exec
 DELETE FROM workouts_exercises
 WHERE id = $1;

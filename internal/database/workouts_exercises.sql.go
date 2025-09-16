@@ -96,6 +96,80 @@ func (q *Queries) DeleteExerciseFromWorkout(ctx context.Context, id uuid.UUID) e
 	return err
 }
 
+const updateWorkoutExercise = `-- name: UpdateWorkoutExercise :one
+UPDATE workouts_exercises
+SET
+    updated_at = now(),
+    sets_planned = $1,
+    reps_per_set_planned = $2,
+    sets_completed = $3,
+    reps_per_set_completed = $4,
+    weights_planned_lbs = $5,
+    weights_completed_lbs = $6
+WHERE id = $7 AND workout_id = $8
+RETURNING id, workout_id, exercise_id, sets_planned, reps_per_set_planned, sets_completed, reps_per_set_completed, weights_planned_lbs, weights_completed_lbs, date_completed, updated_at, created_at, sort_order
+`
+
+type UpdateWorkoutExerciseParams struct {
+	SetsPlanned         int32
+	RepsPerSetPlanned   []int32
+	SetsCompleted       int32
+	RepsPerSetCompleted []int32
+	WeightsPlannedLbs   []int32
+	WeightsCompletedLbs []int32
+	ID                  uuid.UUID
+	WorkoutID           uuid.UUID
+}
+
+func (q *Queries) UpdateWorkoutExercise(ctx context.Context, arg UpdateWorkoutExerciseParams) (WorkoutsExercise, error) {
+	row := q.db.QueryRowContext(ctx, updateWorkoutExercise,
+		arg.SetsPlanned,
+		pq.Array(arg.RepsPerSetPlanned),
+		arg.SetsCompleted,
+		pq.Array(arg.RepsPerSetCompleted),
+		pq.Array(arg.WeightsPlannedLbs),
+		pq.Array(arg.WeightsCompletedLbs),
+		arg.ID,
+		arg.WorkoutID,
+	)
+	var i WorkoutsExercise
+	err := row.Scan(
+		&i.ID,
+		&i.WorkoutID,
+		&i.ExerciseID,
+		&i.SetsPlanned,
+		pq.Array(&i.RepsPerSetPlanned),
+		&i.SetsCompleted,
+		pq.Array(&i.RepsPerSetCompleted),
+		pq.Array(&i.WeightsPlannedLbs),
+		pq.Array(&i.WeightsCompletedLbs),
+		&i.DateCompleted,
+		&i.UpdatedAt,
+		&i.CreatedAt,
+		&i.SortOrder,
+	)
+	return i, err
+}
+
+const updateWorkoutExercisesSortOrder = `-- name: UpdateWorkoutExercisesSortOrder :exec
+UPDATE workouts_exercises
+SET
+    updated_at = now(),
+    sort_order = $1
+WHERE id = $2 AND workout_id = $3
+`
+
+type UpdateWorkoutExercisesSortOrderParams struct {
+	SortOrder int32
+	ID        uuid.UUID
+	WorkoutID uuid.UUID
+}
+
+func (q *Queries) UpdateWorkoutExercisesSortOrder(ctx context.Context, arg UpdateWorkoutExercisesSortOrderParams) error {
+	_, err := q.db.ExecContext(ctx, updateWorkoutExercisesSortOrder, arg.SortOrder, arg.ID, arg.WorkoutID)
+	return err
+}
+
 const workoutAndExercises = `-- name: WorkoutAndExercises :many
 SELECT
     we.id, we.workout_id, we.exercise_id, we.sets_planned, we.reps_per_set_planned, we.sets_completed, we.reps_per_set_completed, we.weights_planned_lbs, we.weights_completed_lbs, we.date_completed, we.updated_at, we.created_at, we.sort_order,
