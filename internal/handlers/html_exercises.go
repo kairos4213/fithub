@@ -347,29 +347,30 @@ func (h *Handler) UpdateWorkoutExercisesSortOrder(w http.ResponseWriter, r *http
 		return
 	}
 
-	id, err := uuid.Parse(r.FormValue("id"))
-	if err != nil {
+	if err := r.ParseForm(); err != nil {
 		HandleInternalServerError(w, r)
 		log.Printf("Server Error: %v", err)
 		return
 	}
+	sortOrder := r.PostForm["sort-order[]"]
+	for index, workoutExerciseID := range sortOrder {
+		id, err := uuid.Parse(workoutExerciseID)
+		if err != nil {
+			HandleInternalServerError(w, r)
+			log.Printf("Server err: %v", err)
+			return
+		}
 
-	sortOrder, err := strconv.ParseInt(r.FormValue("sort-order"), 10, 32)
-	if err != nil {
-		HandleInternalServerError(w, r)
-		log.Printf("Server Error: %v", err)
-		return
-	}
-
-	err = h.DB.UpdateWorkoutExercisesSortOrder(r.Context(), database.UpdateWorkoutExercisesSortOrderParams{
-		SortOrder: int32(sortOrder),
-		ID:        id,
-		WorkoutID: workoutID,
-	})
-	if err != nil {
-		HandleInternalServerError(w, r)
-		log.Printf("Server Error: %v", err)
-		return
+		err = h.DB.UpdateWorkoutExercisesSortOrder(r.Context(), database.UpdateWorkoutExercisesSortOrderParams{
+			SortOrder: int32(index),
+			ID:        id,
+			WorkoutID: workoutID,
+		})
+		if err != nil {
+			HandleInternalServerError(w, r)
+			log.Printf("Server Error: %v", err)
+			return
+		}
 	}
 
 	w.WriteHeader(http.StatusNoContent)

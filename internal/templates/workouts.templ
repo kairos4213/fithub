@@ -310,9 +310,27 @@ templ EditWorkoutInfoForm(workout database.Workout) {
 }
 
 templ WorkoutExercisesTable(workout database.Workout, workoutExercises []database.WorkoutAndExercisesRow) {
-	// TODO: Add re-ordering of exercises
-	// TODO: Edit / Delete Exercises feature
 	<script>
+    function sortExercises() {
+      htmx.onLoad(function(content) {
+        var sortables = content.querySelectorAll("#workout-exercises");
+        for (var i = 0; i < sortables.length; i++) {
+            var sortable = sortables[i]
+            var sortableInstance = new Sortable(sortable, {
+                animation: 150,
+                ghostClass: 'blue-background-class',
+
+                onEnd: function (evnt) {
+                    this.option("disabled", true);
+                }
+            })
+
+            sortable.addEventListener("htmx:afterSwap", function() {
+                sortableInstance.option("disabled", false);
+            });
+        }
+      })
+    }
   </script>
 	<table id="exercises-table" class="table table-in-rows md:table-fixed table-auto text-md text-center">
 		<thead>
@@ -327,7 +345,15 @@ templ WorkoutExercisesTable(workout database.Workout, workoutExercises []databas
 				<th class="w-1/8"></th>
 			</tr>
 		</thead>
-		<tbody id="workout-exercises" x-data="{workoutExercisesOrder}" x-sort="sortExercises">
+		<tbody
+			id="workout-exercises"
+			hx-put={ fmt.Sprintf("/workouts/%v/sort", workout.ID) }
+			hx-trigger="end"
+			hx-include=".exercise-order"
+			hx-target-4*="body"
+			hx-target-5*="body"
+			x-sort="sortExercises"
+		>
 			for _, workoutExercise := range workoutExercises {
 				@WorkoutExercisesTableDataRow(workoutExercise)
 			}
@@ -432,6 +458,7 @@ templ WorkoutExercisesTableDataRow(workoutExercise database.WorkoutAndExercisesR
 		x-data={ fmt.Sprintf("workoutExerciseRow(%v, %v, %v)", plannedSets, string(plannedReps), string(plannedWeights)) }
 		x-init="updateArrays('plannedSets', plannedSets)"
 	>
+		<td class="hidden"><input class="exercise-order" name="sort-order[]" value={ fmt.Sprintf("%v", workoutExercise.WorkoutsExercise.ID) }/></td>
 		<td x-show="!editingExercise">{ utils.TitleString(workoutExercise.Exercise.Name) }</td>
 		<td x-show="!editingExercise">{ fmt.Sprintf("%v", workoutExercise.WorkoutsExercise.SetsPlanned) }</td>
 		<td x-show="!editingExercise">{ plannedRepsStr }</td>
