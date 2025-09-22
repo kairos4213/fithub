@@ -229,7 +229,6 @@ templ WorkoutPage(workout database.Workout, workoutExercises []database.WorkoutA
 			@ExerciseSearchResults(exercises, workout.ID)
 		</div>
 	</section>
-	<script src="/static/js/workoutExercises.js"></script>
 }
 
 templ WorkoutInfo(workout database.Workout) {
@@ -331,7 +330,7 @@ templ WorkoutExercisesTable(workout database.Workout, workoutExercises []databas
 			hx-include=".exercise-order"
 			hx-target-4*="body"
 			hx-target-5*="body"
-			x-sort="sortExercises"
+			x-sort="sortExercises()"
 		>
 			for _, workoutExercise := range workoutExercises {
 				@WorkoutExercisesTableDataRow(workoutExercise)
