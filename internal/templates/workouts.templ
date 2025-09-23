@@ -10,13 +10,16 @@ import (
 )
 
 templ Workouts(workouts []database.Workout) {
-	<div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100 mx-2">
-		@WorkoutsTable(workouts)
-	</div>
+	<section>
+		<h2 class="text-3xl p-8">Upcoming Workouts</h2>
+		<div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100 mx-2">
+			@WorkoutsTable(workouts)
+		</div>
+	</section>
 }
 
 templ WorkoutsTable(workouts []database.Workout) {
-	<table id="workouts-table" class="table table-in-rows md:table-fixed table-auto text-md text-center">
+	<table id="workouts-table" class="table table-in-rows md:table-fixed table-auto text-md text-center pt-2">
 		<thead>
 			<tr>
 				<th class="w-1/6">Title</th>
@@ -313,14 +316,15 @@ templ WorkoutExercisesTable(workout database.Workout, workoutExercises []databas
 	<table id="exercises-table" class="table table-in-rows md:table-fixed table-auto text-md text-center">
 		<thead>
 			<tr>
-				<th class="w-1/8">Exercise</th>
-				<th class="w-1/8">Planned Sets</th>
-				<th class="w-1/8">Planned Reps</th>
-				<th class="w-1/8">Planned Weights (lbs)</th>
-				<th class="w-1/8">Sets Completed</th>
-				<th class="w-1/8">Reps Completed</th>
-				<th class="w-1/8">Weights Completed (lbs)</th>
-				<th class="w-1/8"></th>
+				<th class="w-1/12"></th>
+				<th class="w-1/12">Exercise</th>
+				<th class="w-1/12">Planned Sets</th>
+				<th class="w-1/12">Planned Reps</th>
+				<th class="w-1/12">Planned Weights (lbs)</th>
+				<th class="w-1/12">Sets Completed</th>
+				<th class="w-1/12">Reps Completed</th>
+				<th class="w-1/12">Weights Completed (lbs)</th>
+				<th class="w-3/12"></th>
 			</tr>
 		</thead>
 		<tbody
@@ -379,13 +383,31 @@ templ WorkoutExercisesTableDataRow(workoutExercise database.WorkoutAndExercisesR
 		}
 	}
 	}}
+	// TODO: fix sets, reps, weights completed to plugin values on edit
 	<tr
 		id={ fmt.Sprintf("workout-exercise-%v", workoutExercise.WorkoutsExercise.ID) }
 		x-sort:item={ fmt.Sprintf("%v", workoutExercise.WorkoutsExercise.SortOrder) }
 		x-data={ fmt.Sprintf("workoutExerciseRow(%v, %v, %v)", plannedSets, string(plannedReps), string(plannedWeights)) }
 		x-init="updateArrays('plannedSets', plannedSets)"
 	>
-		<td class="hidden"><input class="exercise-order" name="sort-order[]" value={ fmt.Sprintf("%v", workoutExercise.WorkoutsExercise.ID) }/></td>
+		<td x-sort:handle class="hover:cursor-grab active:cursor-grabbing">
+			<div class="flex justify-end items-center h-full">
+				<input class="exercise-order hidden" name="sort-order[]" value={ fmt.Sprintf("%v", workoutExercise.WorkoutsExercise.ID) }/>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					class="h-5 w-5"
+					viewBox="0 0 24 24"
+					fill="currentColor"
+				>
+					<circle cx="9" cy="6" r="1.5"></circle>
+					<circle cx="9" cy="12" r="1.5"></circle>
+					<circle cx="9" cy="18" r="1.5"></circle>
+					<circle cx="15" cy="6" r="1.5"></circle>
+					<circle cx="15" cy="12" r="1.5"></circle>
+					<circle cx="15" cy="18" r="1.5"></circle>
+				</svg>
+			</div>
+		</td>
 		<td x-show="!editingExercise">{ utils.TitleString(workoutExercise.Exercise.Name) }</td>
 		<td x-show="!editingExercise">{ fmt.Sprintf("%v", workoutExercise.WorkoutsExercise.SetsPlanned) }</td>
 		<td x-show="!editingExercise">{ plannedRepsStr }</td>
@@ -532,22 +554,24 @@ templ WorkoutExercisesTableFooter(workout database.Workout) {
 		x-init="updateArrays(plannedSets)"
 	>
 		<tr x-show="!open">
-			<th></th>
-			<th></th>
-			<th></th>
-			<th></th>
-			<th></th>
-			<th></th>
-			<th></th>
-			<th>
+			<td></td>
+			<td></td>
+			<td></td>
+			<td></td>
+			<td></td>
+			<td></td>
+			<td></td>
+			<td></td>
+			<td>
 				<button
 					class="btn btn-outline btn-primary btn-ghost"
 					@click="open = ! open"
 				>Add Exercise</button>
-			</th>
+			</td>
 		</tr>
 		<tr x-cloak x-show="open">
-			<th>
+			<td></td>
+			<td>
 				<input
 					class="input input-ghost text-center border-secondary"
 					type="text"
@@ -555,8 +579,8 @@ templ WorkoutExercisesTableFooter(workout database.Workout) {
 					placeholder="Exercise Name"
 					required
 				/>
-			</th>
-			<th>
+			</td>
+			<td>
 				<input
 					class="input validator w-28 text-center"
 					type="number"
@@ -567,8 +591,8 @@ templ WorkoutExercisesTableFooter(workout database.Workout) {
 					@input="updateArrays(plannedSets)"
 					required
 				/>
-			</th>
-			<th>
+			</td>
+			<td>
 				<div class="flex flex-col gap-1 items-center">
 					<template x-for="(r, i) in plannedReps" :key="i">
 						<input
@@ -582,8 +606,8 @@ templ WorkoutExercisesTableFooter(workout database.Workout) {
 						/>
 					</template>
 				</div>
-			</th>
-			<th>
+			</td>
+			<td>
 				<div class="flex flex-col gap-1 items-center">
 					<template x-for="(w, i) in plannedWeights" :key="i">
 						<input
@@ -597,11 +621,11 @@ templ WorkoutExercisesTableFooter(workout database.Workout) {
 						/>
 					</template>
 				</div>
-			</th>
-			<th>N/A</th>
-			<th>N/A</th>
-			<th>N/A</th>
-			<th>
+			</td>
+			<td>N/A</td>
+			<td>N/A</td>
+			<td>N/A</td>
+			<td>
 				<button
 					hx-post={ templ.URL(fmt.Sprintf("/workouts/%v", workout.ID)) }
 					hx-include="#add-exercise-row"
@@ -619,7 +643,7 @@ templ WorkoutExercisesTableFooter(workout database.Workout) {
           plannedWeights = [0];
           updateArrays(plannedSets)"
 				>Cancel</button>
-			</th>
+			</td>
 		</tr>
 	</tfoot>
 }

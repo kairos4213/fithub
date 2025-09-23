@@ -7,7 +7,7 @@ function sortExercises() {
         animation: 150,
         ghostClass: "blue-background-class",
 
-        onEnd: function (evnt) {
+        onEnd: function () {
           this.option("disabled", true);
         },
       });
