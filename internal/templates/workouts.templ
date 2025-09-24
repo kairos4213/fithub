@@ -349,6 +349,9 @@ templ WorkoutExercisesTableDataRow(workoutExercise database.WorkoutAndExercisesR
 	plannedSets := workoutExercise.WorkoutsExercise.SetsPlanned
 	plannedReps, _ := json.Marshal(workoutExercise.WorkoutsExercise.RepsPerSetPlanned)
 	plannedWeights, _ := json.Marshal(workoutExercise.WorkoutsExercise.WeightsPlannedLbs)
+	completedSets := workoutExercise.WorkoutsExercise.SetsCompleted
+	completedReps, _ := json.Marshal(workoutExercise.WorkoutsExercise.RepsPerSetCompleted)
+	completedWeights, _ := json.Marshal(workoutExercise.WorkoutsExercise.WeightsCompletedLbs)
 
 	plannedRepsStr := ""
 	for index, setReps := range workoutExercise.WorkoutsExercise.RepsPerSetPlanned {
@@ -387,7 +390,14 @@ templ WorkoutExercisesTableDataRow(workoutExercise database.WorkoutAndExercisesR
 	<tr
 		id={ fmt.Sprintf("workout-exercise-%v", workoutExercise.WorkoutsExercise.ID) }
 		x-sort:item={ fmt.Sprintf("%v", workoutExercise.WorkoutsExercise.SortOrder) }
-		x-data={ fmt.Sprintf("workoutExerciseRow(%v, %v, %v)", plannedSets, string(plannedReps), string(plannedWeights)) }
+		x-data={ fmt.Sprintf("workoutExerciseRow(%v, %v, %v, %v, %v, %v)",
+				plannedSets,
+				string(plannedReps),
+				string(plannedWeights),
+        completedSets,
+        string(completedReps),
+        string(completedWeights),
+      ) }
 		x-init="updateArrays('plannedSets', plannedSets)"
 	>
 		<td x-sort:handle class="hover:cursor-grab active:cursor-grabbing">
@@ -414,12 +424,12 @@ templ WorkoutExercisesTableDataRow(workoutExercise database.WorkoutAndExercisesR
 		<td x-show="!editingExercise">{ plannedWeightsStr }</td>
 		<td x-show="!editingExercise">{ fmt.Sprintf("%v", workoutExercise.WorkoutsExercise.SetsCompleted) }</td>
 		if len(workoutExercise.WorkoutsExercise.RepsPerSetCompleted) == 0 {
-			<td x-show="!editingExercise">N/A</td>
+			<td x-show="!editingExercise">0</td>
 		} else {
 			<td x-show="!editingExercise">{ repsCompletedStr }</td>
 		}
 		if len(workoutExercise.WorkoutsExercise.WeightsCompletedLbs) == 0 {
-			<td x-show="!editingExercise">N/A</td>
+			<td x-show="!editingExercise">0</td>
 		} else {
 			<td x-show="!editingExercise">{ weightsCompletedStr }</td>
 		}

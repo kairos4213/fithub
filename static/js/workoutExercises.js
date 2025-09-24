@@ -19,15 +19,22 @@ function sortExercises() {
   });
 }
 
-function workoutExerciseRow(plannedSets, plannedReps, plannedWeights) {
+function workoutExerciseRow(
+  plannedSets = 1,
+  plannedReps = [1],
+  plannedWeights = [0],
+  completedSets = 0,
+  completedReps = [0],
+  completedWeights = [0],
+) {
   return {
     editingExercise: false,
     plannedSets: plannedSets,
     plannedReps: plannedReps,
     plannedWeights: plannedWeights,
-    completedSets: 0,
-    completedReps: [0],
-    completedWeights: [0],
+    completedSets: completedSets,
+    completedReps: completedReps,
+    completedWeights: completedWeights,
     updateArrays(array, n) {
       n = Number(n) || 0;
       if (n < 0) {

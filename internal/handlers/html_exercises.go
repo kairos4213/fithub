@@ -305,7 +305,7 @@ func (h *Handler) UpdateWorkoutExercise(w http.ResponseWriter, r *http.Request) 
 
 	completedWeightsSlice := r.PostForm["completed-weights[]"]
 	completedWeights := make([]int32, len(completedWeightsSlice))
-	for i, completedWeight := range completedRepsSlice {
+	for i, completedWeight := range completedWeightsSlice {
 		weight, err := strconv.ParseInt(completedWeight, 10, 32)
 		if err != nil {
 			HandleInternalServerError(w, r)
