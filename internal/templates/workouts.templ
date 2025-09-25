@@ -263,52 +263,66 @@ templ WorkoutInfo(workout database.Workout) {
 templ EditWorkoutInfoForm(workout database.Workout) {
 	// TODO: Add feature for marking complete
 	<form x-cloak x-show="editingWorkout">
-		<input
-			class="input input-ghost text-center border-secondary"
-			type="text"
-			name="title"
-			value={ fmt.Sprintf("%v", workout.Title) }
-			required
-		/>
-		<textarea
-			class="textarea textarea-md text-center border-secondary"
-			name="workout-description"
-			placeholder="Enter a description"
-		>{ workout.Description.String }</textarea>
-		<input
-			class="input validator"
-			type="number"
-			name="duration"
-			placeholder="Planned Duration in Minutes"
-			min="0"
-			value={ workout.DurationMinutes }
-			required
-		/>
-		<input
-			class="input"
-			type="date"
-			name="planned-date"
-			value={ workout.PlannedDate.Format("2006-01-02") }
-		/>
-		if workout.DateCompleted.Valid {
+		<fieldset class="fieldset bg-base-100 border-base-300 rounded-box w-auto border p-4">
+			<legend class="fieldset-legend">Edit Workout Details</legend>
+			<label class="label">Workout Title</label>
+			<input
+				class="input input-ghost text-center border-secondary"
+				type="text"
+				name="title"
+				placeholder="Enter a workout title"
+				value={ fmt.Sprintf("%v", workout.Title) }
+				required
+			/>
+			<label class="label">Workout Description</label>
+			<textarea
+				class="textarea textarea-md text-center border-secondary"
+				name="workout-description"
+				placeholder="Enter a description"
+			>{ workout.Description.String }</textarea>
+			<label class="label">Workout Duration</label>
+			<input
+				class="input validator"
+				type="number"
+				name="duration"
+				placeholder="Planned Duration in Minutes"
+				min="0"
+				value={ workout.DurationMinutes }
+				required
+			/>
+			<label class="label">Planned Date</label>
 			<input
 				class="input"
 				type="date"
-				name="date-completed"
-				value={ workout.DateCompleted.Time.Format("Mon, Jan 02 2006") }
+				name="planned-date"
+				value={ workout.PlannedDate.Format("2006-01-02") }
 			/>
-		}
-		<button
-			type="submit"
-			hx-put={ templ.URL(fmt.Sprintf("/workouts/%v", workout.ID)) }
-			hx-target="#workout-info"
-			class="btn btn-primary"
-			@click="editingWorkout = !editingWorkout"
-		>Submit</button>
-		<button
-			class="btn btn-warning"
-			@click="editingWorkout = !editingWorkout"
-		>Cancel</button>
+			if workout.DateCompleted.Valid {
+				<label class="label">Date Completed</label>
+				<input
+					class="input"
+					type="date"
+					name="date-completed"
+					value={ workout.DateCompleted.Time.Format("Mon, Jan 02 2006") }
+				/>
+			} else {
+				<label class="label">
+					Complete Workout
+				</label>
+				<input type="checkbox" checked="checked" class="checkbox checkbox-secondary"/>
+			}
+			<button
+				type="submit"
+				hx-put={ templ.URL(fmt.Sprintf("/workouts/%v", workout.ID)) }
+				hx-target="#workout-info"
+				class="btn btn-primary"
+				@click="editingWorkout = !editingWorkout"
+			>Submit</button>
+			<button
+				class="btn btn-warning"
+				@click="editingWorkout = !editingWorkout"
+			>Cancel</button>
+		</fieldset>
 	</form>
 }
 
@@ -386,7 +400,6 @@ templ WorkoutExercisesTableDataRow(workoutExercise database.WorkoutAndExercisesR
 		}
 	}
 	}}
-	// TODO: fix sets, reps, weights completed to plugin values on edit
 	<tr
 		id={ fmt.Sprintf("workout-exercise-%v", workoutExercise.WorkoutsExercise.ID) }
 		x-sort:item={ fmt.Sprintf("%v", workoutExercise.WorkoutsExercise.SortOrder) }
