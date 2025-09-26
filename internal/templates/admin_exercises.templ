@@ -62,6 +62,7 @@ templ ExercisesTable(exercises []database.Exercise) {
 							placeholder="Enter a description"
 						></textarea>
 					</th>
+					// TODO: Get this to be a call to all available muscle groups
 					<th>
 						<select name="primary-muscle-group" class="select border-secondary">
 							<option disabled selected>Primary Muscle Group</option>
@@ -73,6 +74,7 @@ templ ExercisesTable(exercises []database.Exercise) {
 						</select>
 					</th>
 					<th>
+						// TODO: Get this to be a call to all available muscle groups
 						<select name="secondary-muscle-group" class="select border-secondary">
 							<option disabled selected>Secondary Muscle Group</option>
 							<option value="chest">Chest</option>
