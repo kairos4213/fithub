@@ -245,7 +245,7 @@ templ WorkoutInfo(workout database.Workout) {
 		<p><span class="font-bold">Est. Duration: </span>{ workout.DurationMinutes }min</p>
 		<p><span class="font-bold">Planned Date: </span>{ workout.PlannedDate.Format("Mon, Jan 02 2006") }</p>
 		if workout.DateCompleted.Valid {
-			<p><span class="font-bold">Last Completed: </span>{ workout.DateCompleted.Time.Format("Mon, Jan 02 2006") }</p>
+			<p><span class="font-bold">Date Completed: </span>{ workout.DateCompleted.Time.Format("Mon, Jan 02 2006") }</p>
 		}
 		<div class="justify-end card-actions">
 			<button
@@ -261,8 +261,15 @@ templ WorkoutInfo(workout database.Workout) {
 }
 
 templ EditWorkoutInfoForm(workout database.Workout) {
-	// TODO: Add feature for marking complete
-	<form x-cloak x-show="editingWorkout">
+	{{
+	completed := "{ completed: false }"
+	dateCompleted := ""
+	if workout.DateCompleted.Valid {
+		completed = "{ completed: true }"
+		dateCompleted = workout.DateCompleted.Time.Format("2006-01-02")
+	}
+	}}
+	<form x-cloak x-show="editingWorkout" x-data={ completed }>
 		<fieldset class="fieldset bg-base-100 border-base-300 rounded-box w-auto border p-4">
 			<legend class="fieldset-legend">Edit Workout Details</legend>
 			<label class="label">Workout Title</label>
@@ -282,7 +289,7 @@ templ EditWorkoutInfoForm(workout database.Workout) {
 			>{ workout.Description.String }</textarea>
 			<label class="label">Workout Duration</label>
 			<input
-				class="input validator"
+				class="input validator border-secondary"
 				type="number"
 				name="duration"
 				placeholder="Planned Duration in Minutes"
@@ -292,25 +299,30 @@ templ EditWorkoutInfoForm(workout database.Workout) {
 			/>
 			<label class="label">Planned Date</label>
 			<input
-				class="input"
+				class="input border-secondary"
 				type="date"
 				name="planned-date"
 				value={ workout.PlannedDate.Format("2006-01-02") }
 			/>
 			if workout.DateCompleted.Valid {
-				<label class="label">Date Completed</label>
-				<input
-					class="input"
-					type="date"
-					name="date-completed"
-					value={ workout.DateCompleted.Time.Format("Mon, Jan 02 2006") }
-				/>
+				<label class="label">
+					Completed
+					<input type="checkbox" @click="completed = ! completed" checked="checked" class="checkbox checkbox-secondary"/>
+				</label>
 			} else {
 				<label class="label">
-					Complete Workout
+					Completed
+					<input type="checkbox" @click="completed = ! completed" class="checkbox checkbox-secondary"/>
 				</label>
-				<input type="checkbox" checked="checked" class="checkbox checkbox-secondary"/>
 			}
+			<template x-if="completed">
+				<input
+					class="input border-secondary"
+					type="date"
+					name="date-completed"
+					value={ dateCompleted }
+				/>
+			</template>
 			<button
 				type="submit"
 				hx-put={ templ.URL(fmt.Sprintf("/workouts/%v", workout.ID)) }
