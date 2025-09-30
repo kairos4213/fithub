@@ -11,6 +11,7 @@ import (
 )
 
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
+	// TODO: start utilizing refresh tokens
 	if r.Method == "GET" {
 		contents := templates.LoginPage()
 		templates.Layout(contents, "FitHub | Login", false).Render(r.Context(), w)

@@ -13,7 +13,14 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-const minCost = 11
+// TODO: Transition to hs256signing
+
+const (
+	minCost                = 11
+	jwtExpiry              = 15 * time.Minute
+	refreshTokenBytes      = 32
+	refreshTokenExpiryDays = 60
+)
 
 func HashPassword(password string) (string, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), minCost)
@@ -38,7 +45,7 @@ func MakeJWT(userID uuid.UUID, isAdmin bool, privateKeyBytes []byte) (string, er
 		userID,
 		isAdmin,
 		jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(1 * time.Hour)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(jwtExpiry)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			NotBefore: jwt.NewNumericDate(time.Now()),
 			Issuer:    "fithub",
@@ -96,7 +103,7 @@ func GetBearerToken(headers http.Header) (string, error) {
 }
 
 func MakeRefreshToken() (string, error) {
-	refreshTokenBase := make([]byte, 10)
+	refreshTokenBase := make([]byte, refreshTokenBytes)
 	_, err := rand.Read(refreshTokenBase)
 	if err != nil {
 		return "", err
