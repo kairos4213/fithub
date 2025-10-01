@@ -229,7 +229,7 @@ templ WorkoutPage(workout database.Workout, workoutExercises []database.WorkoutA
 				required
 			/>
 			<div class="divider divider-accent"></div>
-			@ExerciseSearchResults(exercises, workout.ID)
+			@ExerciseQuickSearchResults(exercises, workout.ID)
 		</div>
 	</section>
 }
@@ -683,7 +683,7 @@ templ WorkoutExercisesTableFooter(workout database.Workout) {
 	</tfoot>
 }
 
-templ ExerciseSearchResults(exercises []database.Exercise, workout uuid.UUID) {
+templ ExerciseQuickSearchResults(exercises []database.Exercise, workout uuid.UUID) {
 	<div id="exercise-search-results" class="overflow-x-auto">
 		for _, exercise := range exercises {
 			<details class="collapse collapse-plus bg-base-100 border border-base-300">
