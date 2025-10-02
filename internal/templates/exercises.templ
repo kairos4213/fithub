@@ -1,5 +1,31 @@
 package templates
 
-templ ExercisesPage() {
-	<h2>Exercises Page</h2>
+// Mock db call func
+func provideDummyData() []string {
+	exercises := []string{"Exercise 1", "Exercise 2", "Exercise 3"}
+	return exercises
+}
+
+// TODO: make muscle groups model from database -- need to probably create a
+// separate muscle group table and link to exercises table
+templ ExercisesPage(muscleGroups []string) {
+	<section>
+		<h2 class="text-3xl p-8">Exercises Page</h2>
+		<div>
+			<h3 class="text-2xl p-2">Primary Muscles Targeted</h3>
+			<ul class="list bg-base-100 rounded-box shadow-md">
+				for _, group := range muscleGroups {
+					<li class="list-row">
+						<div
+							tabindex="0"
+							class="bg-primary text-primary-content
+            focus:bg-secondary focus:text-secondary-content collapse"
+						>
+							<div class="collapse-title font-semibold">{ group }</div>
+						</div>
+					</li>
+				}
+			</ul>
+		</div>
+	</section>
 }

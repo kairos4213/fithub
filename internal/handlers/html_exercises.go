@@ -140,7 +140,7 @@ func (h *Handler) GetExerciseByKeyword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if exerciseSearch == "" {
-		templates.ExerciseSearchResults([]database.Exercise{}, workoutID).Render(r.Context(), w)
+		templates.ExerciseQuickSearchResults([]database.Exercise{}, workoutID).Render(r.Context(), w)
 		return
 	}
 
@@ -151,7 +151,7 @@ func (h *Handler) GetExerciseByKeyword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	templates.ExerciseSearchResults(exercises, workoutID).Render(r.Context(), w)
+	templates.ExerciseQuickSearchResults(exercises, workoutID).Render(r.Context(), w)
 }
 
 func (h *Handler) AddExerciseToWorkout(w http.ResponseWriter, r *http.Request) {
@@ -392,4 +392,9 @@ func (h *Handler) DeleteExerciseFromWorkout(w http.ResponseWriter, r *http.Reque
 	}
 
 	w.WriteHeader(http.StatusOK)
+}
+
+func (h *Handler) GetExercisesPage(w http.ResponseWriter, r *http.Request) {
+	muscleGroups := []string{"Chest", "Legs", "Back", "Shoulders"}
+	templates.Layout(templates.ExercisesPage(muscleGroups), "FitHub | Exercises", true).Render(r.Context(), w)
 }
