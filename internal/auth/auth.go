@@ -13,13 +13,9 @@ import (
 	"github.com/google/uuid"
 )
 
-// TODO: Transition to hs256signing
-
 const (
-	minCost                = 11
-	jwtExpiry              = 15 * time.Minute
-	refreshTokenBytes      = 32
-	refreshTokenExpiryDays = 60
+	jwtExpiry         = 15 * time.Minute
+	refreshTokenBytes = 32
 )
 
 type CustomClaims struct {
@@ -41,7 +37,7 @@ func CheckPasswordHash(password, hash string) (bool, error) {
 	return argon2id.ComparePasswordAndHash(password, hash)
 }
 
-func MakeJWT(userID uuid.UUID, isAdmin bool, privateKeyBytes []byte) (string, error) {
+func MakeJWT(userID uuid.UUID, isAdmin bool, tokenSecret string) (string, error) {
 	claims := &CustomClaims{
 		userID,
 		isAdmin,
@@ -52,30 +48,22 @@ func MakeJWT(userID uuid.UUID, isAdmin bool, privateKeyBytes []byte) (string, er
 			Issuer:    "fithub",
 		},
 	}
+	signingKey := []byte(tokenSecret)
 
-	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
-	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM(privateKeyBytes)
-	if err != nil {
-		return "", err
-	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	ss, err := token.SignedString(privateKey)
+	ss, err := token.SignedString(signingKey)
 	if err != nil {
 		return "", err
 	}
 	return ss, nil
 }
 
-func ValidateJWT(tokenString string, publicKey []byte) (*CustomClaims, error) {
-	pubKey, err := jwt.ParseRSAPublicKeyFromPEM(publicKey)
-	if err != nil {
-		return nil, err
-	}
-
+func ValidateJWT(tokenString, tokenSecret string) (*CustomClaims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(token *jwt.Token) (any, error) {
-		return pubKey, nil
+		return []byte(tokenSecret), nil
 	})
-	if err != nil {
+	if err != nil || !token.Valid {
 		return nil, err
 	}
 

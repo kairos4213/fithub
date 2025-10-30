@@ -21,7 +21,7 @@ func (mw *Middleware) Auth(next http.Handler) http.Handler {
 				return
 			}
 
-			claims, err := auth.ValidateJWT(accessToken, mw.PublicKey)
+			claims, err := auth.ValidateJWT(accessToken, mw.TokenSecret)
 			if err != nil {
 				utils.RespondWithError(w, http.StatusUnauthorized, "Invalid JWT", err)
 				return
@@ -39,7 +39,7 @@ func (mw *Middleware) Auth(next http.Handler) http.Handler {
 			return
 		}
 		accessToken := cookie.Value
-		claims, err := auth.ValidateJWT(accessToken, mw.PublicKey)
+		claims, err := auth.ValidateJWT(accessToken, mw.TokenSecret)
 		if err != nil {
 			if strings.Contains(err.Error(), "token is expired") {
 				http.Redirect(w, r, "/unauthorized?reason=expired", http.StatusSeeOther)
@@ -67,7 +67,7 @@ func (mw *Middleware) AdminAuth(next http.Handler) http.Handler {
 				return
 			}
 
-			claims, err := auth.ValidateJWT(accessToken, mw.PublicKey)
+			claims, err := auth.ValidateJWT(accessToken, mw.TokenSecret)
 			if err != nil {
 				utils.RespondWithError(w, http.StatusUnauthorized, "Invalid JWT", err)
 				return
@@ -95,7 +95,7 @@ func (mw *Middleware) AdminAuth(next http.Handler) http.Handler {
 		}
 
 		accessToken := cookie.Value
-		claims, err := auth.ValidateJWT(accessToken, mw.PublicKey)
+		claims, err := auth.ValidateJWT(accessToken, mw.TokenSecret)
 		if err != nil {
 			if strings.Contains(err.Error(), "token expired") {
 				http.Redirect(w, r, "/unauthorized?reason=expired", http.StatusSeeOther)

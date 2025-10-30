@@ -1,5 +1,5 @@
 package middleware
 
 type Middleware struct {
-	PublicKey []byte
+	TokenSecret string
 }

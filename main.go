@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/joho/godotenv"
-	"github.com/kairos4213/fithub/internal/auth"
 	"github.com/kairos4213/fithub/internal/database"
 	"github.com/kairos4213/fithub/internal/handlers"
 	"github.com/kairos4213/fithub/internal/middleware"
@@ -16,19 +15,7 @@ import (
 )
 
 func main() {
-	pw, _ := auth.HashPassword("password")
-	log.Print(pw)
-	privKey, err := os.ReadFile("private_key.pem")
-	if err != nil {
-		log.Fatalf("missing private key: %v", err)
-	}
-
-	pubKey, err := os.ReadFile("public_key.pem")
-	if err != nil {
-		log.Fatalf("missing public key: %v", err)
-	}
-
-	err = godotenv.Load(".env")
+	err := godotenv.Load(".env")
 	if err != nil {
 		log.Printf("warning: missing or misconfigured .env: %v", err)
 	}
@@ -43,6 +30,11 @@ func main() {
 		log.Fatal("FILEPATH_ROOT environment variable is not set")
 	}
 
+	tokenSecret := os.Getenv("TOKEN_SECRET")
+	if tokenSecret == "" {
+		log.Fatal("TOKEN_SECRET environment variable is not set")
+	}
+
 	dbURL := os.Getenv("DATABASE_URL")
 	if dbURL == "" {
 		log.Fatal("DATABASE_URL is not configured")
@@ -54,9 +46,9 @@ func main() {
 	}
 	dbQueries := database.New(db)
 
-	mw := middleware.Middleware{PublicKey: pubKey}
+	mw := middleware.Middleware{TokenSecret: tokenSecret}
 
-	handler := handlers.Handler{DB: dbQueries, PrivateKey: privKey}
+	handler := handlers.Handler{DB: dbQueries, TokenSecret: tokenSecret}
 
 	mux := http.NewServeMux()
 

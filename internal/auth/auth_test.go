@@ -2,7 +2,6 @@ package auth
 
 import (
 	"net/http"
-	"os"
 	"testing"
 
 	"github.com/google/uuid"
@@ -67,31 +66,29 @@ func TestCheckPasswordHash(t *testing.T) {
 
 func TestJWTValidation(t *testing.T) {
 	userID := uuid.New()
-	privKey, _ := os.ReadFile("../../private_key.pem")
-	pubKey, _ := os.ReadFile("../../public_key.pem")
-	validToken, _ := MakeJWT(userID, false, privKey)
+	validToken, _ := MakeJWT(userID, false, "secret")
 
 	tests := map[string]struct {
 		tokenString string
-		publicKey   []byte
+		tokenSecret string
 		wantUserID  uuid.UUID
 		wantErr     bool
 	}{
 		"valid token": {
 			tokenString: validToken,
-			publicKey:   pubKey,
+			tokenSecret: "secret",
 			wantUserID:  userID,
 			wantErr:     false,
 		},
 		"invalid token": {
 			tokenString: "invalid.token.string",
-			publicKey:   pubKey,
+			tokenSecret: "secret",
 			wantUserID:  uuid.Nil,
 			wantErr:     true,
 		},
-		"incorrect public key": {
+		"incorrect secret": {
 			tokenString: validToken,
-			publicKey:   []byte("invalid.public.key"),
+			tokenSecret: "wrong_secret",
 			wantUserID:  uuid.Nil,
 			wantErr:     true,
 		},
@@ -99,12 +96,12 @@ func TestJWTValidation(t *testing.T) {
 
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
-			claims, err := ValidateJWT(tc.tokenString, tc.publicKey)
+			claims, err := ValidateJWT(tc.tokenString, tc.tokenSecret)
 			if (err != nil) != tc.wantErr {
-				t.Fatalf("expected error: %v, got: %v", tc.wantErr, err)
+				t.Errorf("expected error: %v, got: %v", tc.wantErr, err)
 				return
 			}
-			if claims.UserID != tc.wantUserID {
+			if claims != nil && claims.UserID != tc.wantUserID {
 				t.Errorf("expected userID: %v, got: %v", tc.wantUserID, claims.UserID)
 			}
 		})
