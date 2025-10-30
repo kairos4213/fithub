@@ -30,7 +30,7 @@ INSERT INTO users (
     'admin',
     'istrator',
     'admin@email.com',
-    '$2a$11$rkUv.RXaC.v.dMZMMF7fPugV4BhRjCrtz2trptLEZTAq9otV4XKo2',
+    '$argon2id$v=19$m=65536,t=1,p=6$9JjN19qYEh68uSWUT/AVtQ$PQV3yTw5DlwbZFTaQRvOlt2QqRkTuq6OSLCrqwpqkUc',
     TRUE
 );
 
@@ -50,7 +50,7 @@ INSERT INTO users (
     'user',
     'test',
     'user@email.com',
-    '$2a$11$rkUv.RXaC.v.dMZMMF7fPugV4BhRjCrtz2trptLEZTAq9otV4XKo2',
+    '$argon2id$v=19$m=65536,t=1,p=6$9JjN19qYEh68uSWUT/AVtQ$PQV3yTw5DlwbZFTaQRvOlt2QqRkTuq6OSLCrqwpqkUc',
     FALSE
 );
 -- +goose statementend

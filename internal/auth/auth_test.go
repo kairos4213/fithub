@@ -15,42 +15,51 @@ func TestCheckPasswordHash(t *testing.T) {
 	incorrectHash, _ := HashPassword(incorrectPassword)
 
 	tests := map[string]struct {
-		password string
-		hash     string
-		wantErr  bool
+		password      string
+		hash          string
+		wantErr       bool
+		matchPassword bool
 	}{
 		"correct": {
-			password: correctPassword,
-			hash:     correctHash,
-			wantErr:  false,
+			password:      correctPassword,
+			hash:          correctHash,
+			wantErr:       false,
+			matchPassword: true,
 		},
 		"incorrect password": {
-			password: incorrectPassword,
-			hash:     correctHash,
-			wantErr:  true,
+			password:      incorrectPassword,
+			hash:          correctHash,
+			wantErr:       false,
+			matchPassword: false,
 		},
 		"incorrect hash": {
-			password: correctPassword,
-			hash:     incorrectHash,
-			wantErr:  true,
+			password:      correctPassword,
+			hash:          incorrectHash,
+			wantErr:       false,
+			matchPassword: false,
 		},
 		"blank password": {
-			password: "",
-			hash:     correctHash,
-			wantErr:  true,
+			password:      "",
+			hash:          correctHash,
+			wantErr:       false,
+			matchPassword: false,
 		},
 		"invalid hash": {
-			password: correctPassword,
-			hash:     "notValidHash",
-			wantErr:  true,
+			password:      correctPassword,
+			hash:          "notValidHash",
+			wantErr:       true,
+			matchPassword: false,
 		},
 	}
 
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
-			err := CheckPasswordHash(tc.password, tc.hash)
+			match, err := CheckPasswordHash(tc.password, tc.hash)
 			if (err != nil) != tc.wantErr {
 				t.Fatalf("expected error: %v, got: %v", tc.wantErr, err)
+			}
+			if !tc.wantErr && match != tc.matchPassword {
+				t.Fatalf("expected password match to be: %v, got: %v", tc.matchPassword, match)
 			}
 		})
 	}

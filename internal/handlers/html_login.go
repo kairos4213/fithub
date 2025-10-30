@@ -29,9 +29,15 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if err = auth.CheckPasswordHash(password, user.HashedPassword); err != nil {
+		match, err := auth.CheckPasswordHash(password, user.HashedPassword)
+		if !match {
 			HandleLoginFailure(w, r)
 			log.Print("Incorrect password entered")
+			return
+		}
+		if err != nil {
+			HandleLoginFailure(w, r)
+			log.Print("Bad Request: invalid hash")
 			return
 		}
 

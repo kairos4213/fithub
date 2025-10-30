@@ -15,3 +15,8 @@ require (
 	github.com/a-h/templ v0.3.943
 	golang.org/x/text v0.29.0
 )
+
+require (
+	github.com/alexedwards/argon2id v1.0.0 // indirect
+	golang.org/x/sys v0.36.0 // indirect
+)

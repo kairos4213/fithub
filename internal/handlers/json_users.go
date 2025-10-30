@@ -138,9 +138,13 @@ func (h *Handler) LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = auth.CheckPasswordHash(reqParams.Password, user.HashedPassword)
-	if err != nil {
+	match, err := auth.CheckPasswordHash(reqParams.Password, user.HashedPassword)
+	if !match {
 		utils.RespondWithError(w, http.StatusUnauthorized, "Incorrect email or password", err)
+		return
+	}
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Bad Request: Invalid hash", err)
 		return
 	}
 

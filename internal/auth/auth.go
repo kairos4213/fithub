@@ -8,9 +8,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alexedwards/argon2id"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
-	"golang.org/x/crypto/bcrypt"
 )
 
 // TODO: Transition to hs256signing
@@ -22,22 +22,23 @@ const (
 	refreshTokenExpiryDays = 60
 )
 
+type CustomClaims struct {
+	UserID  uuid.UUID
+	IsAdmin bool
+	jwt.RegisteredClaims
+}
+
 func HashPassword(password string) (string, error) {
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), minCost)
+	// TODO: Look into optimizing argon2id Params
+	hashedPassword, err := argon2id.CreateHash(password, argon2id.DefaultParams)
 	if err != nil {
 		return "", err
 	}
 	return string(hashedPassword), nil
 }
 
-func CheckPasswordHash(password, hash string) error {
-	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
-}
-
-type CustomClaims struct {
-	UserID  uuid.UUID
-	IsAdmin bool
-	jwt.RegisteredClaims
+func CheckPasswordHash(password, hash string) (bool, error) {
+	return argon2id.ComparePasswordAndHash(password, hash)
 }
 
 func MakeJWT(userID uuid.UUID, isAdmin bool, privateKeyBytes []byte) (string, error) {

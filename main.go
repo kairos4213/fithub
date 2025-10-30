@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/joho/godotenv"
+	"github.com/kairos4213/fithub/internal/auth"
 	"github.com/kairos4213/fithub/internal/database"
 	"github.com/kairos4213/fithub/internal/handlers"
 	"github.com/kairos4213/fithub/internal/middleware"
@@ -15,6 +16,8 @@ import (
 )
 
 func main() {
+	pw, _ := auth.HashPassword("password")
+	log.Print(pw)
 	privKey, err := os.ReadFile("private_key.pem")
 	if err != nil {
 		log.Fatalf("missing private key: %v", err)
