@@ -17,7 +17,7 @@ import (
 func main() {
 	err := godotenv.Load(".env")
 	if err != nil {
-		log.Printf("warning: missing or misconfigured .env: %v", err)
+		log.Fatalf("warning: missing or misconfigured .env: %v", err)
 	}
 
 	port := os.Getenv("PORT")
@@ -138,4 +138,5 @@ func main() {
 
 	log.Printf("Serving on port: %s\n", port)
 	log.Fatal(server.ListenAndServe())
+	// log.Fatal(server.ListenAndServeTLS("cert.pem", "key.pem"))
 }
