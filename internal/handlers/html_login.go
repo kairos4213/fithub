@@ -74,6 +74,14 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 			Secure:   true,
 			SameSite: http.SameSiteDefaultMode,
 		})
+		http.SetCookie(w, &http.Cookie{
+			Name:     "refresh_token",
+			Value:    refreshToken,
+			Path:     "/",
+			HttpOnly: true,
+			Secure:   true,
+			SameSite: http.SameSiteDefaultMode,
+		})
 		w.Header().Set("Content-type", "text/html")
 
 		if user.IsAdmin {

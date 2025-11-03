@@ -46,7 +46,7 @@ func main() {
 	}
 	dbQueries := database.New(db)
 
-	mw := middleware.Middleware{TokenSecret: tokenSecret}
+	mw := middleware.Middleware{DB: dbQueries, TokenSecret: tokenSecret}
 
 	handler := handlers.Handler{DB: dbQueries, TokenSecret: tokenSecret}
 
