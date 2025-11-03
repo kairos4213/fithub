@@ -147,26 +147,94 @@ func (mw *Middleware) AdminAuth(next http.Handler) http.Handler {
 			return
 		}
 
-		cookie, err := r.Cookie("access_token")
+		accessCookie, err := r.Cookie("access_token")
 		if err != nil {
 			http.Redirect(w, r, "/unauthorized?reason=invalid_missing", http.StatusSeeOther)
 			log.Printf("%v", err)
 			return
 		}
 
-		accessToken := cookie.Value
+		accessToken := accessCookie.Value
 		claims, err := auth.ValidateJWT(accessToken, mw.TokenSecret)
 		if err != nil {
-			if strings.Contains(err.Error(), "token expired") {
-				http.Redirect(w, r, "/unauthorized?reason=expired", http.StatusSeeOther)
-				log.Printf("%v", err)
+			// Access token expired
+			if strings.Contains(err.Error(), "token is expired") {
+				// Check for refresh token existence
+				refreshCookie, err := r.Cookie("refresh_token")
+				if err != nil {
+					utils.ClearCookies(w, accessCookie)
+					http.Redirect(w, r, "/unauthorized?reason=invalid_missing", http.StatusSeeOther)
+					log.Printf("%v", err)
+					return
+				}
+
+				// Check for valid refresh token in db
+				refreshToken := refreshCookie.Value
+				user, err := mw.DB.GetUserFromRefreshToken(r.Context(), refreshToken)
+				if err != nil {
+					utils.ClearCookies(w, accessCookie, refreshCookie)
+					http.Redirect(w, r, "/unauthorized?reason=expired", http.StatusSeeOther)
+					log.Printf("%v", err)
+					return
+				}
+
+				// Try to make new access token
+				accessToken, err = auth.MakeJWT(user.ID, user.IsAdmin, mw.TokenSecret)
+				if err != nil {
+					// Error making access token -> need to remove any existing cookies and
+					// revoke valid refresh token
+					utils.ClearCookies(w, accessCookie, refreshCookie)
+
+					err := mw.DB.RevokeRefreshToken(r.Context(), refreshToken)
+					if err != nil {
+						http.Redirect(w, r, "/unauthorized?reason=internal_error", http.StatusSeeOther)
+						log.Printf("%v", err)
+						return
+					}
+
+					http.Redirect(w, r, "/unauthorized?reason=internal_error", http.StatusSeeOther)
+					log.Printf("%v", err)
+					return
+				}
+				// Successful access token refresh
+				http.SetCookie(w, &http.Cookie{
+					Name:     "access_token",
+					Value:    accessToken,
+					Path:     "/",
+					HttpOnly: true,
+					Secure:   true,
+					SameSite: http.SameSiteDefaultMode,
+				})
+				// Attempt creating claims
+				claims, err := auth.ValidateJWT(accessToken, mw.TokenSecret)
+				if err != nil {
+					// clear access cookie and redirect to try again
+					utils.ClearCookies(w, accessCookie)
+					http.Redirect(w, r, "/unauthorized?reason=internal_error", http.StatusSeeOther)
+					log.Printf("%v", err)
+					return
+				}
+
+				if !claims.IsAdmin {
+					http.Redirect(w, r, "/forbidden", http.StatusSeeOther)
+					log.Println("Unauthorized admin request:")
+					log.Printf("\tUser ID: %v", claims.UserID)
+					log.Printf("\tRequest type: %v", r.Method)
+					log.Printf("\tRequest body: %v", r.Body)
+					return
+				}
+
+				ctx := context.WithValue(r.Context(), cntx.UserIDKey, claims.UserID)
+				next.ServeHTTP(w, r.WithContext(ctx))
 				return
 			}
-
+			// Invalid access token -> clear access token cookie
+			utils.ClearCookies(w, accessCookie)
 			http.Redirect(w, r, "/unauthorized?reason=invalid_missing", http.StatusSeeOther)
 			log.Printf("%v", err)
 			return
 		}
+		// Valid access token
 
 		if !claims.IsAdmin {
 			http.Redirect(w, r, "/forbidden", http.StatusSeeOther)
