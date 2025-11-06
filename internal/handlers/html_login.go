@@ -21,7 +21,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		email := r.FormValue("email")
 		password := r.FormValue("password")
 
-		user, err := h.DB.GetUser(r.Context(), email)
+		user, err := h.cfg.DB.GetUser(r.Context(), email)
 		if err != nil {
 			HandleLoginFailure(w, r)
 			log.Print("User email does not exist")
@@ -40,7 +40,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		accessToken, err := auth.MakeJWT(user.ID, user.IsAdmin, h.TokenSecret)
+		accessToken, err := auth.MakeJWT(user.ID, user.IsAdmin, h.cfg.TokenSecret)
 		if err != nil {
 			HandleInternalServerError(w, r)
 			log.Printf("%v", err)
@@ -54,7 +54,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = h.DB.CreateRefreshToken(r.Context(), database.CreateRefreshTokenParams{
+		err = h.cfg.DB.CreateRefreshToken(r.Context(), database.CreateRefreshTokenParams{
 			Token:     refreshToken,
 			UserID:    user.ID,
 			ExpiresAt: time.Now().UTC().AddDate(0, 0, 60),

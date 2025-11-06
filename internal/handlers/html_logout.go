@@ -21,7 +21,7 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 		log.Printf("%v", err)
 		return
 	}
-	err = h.DB.RevokeRefreshToken(r.Context(), refreshCookie.Value)
+	err = h.cfg.DB.RevokeRefreshToken(r.Context(), refreshCookie.Value)
 	if err != nil {
 		HandleInternalServerError(w, r)
 		log.Printf("%v", err)

@@ -8,7 +8,7 @@ import (
 )
 
 func (h *Handler) GetAdminHome(w http.ResponseWriter, r *http.Request) {
-	exercises, err := h.DB.GetAllExercises(r.Context())
+	exercises, err := h.cfg.DB.GetAllExercises(r.Context())
 	if err != nil {
 		HandleInternalServerError(w, r)
 		log.Printf("Server Error: %v", err)

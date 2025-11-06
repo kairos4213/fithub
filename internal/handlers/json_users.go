@@ -68,7 +68,7 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		middleName.String = strings.ToLower(reqParams.MiddleName)
 	}
 
-	user, err := h.DB.CreateUser(r.Context(), database.CreateUserParams{
+	user, err := h.cfg.DB.CreateUser(r.Context(), database.CreateUserParams{
 		FirstName:      strings.ToLower(reqParams.FirstName),
 		MiddleName:     middleName,
 		LastName:       strings.ToLower(reqParams.LastName),
@@ -80,7 +80,7 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accessToken, err := auth.MakeJWT(user.ID, user.IsAdmin, h.TokenSecret)
+	accessToken, err := auth.MakeJWT(user.ID, user.IsAdmin, h.cfg.TokenSecret)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, "Couldn't create access token", err)
 		return
@@ -92,7 +92,7 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.DB.CreateRefreshToken(r.Context(), database.CreateRefreshTokenParams{
+	err = h.cfg.DB.CreateRefreshToken(r.Context(), database.CreateRefreshTokenParams{
 		Token:     refreshToken,
 		UserID:    user.ID,
 		ExpiresAt: time.Now().UTC().AddDate(0, 0, 60),
@@ -132,7 +132,7 @@ func (h *Handler) LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.DB.GetUser(r.Context(), reqParams.Email)
+	user, err := h.cfg.DB.GetUser(r.Context(), reqParams.Email)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusUnauthorized, "Incorrect email or password", err)
 		return
@@ -148,7 +148,7 @@ func (h *Handler) LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accessToken, err := auth.MakeJWT(user.ID, user.IsAdmin, h.TokenSecret)
+	accessToken, err := auth.MakeJWT(user.ID, user.IsAdmin, h.cfg.TokenSecret)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, "Couldn't create access token", err)
 		return
@@ -160,7 +160,7 @@ func (h *Handler) LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.DB.CreateRefreshToken(r.Context(), database.CreateRefreshTokenParams{
+	err = h.cfg.DB.CreateRefreshToken(r.Context(), database.CreateRefreshTokenParams{
 		Token:     refreshToken,
 		UserID:    user.ID,
 		ExpiresAt: time.Now().UTC().AddDate(0, 0, 60),
@@ -213,7 +213,7 @@ func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		userParams.Email.Valid = true
 	}
 
-	updatedUser, err := h.DB.UpdateUser(r.Context(), userParams)
+	updatedUser, err := h.cfg.DB.UpdateUser(r.Context(), userParams)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, "Error updating user", err)
 		return
@@ -230,7 +230,7 @@ func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 
-	if err := h.DB.DeleteUser(r.Context(), userID); err != nil {
+	if err := h.cfg.DB.DeleteUser(r.Context(), userID); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, "Error deleting user profile", err)
 		return
 	}

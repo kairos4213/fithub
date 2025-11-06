@@ -13,7 +13,7 @@ import (
 )
 
 func (h *Handler) GetAdminExercisesPage(w http.ResponseWriter, r *http.Request) {
-	exercises, err := h.DB.GetAllExercises(r.Context())
+	exercises, err := h.cfg.DB.GetAllExercises(r.Context())
 	if err != nil {
 		HandleInternalServerError(w, r)
 		log.Printf("Server Error: %v", err)
@@ -48,7 +48,7 @@ func (h *Handler) AddDBExercise(w http.ResponseWriter, r *http.Request) {
 		secMG.Valid = true
 	}
 
-	_, err := h.DB.CreateExercise(r.Context(), database.CreateExerciseParams{
+	_, err := h.cfg.DB.CreateExercise(r.Context(), database.CreateExerciseParams{
 		Name:                 name,
 		Description:          description,
 		PrimaryMuscleGroup:   primeMG,
@@ -96,7 +96,7 @@ func (h *Handler) EditDBExercise(w http.ResponseWriter, r *http.Request) {
 		secondaryMG.Valid = true
 	}
 
-	updatedExercise, err := h.DB.UpdateExercise(r.Context(), database.UpdateExerciseParams{
+	updatedExercise, err := h.cfg.DB.UpdateExercise(r.Context(), database.UpdateExerciseParams{
 		Name:                 reqName,
 		Description:          description,
 		PrimaryMuscleGroup:   primaryMG,
@@ -120,7 +120,7 @@ func (h *Handler) DeleteDBExercise(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.DB.DeleteExercise(r.Context(), exerciseID)
+	err = h.cfg.DB.DeleteExercise(r.Context(), exerciseID)
 	if err != nil {
 		HandleInternalServerError(w, r)
 		log.Printf("Server Error: %v", err)
@@ -144,7 +144,7 @@ func (h *Handler) GetExerciseByKeyword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	exercises, err := h.DB.GetExerciseByKeyword(r.Context(), exerciseSearch)
+	exercises, err := h.cfg.DB.GetExerciseByKeyword(r.Context(), exerciseSearch)
 	if err != nil {
 		HandleInternalServerError(w, r)
 		log.Printf("Server Error: %v", err)
@@ -163,7 +163,7 @@ func (h *Handler) AddExerciseToWorkout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	exerciseName := r.FormValue("exercise-name")
-	exercise, err := h.DB.GetExerciseByName(r.Context(), exerciseName)
+	exercise, err := h.cfg.DB.GetExerciseByName(r.Context(), exerciseName)
 	if err != nil {
 		HandleInternalServerError(w, r)
 		log.Printf("Server err: %v", err)
@@ -201,7 +201,7 @@ func (h *Handler) AddExerciseToWorkout(w http.ResponseWriter, r *http.Request) {
 		plannedWeights[i] = int32(weight)
 	}
 
-	workoutExercise, err := h.DB.AddExerciseToWorkout(r.Context(), database.AddExerciseToWorkoutParams{
+	workoutExercise, err := h.cfg.DB.AddExerciseToWorkout(r.Context(), database.AddExerciseToWorkoutParams{
 		WorkoutID:           workoutID,
 		ExerciseID:          exercise.ID,
 		SetsPlanned:         int32(plannedSets),
@@ -246,7 +246,7 @@ func (h *Handler) UpdateWorkoutExercise(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	exercise, err := h.DB.GetExerciseByID(r.Context(), exerciseID)
+	exercise, err := h.cfg.DB.GetExerciseByID(r.Context(), exerciseID)
 	if err != nil {
 		HandleInternalServerError(w, r)
 		log.Printf("Server err with fetching exercise by id: %v", err)
@@ -315,7 +315,7 @@ func (h *Handler) UpdateWorkoutExercise(w http.ResponseWriter, r *http.Request) 
 		completedWeights[i] = int32(weight)
 	}
 
-	updatedWorkoutExercise, err := h.DB.UpdateWorkoutExercise(r.Context(), database.UpdateWorkoutExerciseParams{
+	updatedWorkoutExercise, err := h.cfg.DB.UpdateWorkoutExercise(r.Context(), database.UpdateWorkoutExerciseParams{
 		SetsPlanned:         int32(plannedSets),
 		RepsPerSetPlanned:   plannedReps,
 		SetsCompleted:       int32(completedSets),
@@ -361,7 +361,7 @@ func (h *Handler) UpdateWorkoutExercisesSortOrder(w http.ResponseWriter, r *http
 			return
 		}
 
-		err = h.DB.UpdateWorkoutExercisesSortOrder(r.Context(), database.UpdateWorkoutExercisesSortOrderParams{
+		err = h.cfg.DB.UpdateWorkoutExercisesSortOrder(r.Context(), database.UpdateWorkoutExercisesSortOrderParams{
 			SortOrder: int32(index),
 			ID:        id,
 			WorkoutID: workoutID,
@@ -384,7 +384,7 @@ func (h *Handler) DeleteExerciseFromWorkout(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	err = h.DB.DeleteExerciseFromWorkout(r.Context(), workoutExerciseID)
+	err = h.cfg.DB.DeleteExerciseFromWorkout(r.Context(), workoutExerciseID)
 	if err != nil {
 		HandleInternalServerError(w, r)
 		log.Printf("Server Error: %v", err)

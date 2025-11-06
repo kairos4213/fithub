@@ -16,7 +16,7 @@ import (
 
 func (h *Handler) GetUserWorkouts(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
-	workouts, err := h.DB.GetAllUserWorkouts(r.Context(), userID)
+	workouts, err := h.cfg.DB.GetAllUserWorkouts(r.Context(), userID)
 	if err != nil {
 		HandleInternalServerError(w, r)
 		log.Printf("%v", err)
@@ -63,7 +63,7 @@ func (h *Handler) CreateUserWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = h.DB.CreateWorkout(r.Context(), database.CreateWorkoutParams{
+	_, err = h.cfg.DB.CreateWorkout(r.Context(), database.CreateWorkoutParams{
 		UserID: userID, Title: reqTitle, Description: description, DurationMinutes: int32(duration), PlannedDate: plannedDate,
 	})
 	if err != nil {
@@ -72,7 +72,7 @@ func (h *Handler) CreateUserWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	workouts, err := h.DB.GetAllUserWorkouts(r.Context(), userID)
+	workouts, err := h.cfg.DB.GetAllUserWorkouts(r.Context(), userID)
 	if err != nil {
 		HandleInternalServerError(w, r)
 		log.Printf("%v", err)
@@ -129,7 +129,7 @@ func (h *Handler) EditUserWorkout(w http.ResponseWriter, r *http.Request) {
 		dateCompleted.Valid = true
 	}
 
-	updatedWorkout, err := h.DB.UpdateWorkout(r.Context(), database.UpdateWorkoutParams{
+	updatedWorkout, err := h.cfg.DB.UpdateWorkout(r.Context(), database.UpdateWorkoutParams{
 		Title:           reqTitle,
 		Description:     description,
 		DurationMinutes: int32(duration),
@@ -150,7 +150,7 @@ func (h *Handler) EditUserWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	workouts, err := h.DB.GetAllUserWorkouts(r.Context(), userID)
+	workouts, err := h.cfg.DB.GetAllUserWorkouts(r.Context(), userID)
 	if err != nil {
 		HandleInternalServerError(w, r)
 		log.Printf("%v", err)
@@ -169,7 +169,7 @@ func (h *Handler) DeleteUserWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.DB.DeleteWorkout(r.Context(), database.DeleteWorkoutParams{
+	err = h.cfg.DB.DeleteWorkout(r.Context(), database.DeleteWorkoutParams{
 		ID:     workoutID,
 		UserID: userID,
 	})
@@ -196,14 +196,14 @@ func (h *Handler) GetUserWorkoutExercises(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	workout, err := h.DB.GetWorkoutByID(r.Context(), workoutID)
+	workout, err := h.cfg.DB.GetWorkoutByID(r.Context(), workoutID)
 	if err != nil {
 		HandleInternalServerError(w, r)
 		log.Printf("%v", err)
 		return
 	}
 
-	workoutExercises, err := h.DB.WorkoutAndExercises(r.Context(), workoutID)
+	workoutExercises, err := h.cfg.DB.WorkoutAndExercises(r.Context(), workoutID)
 	if err != nil {
 		HandleInternalServerError(w, r)
 		log.Printf("%v", err)

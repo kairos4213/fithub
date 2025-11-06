@@ -51,7 +51,7 @@ func (h *Handler) CreateWorkout(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusBadRequest, "not a valid time duration", err)
 	}
 
-	workout, err := h.DB.CreateWorkout(r.Context(), database.CreateWorkoutParams{
+	workout, err := h.cfg.DB.CreateWorkout(r.Context(), database.CreateWorkoutParams{
 		UserID:          userID,
 		Title:           reqParams.Title,
 		Description:     workoutDescription,
@@ -79,7 +79,7 @@ func (h *Handler) CreateWorkout(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) GetAllUserWorkouts(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 
-	userWorkouts, err := h.DB.GetAllUserWorkouts(r.Context(), userID)
+	userWorkouts, err := h.cfg.DB.GetAllUserWorkouts(r.Context(), userID)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, "error retrieving user workouts", err)
 		return
@@ -143,7 +143,7 @@ func (h *Handler) UpdateWorkout(w http.ResponseWriter, r *http.Request) {
 		completionDate = sql.NullTime{Valid: true, Time: dateCompleted}
 	}
 
-	updatedWorkout, err := h.DB.UpdateWorkout(r.Context(), database.UpdateWorkoutParams{
+	updatedWorkout, err := h.cfg.DB.UpdateWorkout(r.Context(), database.UpdateWorkoutParams{
 		Title:           reqParams.Title,
 		Description:     workoutDescription,
 		DurationMinutes: int32(workoutDuration),
@@ -178,7 +178,7 @@ func (h *Handler) DeleteWorkout(w http.ResponseWriter, r *http.Request) {
 	}
 	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 
-	err = h.DB.DeleteWorkout(r.Context(), database.DeleteWorkoutParams{
+	err = h.cfg.DB.DeleteWorkout(r.Context(), database.DeleteWorkoutParams{
 		ID: workoutID, UserID: userID,
 	})
 	if err != nil {
@@ -192,7 +192,7 @@ func (h *Handler) DeleteWorkout(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) DeleteAllUserWorkouts(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 
-	if err := h.DB.DeleteAllUserWorkouts(r.Context(), userID); err != nil {
+	if err := h.cfg.DB.DeleteAllUserWorkouts(r.Context(), userID); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, "error deleting user workouts", err)
 		return
 	}

@@ -1,8 +1,13 @@
 package handlers
 
-import "github.com/kairos4213/fithub/internal/database"
+import (
+	"github.com/kairos4213/fithub/internal/config"
+)
 
 type Handler struct {
-	DB          *database.Queries
-	TokenSecret string
+	cfg *config.Config
+}
+
+func New(cfg *config.Config) *Handler {
+	return &Handler{cfg: cfg}
 }

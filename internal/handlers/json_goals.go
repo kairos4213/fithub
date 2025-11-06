@@ -46,7 +46,7 @@ func (h *Handler) CreateGoal(w http.ResponseWriter, r *http.Request) {
 		goalNotes.String = reqParams.Notes
 	}
 
-	goal, err := h.DB.CreateGoal(r.Context(), database.CreateGoalParams{
+	goal, err := h.cfg.DB.CreateGoal(r.Context(), database.CreateGoalParams{
 		GoalName:    strings.ToLower(reqParams.Name),
 		Description: reqParams.Description,
 		GoalDate:    goalDate.UTC(),
@@ -76,7 +76,7 @@ func (h *Handler) CreateGoal(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) GetAllUserGoals(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
-	goals, err := h.DB.GetAllUserGoals(r.Context(), userID)
+	goals, err := h.cfg.DB.GetAllUserGoals(r.Context(), userID)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, "Error getting goals", err)
 		return
@@ -146,7 +146,7 @@ func (h *Handler) UpdateGoal(w http.ResponseWriter, r *http.Request) {
 		updateGoalParams.Notes = sql.NullString{String: reqParams.Notes, Valid: true}
 	}
 
-	goal, err := h.DB.UpdateGoal(r.Context(), updateGoalParams)
+	goal, err := h.cfg.DB.UpdateGoal(r.Context(), updateGoalParams)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, "Error updating goal", err)
 		return
@@ -174,7 +174,7 @@ func (h *Handler) DeleteGoalJSON(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.DB.DeleteGoal(r.Context(), database.DeleteGoalParams{
+	if err := h.cfg.DB.DeleteGoal(r.Context(), database.DeleteGoalParams{
 		ID:     goalID,
 		UserID: userID,
 	}); err != nil {
@@ -188,7 +188,7 @@ func (h *Handler) DeleteGoalJSON(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) DeleteAllUserGoals(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 
-	if err := h.DB.DeleteAllUserGoals(r.Context(), userID); err != nil {
+	if err := h.cfg.DB.DeleteAllUserGoals(r.Context(), userID); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, "Error deleting goals", err)
 		return
 	}

@@ -14,7 +14,7 @@ import (
 
 func (h *Handler) GetAllGoals(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
-	goals, err := h.DB.GetAllUserGoals(r.Context(), userID)
+	goals, err := h.cfg.DB.GetAllUserGoals(r.Context(), userID)
 	if err != nil {
 		HandleInternalServerError(w, r)
 		log.Printf("%v", err)
@@ -46,7 +46,7 @@ func (h *Handler) AddNewGoal(w http.ResponseWriter, r *http.Request) {
 		notes.Valid = true
 	}
 
-	newGoal, err := h.DB.CreateGoal(r.Context(), database.CreateGoalParams{
+	newGoal, err := h.cfg.DB.CreateGoal(r.Context(), database.CreateGoalParams{
 		GoalName:    reqGoalName,
 		Description: reqDescription,
 		GoalDate:    goalDate,
@@ -96,7 +96,7 @@ func (h *Handler) EditGoal(w http.ResponseWriter, r *http.Request) {
 		completionDate.Valid = true
 	}
 
-	updatedGoal, err := h.DB.UpdateGoal(r.Context(), database.UpdateGoalParams{
+	updatedGoal, err := h.cfg.DB.UpdateGoal(r.Context(), database.UpdateGoalParams{
 		GoalName:       reqGoalName,
 		Description:    reqDescription,
 		GoalDate:       goalDate,
@@ -124,7 +124,7 @@ func (h *Handler) DeleteGoal(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.DB.DeleteGoal(r.Context(), database.DeleteGoalParams{
+	err = h.cfg.DB.DeleteGoal(r.Context(), database.DeleteGoalParams{
 		ID:     goalID,
 		UserID: userID,
 	})

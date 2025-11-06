@@ -18,13 +18,13 @@ func (h *Handler) RefreshToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.DB.GetUserFromRefreshToken(r.Context(), refreshToken)
+	user, err := h.cfg.DB.GetUserFromRefreshToken(r.Context(), refreshToken)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusUnauthorized, "Couldn't match user with refresh token", err)
 		return
 	}
 
-	accessToken, err := auth.MakeJWT(user.ID, user.IsAdmin, h.TokenSecret)
+	accessToken, err := auth.MakeJWT(user.ID, user.IsAdmin, h.cfg.TokenSecret)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, "Error making JWT", err)
 		return
@@ -40,7 +40,7 @@ func (h *Handler) RevokeToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.DB.RevokeRefreshToken(r.Context(), refreshToken)
+	err = h.cfg.DB.RevokeRefreshToken(r.Context(), refreshToken)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, "Error revoking token", err)
 		return

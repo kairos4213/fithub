@@ -32,7 +32,7 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		user, err := h.DB.CreateUser(r.Context(), database.CreateUserParams{
+		user, err := h.cfg.DB.CreateUser(r.Context(), database.CreateUserParams{
 			FirstName:      firstName,
 			LastName:       lastName,
 			Email:          email,
@@ -46,7 +46,7 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		accessToken, err := auth.MakeJWT(user.ID, user.IsAdmin, h.TokenSecret)
+		accessToken, err := auth.MakeJWT(user.ID, user.IsAdmin, h.cfg.TokenSecret)
 		if err != nil {
 			HandleInternalServerError(w, r)
 			log.Printf("%v", err)
@@ -60,7 +60,7 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = h.DB.CreateRefreshToken(r.Context(), database.CreateRefreshTokenParams{
+		err = h.cfg.DB.CreateRefreshToken(r.Context(), database.CreateRefreshTokenParams{
 			Token:     refreshToken,
 			UserID:    user.ID,
 			ExpiresAt: time.Now().UTC().AddDate(0, 0, 60),
@@ -88,7 +88,7 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) CheckUserEmail(w http.ResponseWriter, r *http.Request) {
 	email := r.FormValue("email")
 
-	_, err := h.DB.GetUser(r.Context(), email)
+	_, err := h.cfg.DB.GetUser(r.Context(), email)
 	if err == nil {
 		HandleRegPageEmailAlert(w, r)
 		log.Print("User email already exists")

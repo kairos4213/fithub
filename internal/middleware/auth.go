@@ -21,7 +21,7 @@ func (mw *Middleware) Auth(next http.Handler) http.Handler {
 				return
 			}
 
-			claims, err := auth.ValidateJWT(accessToken, mw.TokenSecret)
+			claims, err := auth.ValidateJWT(accessToken, mw.cfg.TokenSecret)
 			if err != nil {
 				utils.RespondWithError(w, http.StatusUnauthorized, "Invalid JWT", err)
 				return
@@ -41,7 +41,7 @@ func (mw *Middleware) Auth(next http.Handler) http.Handler {
 			return
 		}
 		accessToken := accessCookie.Value
-		claims, err := auth.ValidateJWT(accessToken, mw.TokenSecret)
+		claims, err := auth.ValidateJWT(accessToken, mw.cfg.TokenSecret)
 		if err != nil {
 			// Access token expired
 			if strings.Contains(err.Error(), "token is expired") {
@@ -56,7 +56,7 @@ func (mw *Middleware) Auth(next http.Handler) http.Handler {
 
 				// Check for valid refresh token in db
 				refreshToken := refreshCookie.Value
-				user, err := mw.DB.GetUserFromRefreshToken(r.Context(), refreshToken)
+				user, err := mw.cfg.DB.GetUserFromRefreshToken(r.Context(), refreshToken)
 				if err != nil {
 					utils.ClearCookies(w, accessCookie, refreshCookie)
 					http.Redirect(w, r, "/unauthorized?reason=expired", http.StatusSeeOther)
@@ -65,13 +65,13 @@ func (mw *Middleware) Auth(next http.Handler) http.Handler {
 				}
 
 				// Try to make new access token
-				accessToken, err = auth.MakeJWT(user.ID, user.IsAdmin, mw.TokenSecret)
+				accessToken, err = auth.MakeJWT(user.ID, user.IsAdmin, mw.cfg.TokenSecret)
 				if err != nil {
 					// Error making access token -> need to remove any existing cookies and
 					// revoke valid refresh token
 					utils.ClearCookies(w, accessCookie, refreshCookie)
 
-					err := mw.DB.RevokeRefreshToken(r.Context(), refreshToken)
+					err := mw.cfg.DB.RevokeRefreshToken(r.Context(), refreshToken)
 					if err != nil {
 						http.Redirect(w, r, "/unauthorized?reason=internal_error", http.StatusSeeOther)
 						log.Printf("%v", err)
@@ -92,7 +92,7 @@ func (mw *Middleware) Auth(next http.Handler) http.Handler {
 					SameSite: http.SameSiteDefaultMode,
 				})
 				// Attempt creating claims
-				claims, err := auth.ValidateJWT(accessToken, mw.TokenSecret)
+				claims, err := auth.ValidateJWT(accessToken, mw.cfg.TokenSecret)
 				if err != nil {
 					// clear access cookie and redirect to try again
 					utils.ClearCookies(w, accessCookie)
@@ -127,7 +127,7 @@ func (mw *Middleware) AdminAuth(next http.Handler) http.Handler {
 				return
 			}
 
-			claims, err := auth.ValidateJWT(accessToken, mw.TokenSecret)
+			claims, err := auth.ValidateJWT(accessToken, mw.cfg.TokenSecret)
 			if err != nil {
 				utils.RespondWithError(w, http.StatusUnauthorized, "Invalid JWT", err)
 				return
@@ -155,7 +155,7 @@ func (mw *Middleware) AdminAuth(next http.Handler) http.Handler {
 		}
 
 		accessToken := accessCookie.Value
-		claims, err := auth.ValidateJWT(accessToken, mw.TokenSecret)
+		claims, err := auth.ValidateJWT(accessToken, mw.cfg.TokenSecret)
 		if err != nil {
 			// Access token expired
 			if strings.Contains(err.Error(), "token is expired") {
@@ -170,7 +170,7 @@ func (mw *Middleware) AdminAuth(next http.Handler) http.Handler {
 
 				// Check for valid refresh token in db
 				refreshToken := refreshCookie.Value
-				user, err := mw.DB.GetUserFromRefreshToken(r.Context(), refreshToken)
+				user, err := mw.cfg.DB.GetUserFromRefreshToken(r.Context(), refreshToken)
 				if err != nil {
 					utils.ClearCookies(w, accessCookie, refreshCookie)
 					http.Redirect(w, r, "/unauthorized?reason=expired", http.StatusSeeOther)
@@ -179,13 +179,13 @@ func (mw *Middleware) AdminAuth(next http.Handler) http.Handler {
 				}
 
 				// Try to make new access token
-				accessToken, err = auth.MakeJWT(user.ID, user.IsAdmin, mw.TokenSecret)
+				accessToken, err = auth.MakeJWT(user.ID, user.IsAdmin, mw.cfg.TokenSecret)
 				if err != nil {
 					// Error making access token -> need to remove any existing cookies and
 					// revoke valid refresh token
 					utils.ClearCookies(w, accessCookie, refreshCookie)
 
-					err := mw.DB.RevokeRefreshToken(r.Context(), refreshToken)
+					err := mw.cfg.DB.RevokeRefreshToken(r.Context(), refreshToken)
 					if err != nil {
 						http.Redirect(w, r, "/unauthorized?reason=internal_error", http.StatusSeeOther)
 						log.Printf("%v", err)
@@ -206,7 +206,7 @@ func (mw *Middleware) AdminAuth(next http.Handler) http.Handler {
 					SameSite: http.SameSiteDefaultMode,
 				})
 				// Attempt creating claims
-				claims, err := auth.ValidateJWT(accessToken, mw.TokenSecret)
+				claims, err := auth.ValidateJWT(accessToken, mw.cfg.TokenSecret)
 				if err != nil {
 					// clear access cookie and redirect to try again
 					utils.ClearCookies(w, accessCookie)

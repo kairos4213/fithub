@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/joho/godotenv"
+	"github.com/kairos4213/fithub/internal/config"
 	"github.com/kairos4213/fithub/internal/database"
 	"github.com/kairos4213/fithub/internal/handlers"
 	"github.com/kairos4213/fithub/internal/middleware"
@@ -46,9 +47,9 @@ func main() {
 	}
 	dbQueries := database.New(db)
 
-	mw := middleware.Middleware{DB: dbQueries, TokenSecret: tokenSecret}
-
-	handler := handlers.Handler{DB: dbQueries, TokenSecret: tokenSecret}
+	cfg := config.New(dbQueries, tokenSecret)
+	mw := middleware.New(cfg)
+	handler := handlers.New(cfg)
 
 	mux := http.NewServeMux()
 
