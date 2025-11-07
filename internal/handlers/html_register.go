@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"log"
+	"log/slog"
 	"net/http"
 	"strings"
 	"time"
@@ -15,7 +15,12 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		w.Header().Set("Content-type", "text/html")
 		contents := templates.RegisterPage()
-		templates.Layout(contents, "FitHub | Register", false).Render(r.Context(), w)
+		err := templates.Layout(contents, "FitHub | Register", false).Render(r.Context(), w)
+		if err != nil {
+			HandleInternalServerError(w, r)
+			h.cfg.Logger.Error("failed to render register page", slog.String("error", err.Error()))
+			return
+		}
 		return
 	}
 
@@ -28,7 +33,7 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 		hashedPassword, err := auth.HashPassword(password)
 		if err != nil {
 			HandleInternalServerError(w, r)
-			log.Printf("%v", err)
+			h.cfg.Logger.Error("failed to hash password", slog.String("error", err.Error()))
 			return
 		}
 
@@ -41,22 +46,25 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			if strings.Contains(err.Error(), "users_email_key") {
 				HandleRegPageEmailAlert(w, r)
-				log.Printf("DB Duplicate email error: %v", err)
+				h.cfg.Logger.Info("duplicate db email", slog.String("error", err.Error()))
 				return
 			}
+			HandleInternalServerError(w, r)
+			h.cfg.Logger.Error("failed to create user", slog.String("error", err.Error()))
+			return
 		}
 
 		accessToken, err := auth.MakeJWT(user.ID, user.IsAdmin, h.cfg.TokenSecret)
 		if err != nil {
 			HandleInternalServerError(w, r)
-			log.Printf("%v", err)
+			h.cfg.Logger.Error("failed to make JWT", slog.String("error", err.Error()))
 			return
 		}
 
 		refreshToken, err := auth.MakeRefreshToken()
 		if err != nil {
 			HandleInternalServerError(w, r)
-			log.Printf("%v", err)
+			h.cfg.Logger.Error("failed to make refresh token", slog.String("error", err.Error()))
 			return
 		}
 
@@ -67,7 +75,7 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 		})
 		if err != nil {
 			HandleInternalServerError(w, r)
-			log.Printf("%v", err)
+			h.cfg.Logger.Error("failed to store refresh token", slog.String("error", err.Error()))
 			return
 		}
 
@@ -88,12 +96,17 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) CheckUserEmail(w http.ResponseWriter, r *http.Request) {
 	email := r.FormValue("email")
 
-	_, err := h.cfg.DB.GetUser(r.Context(), email)
+	user, err := h.cfg.DB.GetUser(r.Context(), email)
 	if err == nil {
 		HandleRegPageEmailAlert(w, r)
-		log.Print("User email already exists")
+		h.cfg.Logger.Info("email already exists alert", slog.String("email", user.Email))
 		return
 	}
 
-	templates.RegPageEmailAlert(templates.HtmlErr{}).Render(r.Context(), w)
+	err = templates.RegPageEmailAlert(templates.HtmlErr{}).Render(r.Context(), w)
+	if err != nil {
+		HandleInternalServerError(w, r)
+		h.cfg.Logger.Error("failed to render registration page email alert", slog.String("error", err.Error()))
+		return
+	}
 }

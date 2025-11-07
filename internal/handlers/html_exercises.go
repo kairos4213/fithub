@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"database/sql"
-	"log"
+	"log/slog"
 	"net/http"
 	"strconv"
 	"strings"
@@ -16,12 +16,17 @@ func (h *Handler) GetAdminExercisesPage(w http.ResponseWriter, r *http.Request) 
 	exercises, err := h.cfg.DB.GetAllExercises(r.Context())
 	if err != nil {
 		HandleInternalServerError(w, r)
-		log.Printf("Server Error: %v", err)
+		h.cfg.Logger.Error("failed to fetch exercises", slog.String("error", err.Error()))
 		return
 	}
 
 	contents := templates.AdminExercisesPage(exercises)
-	templates.AdminLayout(contents, "FitHub-Admin | Home", true).Render(r.Context(), w)
+	err = templates.AdminLayout(contents, "FitHub-Admin | Home", true).Render(r.Context(), w)
+	if err != nil {
+		HandleInternalServerError(w, r)
+		h.cfg.Logger.Error("failed to render admin exercises page", slog.String("error", err.Error()))
+		return
+	}
 }
 
 func (h *Handler) AddDBExercise(w http.ResponseWriter, r *http.Request) {
@@ -56,7 +61,7 @@ func (h *Handler) AddDBExercise(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		HandleInternalServerError(w, r)
-		log.Printf("Server Error: %v", err)
+		h.cfg.Logger.Error("failed to create exercise", slog.String("error", err.Error()))
 		return
 	}
 
@@ -69,7 +74,7 @@ func (h *Handler) EditDBExercise(w http.ResponseWriter, r *http.Request) {
 	exerciseID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		HandleInternalServerError(w, r)
-		log.Printf("Server Error: %v", err)
+		h.cfg.Logger.Error("failed to parse exercise id", slog.String("error", err.Error()))
 		return
 	}
 
@@ -105,25 +110,30 @@ func (h *Handler) EditDBExercise(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		HandleInternalServerError(w, r)
-		log.Printf("Server Error: %v", err)
+		h.cfg.Logger.Error("failed to update exercise", slog.String("error", err.Error()))
 		return
 	}
 
-	templates.ExerciseDataRow(updatedExercise).Render(r.Context(), w)
+	err = templates.ExerciseDataRow(updatedExercise).Render(r.Context(), w)
+	if err != nil {
+		HandleInternalServerError(w, r)
+		h.cfg.Logger.Error("failed to render exercise row", slog.String("error", err.Error()))
+		return
+	}
 }
 
 func (h *Handler) DeleteDBExercise(w http.ResponseWriter, r *http.Request) {
 	exerciseID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		HandleInternalServerError(w, r)
-		log.Printf("Server Error: %v", err)
+		h.cfg.Logger.Error("failed to parse exercise id", slog.String("error", err.Error()))
 		return
 	}
 
 	err = h.cfg.DB.DeleteExercise(r.Context(), exerciseID)
 	if err != nil {
 		HandleInternalServerError(w, r)
-		log.Printf("Server Error: %v", err)
+		h.cfg.Logger.Error("failed to delete exercise", slog.String("error", err.Error()))
 		return
 	}
 
@@ -135,7 +145,7 @@ func (h *Handler) GetExerciseByKeyword(w http.ResponseWriter, r *http.Request) {
 	workoutID, err := uuid.Parse(r.FormValue("workoutID"))
 	if err != nil {
 		HandleInternalServerError(w, r)
-		log.Printf("Server Error: %v", err)
+		h.cfg.Logger.Error("failed to parse workout id", slog.String("error", err.Error()))
 		return
 	}
 
@@ -147,18 +157,23 @@ func (h *Handler) GetExerciseByKeyword(w http.ResponseWriter, r *http.Request) {
 	exercises, err := h.cfg.DB.GetExerciseByKeyword(r.Context(), exerciseSearch)
 	if err != nil {
 		HandleInternalServerError(w, r)
-		log.Printf("Server Error: %v", err)
+		h.cfg.Logger.Error("failed to fetch searched exercise", slog.String("error", err.Error()))
 		return
 	}
 
-	templates.ExerciseQuickSearchResults(exercises, workoutID).Render(r.Context(), w)
+	err = templates.ExerciseQuickSearchResults(exercises, workoutID).Render(r.Context(), w)
+	if err != nil {
+		HandleInternalServerError(w, r)
+		h.cfg.Logger.Error("failed to render exercise search results", slog.String("error", err.Error()))
+		return
+	}
 }
 
 func (h *Handler) AddExerciseToWorkout(w http.ResponseWriter, r *http.Request) {
 	workoutID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		HandleInternalServerError(w, r)
-		log.Printf("Server err: %v", err)
+		h.cfg.Logger.Error("failed to parse workout id", slog.String("error", err.Error()))
 		return
 	}
 
@@ -166,14 +181,14 @@ func (h *Handler) AddExerciseToWorkout(w http.ResponseWriter, r *http.Request) {
 	exercise, err := h.cfg.DB.GetExerciseByName(r.Context(), exerciseName)
 	if err != nil {
 		HandleInternalServerError(w, r)
-		log.Printf("Server err: %v", err)
+		h.cfg.Logger.Error("failed to fetch exercise by name", slog.String("error", err.Error()))
 		return
 	}
 
 	plannedSets, err := strconv.ParseInt(r.FormValue("planned-sets"), 10, 32)
 	if err != nil {
 		HandleInternalServerError(w, r)
-		log.Printf("Server err: %v", err)
+		h.cfg.Logger.Error("failed to parse planned sets", slog.String("error", err.Error()))
 		return
 	}
 
@@ -183,7 +198,7 @@ func (h *Handler) AddExerciseToWorkout(w http.ResponseWriter, r *http.Request) {
 		rep, err := strconv.ParseInt(plannedRep, 10, 32)
 		if err != nil {
 			HandleInternalServerError(w, r)
-			log.Printf("Server err: %v", err)
+			h.cfg.Logger.Error("failed to parse planned rep", slog.String("error", err.Error()))
 			return
 		}
 		plannedReps[i] = int32(rep)
@@ -195,7 +210,7 @@ func (h *Handler) AddExerciseToWorkout(w http.ResponseWriter, r *http.Request) {
 		weight, err := strconv.ParseInt(plannedWeight, 10, 32)
 		if err != nil {
 			HandleInternalServerError(w, r)
-			log.Printf("Server err: %v", err)
+			h.cfg.Logger.Error("failed to parse planned weight", slog.String("error", err.Error()))
 			return
 		}
 		plannedWeights[i] = int32(weight)
@@ -213,7 +228,7 @@ func (h *Handler) AddExerciseToWorkout(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		HandleInternalServerError(w, r)
-		log.Printf("Server err: %v", err)
+		h.cfg.Logger.Error("failed to add exercise to workout", slog.String("error", err.Error()))
 		return
 	}
 
@@ -222,41 +237,46 @@ func (h *Handler) AddExerciseToWorkout(w http.ResponseWriter, r *http.Request) {
 		Exercise:         exercise,
 	}
 
-	templates.WorkoutExercisesTableDataRow(exerciseForWorkout).Render(r.Context(), w)
+	err = templates.WorkoutExercisesTableDataRow(exerciseForWorkout).Render(r.Context(), w)
+	if err != nil {
+		HandleInternalServerError(w, r)
+		h.cfg.Logger.Error("failed to render workout exercises table row", slog.String("error", err.Error()))
+		return
+	}
 }
 
 func (h *Handler) UpdateWorkoutExercise(w http.ResponseWriter, r *http.Request) {
 	workoutID, err := uuid.Parse(r.PathValue("workoutID"))
 	if err != nil {
 		HandleInternalServerError(w, r)
-		log.Printf("Server Error: %v", err)
+		h.cfg.Logger.Error("failed to parse workout id", slog.String("error", err.Error()))
 		return
 	}
 	workoutExerciseID, err := uuid.Parse(r.PathValue("workoutExerciseID"))
 	if err != nil {
 		HandleInternalServerError(w, r)
-		log.Printf("Server Error: %v", err)
+		h.cfg.Logger.Error("failed to parse workout exercise id", slog.String("error", err.Error()))
 		return
 	}
 
 	exerciseID, err := uuid.Parse(r.FormValue("exercise"))
 	if err != nil {
 		HandleInternalServerError(w, r)
-		log.Printf("Server Error with parsing exercise id: %v", err)
+		h.cfg.Logger.Error("failed to parse exercise id", slog.String("error", err.Error()))
 		return
 	}
 
 	exercise, err := h.cfg.DB.GetExerciseByID(r.Context(), exerciseID)
 	if err != nil {
 		HandleInternalServerError(w, r)
-		log.Printf("Server err with fetching exercise by id: %v", err)
+		h.cfg.Logger.Error("failed to fetch exercise", slog.String("error", err.Error()))
 		return
 	}
 
 	plannedSets, err := strconv.ParseInt(r.FormValue("planned-sets"), 10, 32)
 	if err != nil {
 		HandleInternalServerError(w, r)
-		log.Printf("Server err: %v", err)
+		h.cfg.Logger.Error("failed to parse planned sets", slog.String("error", err.Error()))
 		return
 	}
 
@@ -266,7 +286,7 @@ func (h *Handler) UpdateWorkoutExercise(w http.ResponseWriter, r *http.Request) 
 		rep, err := strconv.ParseInt(plannedRep, 10, 32)
 		if err != nil {
 			HandleInternalServerError(w, r)
-			log.Printf("Server err: %v", err)
+			h.cfg.Logger.Error("failed to parse planned rep", slog.String("error", err.Error()))
 			return
 		}
 		plannedReps[i] = int32(rep)
@@ -278,7 +298,7 @@ func (h *Handler) UpdateWorkoutExercise(w http.ResponseWriter, r *http.Request) 
 		weight, err := strconv.ParseInt(plannedWeight, 10, 32)
 		if err != nil {
 			HandleInternalServerError(w, r)
-			log.Printf("Server err: %v", err)
+			h.cfg.Logger.Error("failed to parse planned weight", slog.String("error", err.Error()))
 			return
 		}
 		plannedWeights[i] = int32(weight)
@@ -287,7 +307,7 @@ func (h *Handler) UpdateWorkoutExercise(w http.ResponseWriter, r *http.Request) 
 	completedSets, err := strconv.ParseInt(r.FormValue("completed-sets"), 10, 32)
 	if err != nil {
 		HandleInternalServerError(w, r)
-		log.Printf("Server err: %v", err)
+		h.cfg.Logger.Error("failed to parse completed sets", slog.String("error", err.Error()))
 		return
 	}
 
@@ -297,7 +317,7 @@ func (h *Handler) UpdateWorkoutExercise(w http.ResponseWriter, r *http.Request) 
 		rep, err := strconv.ParseInt(completedRep, 10, 32)
 		if err != nil {
 			HandleInternalServerError(w, r)
-			log.Printf("Server err: %v", err)
+			h.cfg.Logger.Error("failed to parse completed rep", slog.String("error", err.Error()))
 			return
 		}
 		completedReps[i] = int32(rep)
@@ -309,7 +329,7 @@ func (h *Handler) UpdateWorkoutExercise(w http.ResponseWriter, r *http.Request) 
 		weight, err := strconv.ParseInt(completedWeight, 10, 32)
 		if err != nil {
 			HandleInternalServerError(w, r)
-			log.Printf("Server err: %v", err)
+			h.cfg.Logger.Error("failed to parse completed weight", slog.String("error", err.Error()))
 			return
 		}
 		completedWeights[i] = int32(weight)
@@ -327,7 +347,7 @@ func (h *Handler) UpdateWorkoutExercise(w http.ResponseWriter, r *http.Request) 
 	})
 	if err != nil {
 		HandleInternalServerError(w, r)
-		log.Printf("Server err: %v", err)
+		h.cfg.Logger.Error("failed to update workout exercise", slog.String("error", err.Error()))
 		return
 	}
 
@@ -336,20 +356,25 @@ func (h *Handler) UpdateWorkoutExercise(w http.ResponseWriter, r *http.Request) 
 		Exercise:         exercise,
 	}
 
-	templates.WorkoutExercisesTableDataRow(exerciseForWorkout).Render(r.Context(), w)
+	err = templates.WorkoutExercisesTableDataRow(exerciseForWorkout).Render(r.Context(), w)
+	if err != nil {
+		HandleInternalServerError(w, r)
+		h.cfg.Logger.Error("failed to render workout exercises table data row", slog.String("error", err.Error()))
+		return
+	}
 }
 
 func (h *Handler) UpdateWorkoutExercisesSortOrder(w http.ResponseWriter, r *http.Request) {
 	workoutID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		HandleInternalServerError(w, r)
-		log.Printf("Server Error: %v", err)
+		h.cfg.Logger.Error("failed to parse workout id", slog.String("error", err.Error()))
 		return
 	}
 
 	if err := r.ParseForm(); err != nil {
 		HandleInternalServerError(w, r)
-		log.Printf("Server Error: %v", err)
+		h.cfg.Logger.Error("failed to parse workout exercises form", slog.String("error", err.Error()))
 		return
 	}
 	sortOrder := r.PostForm["sort-order[]"]
@@ -357,7 +382,7 @@ func (h *Handler) UpdateWorkoutExercisesSortOrder(w http.ResponseWriter, r *http
 		id, err := uuid.Parse(workoutExerciseID)
 		if err != nil {
 			HandleInternalServerError(w, r)
-			log.Printf("Server err: %v", err)
+			h.cfg.Logger.Error("failed to parse workout exercise id", slog.String("error", err.Error()))
 			return
 		}
 
@@ -368,7 +393,7 @@ func (h *Handler) UpdateWorkoutExercisesSortOrder(w http.ResponseWriter, r *http
 		})
 		if err != nil {
 			HandleInternalServerError(w, r)
-			log.Printf("Server Error: %v", err)
+			h.cfg.Logger.Error("failed to update workout exercise sort order", slog.String("error", err.Error()))
 			return
 		}
 	}
@@ -380,14 +405,14 @@ func (h *Handler) DeleteExerciseFromWorkout(w http.ResponseWriter, r *http.Reque
 	workoutExerciseID, err := uuid.Parse(r.PathValue("workoutExerciseID"))
 	if err != nil {
 		HandleInternalServerError(w, r)
-		log.Printf("Server Error: %v", err)
+		h.cfg.Logger.Error("failed to parse workout exercise id", slog.String("error", err.Error()))
 		return
 	}
 
 	err = h.cfg.DB.DeleteExerciseFromWorkout(r.Context(), workoutExerciseID)
 	if err != nil {
 		HandleInternalServerError(w, r)
-		log.Printf("Server Error: %v", err)
+		h.cfg.Logger.Error("failed to delete exercise from workout", slog.String("error", err.Error()))
 		return
 	}
 
@@ -396,5 +421,10 @@ func (h *Handler) DeleteExerciseFromWorkout(w http.ResponseWriter, r *http.Reque
 
 func (h *Handler) GetExercisesPage(w http.ResponseWriter, r *http.Request) {
 	muscleGroups := []string{"Chest", "Legs", "Back", "Shoulders"}
-	templates.Layout(templates.ExercisesPage(muscleGroups), "FitHub | Exercises", true).Render(r.Context(), w)
+	err := templates.Layout(templates.ExercisesPage(muscleGroups), "FitHub | Exercises", true).Render(r.Context(), w)
+	if err != nil {
+		HandleInternalServerError(w, r)
+		h.cfg.Logger.Error("failed to render exercises page", slog.String("error", err.Error()))
+		return
+	}
 }

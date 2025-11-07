@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"log"
+	"log/slog"
 	"net/http"
 
 	"github.com/kairos4213/fithub/internal/utils"
@@ -11,20 +11,20 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	accessCookie, err := r.Cookie("access_token")
 	if err != nil {
 		HandleInternalServerError(w, r)
-		log.Printf("%v", err)
+		h.cfg.Logger.Error("failed to find access token", slog.String("error", err.Error()))
 		return
 	}
 
 	refreshCookie, err := r.Cookie("refresh_token")
 	if err != nil {
 		HandleInternalServerError(w, r)
-		log.Printf("%v", err)
+		h.cfg.Logger.Error("failed to find refresh token", slog.String("error", err.Error()))
 		return
 	}
 	err = h.cfg.DB.RevokeRefreshToken(r.Context(), refreshCookie.Value)
 	if err != nil {
 		HandleInternalServerError(w, r)
-		log.Printf("%v", err)
+		h.cfg.Logger.Error("failed to revoke refresh token", slog.String("error", err.Error()))
 		return
 	}
 

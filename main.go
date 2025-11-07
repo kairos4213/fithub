@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"time"
@@ -47,7 +48,9 @@ func main() {
 	}
 	dbQueries := database.New(db)
 
-	cfg := config.New(dbQueries, tokenSecret)
+	logger := slog.Default()
+
+	cfg := config.New(dbQueries, logger, tokenSecret)
 	mw := middleware.New(cfg)
 	handler := handlers.New(cfg)
 

@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"database/sql"
-	"log"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -17,12 +17,17 @@ func (h *Handler) GetAllGoals(w http.ResponseWriter, r *http.Request) {
 	goals, err := h.cfg.DB.GetAllUserGoals(r.Context(), userID)
 	if err != nil {
 		HandleInternalServerError(w, r)
-		log.Printf("%v", err)
+		h.cfg.Logger.Error("failed to get user goals", slog.String("error", err.Error()))
 		return
 	}
 
 	contents := templates.Goals(goals)
-	templates.Layout(contents, "Fithub | Goals", true).Render(r.Context(), w)
+	err = templates.Layout(contents, "Fithub | Goals", true).Render(r.Context(), w)
+	if err != nil {
+		HandleInternalServerError(w, r)
+		h.cfg.Logger.Error("failed to render goals", slog.String("error", err.Error()))
+		return
+	}
 }
 
 func (h *Handler) AddNewGoal(w http.ResponseWriter, r *http.Request) {
@@ -36,7 +41,7 @@ func (h *Handler) AddNewGoal(w http.ResponseWriter, r *http.Request) {
 	goalDate, err := time.Parse(time.DateOnly, reqGoalDate)
 	if err != nil {
 		HandleInternalServerError(w, r)
-		log.Printf("%v", err)
+		h.cfg.Logger.Error("failed to parse goal date", slog.String("error", err.Error()))
 		return
 	}
 
@@ -55,11 +60,16 @@ func (h *Handler) AddNewGoal(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		HandleInternalServerError(w, r)
-		log.Printf("%v", err)
+		h.cfg.Logger.Error("failed to create goal", slog.String("error", err.Error()))
 		return
 	}
 
-	templates.GoalDataRow(newGoal).Render(r.Context(), w)
+	err = templates.GoalDataRow(newGoal).Render(r.Context(), w)
+	if err != nil {
+		HandleInternalServerError(w, r)
+		h.cfg.Logger.Error("failed to render goal row", slog.String("error", err.Error()))
+		return
+	}
 }
 
 func (h *Handler) EditGoal(w http.ResponseWriter, r *http.Request) {
@@ -67,7 +77,7 @@ func (h *Handler) EditGoal(w http.ResponseWriter, r *http.Request) {
 	goalID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		HandleInternalServerError(w, r)
-		log.Printf("%v", err)
+		h.cfg.Logger.Error("failed to parse goal id", slog.String("error", err.Error()))
 		return
 	}
 
@@ -80,7 +90,7 @@ func (h *Handler) EditGoal(w http.ResponseWriter, r *http.Request) {
 	goalDate, err := time.Parse(time.DateOnly, reqGoalDate)
 	if err != nil {
 		HandleInternalServerError(w, r)
-		log.Printf("%v", err)
+		h.cfg.Logger.Error("failed to parse goal date", slog.String("error", err.Error()))
 		return
 	}
 
@@ -108,11 +118,16 @@ func (h *Handler) EditGoal(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		HandleInternalServerError(w, r)
-		log.Printf("%v", err)
+		h.cfg.Logger.Error("failed to update goal", slog.String("error", err.Error()))
 		return
 	}
 
-	templates.GoalDataRow(updatedGoal).Render(r.Context(), w)
+	err = templates.GoalDataRow(updatedGoal).Render(r.Context(), w)
+	if err != nil {
+		HandleInternalServerError(w, r)
+		h.cfg.Logger.Error("failed to render goal row", slog.String("error", err.Error()))
+		return
+	}
 }
 
 func (h *Handler) DeleteGoal(w http.ResponseWriter, r *http.Request) {
@@ -120,7 +135,7 @@ func (h *Handler) DeleteGoal(w http.ResponseWriter, r *http.Request) {
 	goalID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		HandleInternalServerError(w, r)
-		log.Printf("%v", err)
+		h.cfg.Logger.Error("failed to parse goal id", slog.String("error", err.Error()))
 		return
 	}
 
@@ -130,7 +145,7 @@ func (h *Handler) DeleteGoal(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		HandleInternalServerError(w, r)
-		log.Printf("%v", err)
+		h.cfg.Logger.Error("failed to delete goal", slog.String("error", err.Error()))
 		return
 	}
 

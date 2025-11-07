@@ -3,6 +3,7 @@ package middleware
 import (
 	"context"
 	"log"
+	"log/slog"
 	"net/http"
 	"strings"
 
@@ -37,7 +38,7 @@ func (mw *Middleware) Auth(next http.Handler) http.Handler {
 		accessCookie, err := r.Cookie("access_token")
 		if err != nil {
 			http.Redirect(w, r, "/unauthorized?reason=invalid_missing", http.StatusSeeOther)
-			log.Printf("%v", err)
+			mw.cfg.Logger.Info("missing access token", slog.String("error", err.Error()))
 			return
 		}
 		accessToken := accessCookie.Value
@@ -50,7 +51,7 @@ func (mw *Middleware) Auth(next http.Handler) http.Handler {
 				if err != nil {
 					utils.ClearCookies(w, accessCookie)
 					http.Redirect(w, r, "/unauthorized?reason=invalid_missing", http.StatusSeeOther)
-					log.Printf("%v", err)
+					mw.cfg.Logger.Info("missing refresh token", slog.String("error", err.Error()))
 					return
 				}
 
@@ -60,7 +61,7 @@ func (mw *Middleware) Auth(next http.Handler) http.Handler {
 				if err != nil {
 					utils.ClearCookies(w, accessCookie, refreshCookie)
 					http.Redirect(w, r, "/unauthorized?reason=expired", http.StatusSeeOther)
-					log.Printf("%v", err)
+					mw.cfg.Logger.Info("unable to fetch valid refresh token", slog.String("error", err.Error()))
 					return
 				}
 
@@ -71,15 +72,15 @@ func (mw *Middleware) Auth(next http.Handler) http.Handler {
 					// revoke valid refresh token
 					utils.ClearCookies(w, accessCookie, refreshCookie)
 
-					err := mw.cfg.DB.RevokeRefreshToken(r.Context(), refreshToken)
-					if err != nil {
+					revokeErr := mw.cfg.DB.RevokeRefreshToken(r.Context(), refreshToken)
+					if revokeErr != nil {
 						http.Redirect(w, r, "/unauthorized?reason=internal_error", http.StatusSeeOther)
-						log.Printf("%v", err)
+						mw.cfg.Logger.Error("unable to revoke refresh token", slog.String("error", err.Error()))
 						return
 					}
 
 					http.Redirect(w, r, "/unauthorized?reason=internal_error", http.StatusSeeOther)
-					log.Printf("%v", err)
+					mw.cfg.Logger.Error("unable to make JWT", slog.String("error", err.Error()))
 					return
 				}
 				// Successful access token refresh
@@ -97,7 +98,7 @@ func (mw *Middleware) Auth(next http.Handler) http.Handler {
 					// clear access cookie and redirect to try again
 					utils.ClearCookies(w, accessCookie)
 					http.Redirect(w, r, "/unauthorized?reason=internal_error", http.StatusSeeOther)
-					log.Printf("%v", err)
+					mw.cfg.Logger.Error("unable to validate JWT", slog.String("error", err.Error()))
 					return
 				}
 				ctx := context.WithValue(r.Context(), cntx.UserIDKey, claims.UserID)
@@ -107,7 +108,7 @@ func (mw *Middleware) Auth(next http.Handler) http.Handler {
 			// Invalid access token -> clear access token cookie
 			utils.ClearCookies(w, accessCookie)
 			http.Redirect(w, r, "/unauthorized?reason=invalid_missing", http.StatusSeeOther)
-			log.Printf("%v", err)
+			mw.cfg.Logger.Info("invalid access token", slog.String("error", err.Error()))
 			return
 		}
 
@@ -150,7 +151,7 @@ func (mw *Middleware) AdminAuth(next http.Handler) http.Handler {
 		accessCookie, err := r.Cookie("access_token")
 		if err != nil {
 			http.Redirect(w, r, "/unauthorized?reason=invalid_missing", http.StatusSeeOther)
-			log.Printf("%v", err)
+			mw.cfg.Logger.Info("missing access token", slog.String("error", err.Error()))
 			return
 		}
 
@@ -164,7 +165,7 @@ func (mw *Middleware) AdminAuth(next http.Handler) http.Handler {
 				if err != nil {
 					utils.ClearCookies(w, accessCookie)
 					http.Redirect(w, r, "/unauthorized?reason=invalid_missing", http.StatusSeeOther)
-					log.Printf("%v", err)
+					mw.cfg.Logger.Info("missing refresh token", slog.String("error", err.Error()))
 					return
 				}
 
@@ -174,7 +175,7 @@ func (mw *Middleware) AdminAuth(next http.Handler) http.Handler {
 				if err != nil {
 					utils.ClearCookies(w, accessCookie, refreshCookie)
 					http.Redirect(w, r, "/unauthorized?reason=expired", http.StatusSeeOther)
-					log.Printf("%v", err)
+					mw.cfg.Logger.Info("unable to fetch valid refresh token", slog.String("error", err.Error()))
 					return
 				}
 
@@ -185,15 +186,15 @@ func (mw *Middleware) AdminAuth(next http.Handler) http.Handler {
 					// revoke valid refresh token
 					utils.ClearCookies(w, accessCookie, refreshCookie)
 
-					err := mw.cfg.DB.RevokeRefreshToken(r.Context(), refreshToken)
-					if err != nil {
+					revokeErr := mw.cfg.DB.RevokeRefreshToken(r.Context(), refreshToken)
+					if revokeErr != nil {
 						http.Redirect(w, r, "/unauthorized?reason=internal_error", http.StatusSeeOther)
-						log.Printf("%v", err)
+						mw.cfg.Logger.Error("unable to revoke refresh token", slog.String("error", err.Error()))
 						return
 					}
 
 					http.Redirect(w, r, "/unauthorized?reason=internal_error", http.StatusSeeOther)
-					log.Printf("%v", err)
+					mw.cfg.Logger.Error("unable to make JWT", slog.String("error", err.Error()))
 					return
 				}
 				// Successful access token refresh
@@ -211,16 +212,17 @@ func (mw *Middleware) AdminAuth(next http.Handler) http.Handler {
 					// clear access cookie and redirect to try again
 					utils.ClearCookies(w, accessCookie)
 					http.Redirect(w, r, "/unauthorized?reason=internal_error", http.StatusSeeOther)
-					log.Printf("%v", err)
+					mw.cfg.Logger.Error("unable to validate JWT", slog.String("error", err.Error()))
 					return
 				}
 
 				if !claims.IsAdmin {
 					http.Redirect(w, r, "/forbidden", http.StatusSeeOther)
-					log.Println("Unauthorized admin request:")
-					log.Printf("\tUser ID: %v", claims.UserID)
-					log.Printf("\tRequest type: %v", r.Method)
-					log.Printf("\tRequest body: %v", r.Body)
+					mw.cfg.Logger.Warn("unauthorized admin request",
+						slog.String("user", claims.UserID.String()),
+						slog.String("method", r.Method),
+						slog.String("path", r.URL.Path),
+					)
 					return
 				}
 
@@ -231,17 +233,18 @@ func (mw *Middleware) AdminAuth(next http.Handler) http.Handler {
 			// Invalid access token -> clear access token cookie
 			utils.ClearCookies(w, accessCookie)
 			http.Redirect(w, r, "/unauthorized?reason=invalid_missing", http.StatusSeeOther)
-			log.Printf("%v", err)
+			mw.cfg.Logger.Info("invalid access token", slog.String("error", err.Error()))
 			return
 		}
 		// Valid access token
 
 		if !claims.IsAdmin {
 			http.Redirect(w, r, "/forbidden", http.StatusSeeOther)
-			log.Println("Unauthorized admin request:")
-			log.Printf("\tUser ID: %v", claims.UserID)
-			log.Printf("\tRequest type: %v", r.Method)
-			log.Printf("\tRequest body: %v", r.Body)
+			mw.cfg.Logger.Warn("unauthorized admin request",
+				slog.String("user", claims.UserID.String()),
+				slog.String("method", r.Method),
+				slog.String("path", r.URL.Path),
+			)
 			return
 		}
 

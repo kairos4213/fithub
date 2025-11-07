@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"log"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -13,7 +13,12 @@ import (
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		contents := templates.LoginPage()
-		templates.Layout(contents, "FitHub | Login", false).Render(r.Context(), w)
+		err := templates.Layout(contents, "FitHub | Login", false).Render(r.Context(), w)
+		if err != nil {
+			HandleInternalServerError(w, r)
+			h.cfg.Logger.Error("failed to render login page", slog.String("error", err.Error()))
+			return
+		}
 		return
 	}
 
@@ -23,34 +28,35 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 
 		user, err := h.cfg.DB.GetUser(r.Context(), email)
 		if err != nil {
-			HandleLoginFailure(w, r)
-			log.Print("User email does not exist")
+			HandleInternalServerError(w, r)
+			h.cfg.Logger.Error("failed to fetch user", slog.String("error", err.Error()))
 			return
 		}
 
 		match, err := auth.CheckPasswordHash(password, user.HashedPassword)
-		if !match {
-			HandleLoginFailure(w, r)
-			log.Print("Incorrect password entered")
-			return
-		}
 		if err != nil {
 			HandleLoginFailure(w, r)
-			log.Print("Bad Request: invalid hash")
+			h.cfg.Logger.Error("bad request: invalid hash", slog.String("error", err.Error()))
+			return
+		}
+
+		if !match {
+			HandleLoginFailure(w, r)
+			h.cfg.Logger.Info("incorrect password attempt", slog.String("user_email", user.Email), slog.String("ip", r.RemoteAddr))
 			return
 		}
 
 		accessToken, err := auth.MakeJWT(user.ID, user.IsAdmin, h.cfg.TokenSecret)
 		if err != nil {
 			HandleInternalServerError(w, r)
-			log.Printf("%v", err)
+			h.cfg.Logger.Error("failed to make JWT", slog.String("error", err.Error()))
 			return
 		}
 
 		refreshToken, err := auth.MakeRefreshToken()
 		if err != nil {
 			HandleInternalServerError(w, r)
-			log.Printf("%v", err)
+			h.cfg.Logger.Error("failed to make refresh token", slog.String("error", err.Error()))
 			return
 		}
 
@@ -61,7 +67,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		})
 		if err != nil {
 			HandleInternalServerError(w, r)
-			log.Printf("%v", err)
+			h.cfg.Logger.Error("failed to store refresh token", slog.String("error", err.Error()))
 			return
 		}
 
