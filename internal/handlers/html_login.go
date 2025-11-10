@@ -78,6 +78,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 			HttpOnly: true,
 			Secure:   true,
 			SameSite: http.SameSiteDefaultMode,
+			MaxAge:   60 * 15, // 15 minutes
 		})
 		http.SetCookie(w, &http.Cookie{
 			Name:     "refresh_token",
@@ -86,6 +87,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 			HttpOnly: true,
 			Secure:   true,
 			SameSite: http.SameSiteDefaultMode,
+			MaxAge:   60 * 60 * 24 * 60, // 60 days
 		})
 		w.Header().Set("Content-type", "text/html")
 

@@ -86,6 +86,16 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 			HttpOnly: true,
 			Secure:   true,
 			SameSite: http.SameSiteDefaultMode,
+			MaxAge:   60 * 15, // 15 minutes
+		})
+		http.SetCookie(w, &http.Cookie{
+			Name:     "refresh_token",
+			Value:    refreshToken,
+			Path:     "/",
+			HttpOnly: true,
+			Secure:   true,
+			SameSite: http.SameSiteDefaultMode,
+			MaxAge:   60 * 60 * 24 * 60, // 60 days
 		})
 		w.Header().Set("Content-type", "text/html")
 		w.Header().Set("HX-Location", `{"path": "/workouts"}`)
