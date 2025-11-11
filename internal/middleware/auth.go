@@ -45,15 +45,7 @@ func (mw *Middleware) Auth(next http.Handler) http.Handler {
 				http.Redirect(w, r, fmt.Sprintf("/unauthorized?reason=%v", errReason), http.StatusSeeOther)
 			}
 			// Successful access token refresh
-			http.SetCookie(w, &http.Cookie{
-				Name:     "access_token",
-				Value:    accessToken,
-				Path:     "/",
-				HttpOnly: true,
-				Secure:   true,
-				SameSite: http.SameSiteDefaultMode,
-				// TODO: Set max age / make a util for these
-			})
+			utils.SetAccessCookie(w, accessToken)
 			// Attempt creating claims
 			claims, err := auth.ValidateJWT(accessToken, mw.cfg.TokenSecret)
 			if err != nil {
@@ -78,14 +70,7 @@ func (mw *Middleware) Auth(next http.Handler) http.Handler {
 					http.Redirect(w, r, fmt.Sprintf("/unauthorized?reason=%v", errReason), http.StatusSeeOther)
 				}
 				// Successful access token refresh
-				http.SetCookie(w, &http.Cookie{
-					Name:     "access_token",
-					Value:    accessToken,
-					Path:     "/",
-					HttpOnly: true,
-					Secure:   true,
-					SameSite: http.SameSiteDefaultMode,
-				})
+				utils.SetAccessCookie(w, accessToken)
 				// Attempt creating claims
 				claims, err := auth.ValidateJWT(accessToken, mw.cfg.TokenSecret)
 				if err != nil {
@@ -151,15 +136,7 @@ func (mw *Middleware) AdminAuth(next http.Handler) http.Handler {
 				http.Redirect(w, r, fmt.Sprintf("/unauthorized?reason=%v", errReason), http.StatusSeeOther)
 			}
 			// Successful access token refresh
-			http.SetCookie(w, &http.Cookie{
-				Name:     "access_token",
-				Value:    accessToken,
-				Path:     "/",
-				HttpOnly: true,
-				Secure:   true,
-				SameSite: http.SameSiteDefaultMode,
-				// TODO: Set max age / make a util for these
-			})
+			utils.SetAccessCookie(w, accessToken)
 			// Attempt creating claims
 			claims, err := auth.ValidateJWT(accessToken, mw.cfg.TokenSecret)
 			if err != nil {
@@ -195,14 +172,7 @@ func (mw *Middleware) AdminAuth(next http.Handler) http.Handler {
 					http.Redirect(w, r, fmt.Sprintf("/unauthorized?reason=%v", errReason), http.StatusSeeOther)
 				}
 				// Successful access token refresh
-				http.SetCookie(w, &http.Cookie{
-					Name:     "access_token",
-					Value:    accessToken,
-					Path:     "/",
-					HttpOnly: true,
-					Secure:   true,
-					SameSite: http.SameSiteDefaultMode,
-				})
+				utils.SetAccessCookie(w, accessToken)
 				// Attempt creating claims
 				claims, err := auth.ValidateJWT(accessToken, mw.cfg.TokenSecret)
 				if err != nil {

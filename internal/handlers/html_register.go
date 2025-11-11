@@ -9,6 +9,7 @@ import (
 	"github.com/kairos4213/fithub/internal/auth"
 	"github.com/kairos4213/fithub/internal/database"
 	"github.com/kairos4213/fithub/internal/templates"
+	"github.com/kairos4213/fithub/internal/utils"
 )
 
 func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
@@ -79,24 +80,8 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		http.SetCookie(w, &http.Cookie{
-			Name:     "access_token",
-			Value:    accessToken,
-			Path:     "/",
-			HttpOnly: true,
-			Secure:   true,
-			SameSite: http.SameSiteDefaultMode,
-			MaxAge:   60 * 15, // 15 minutes
-		})
-		http.SetCookie(w, &http.Cookie{
-			Name:     "refresh_token",
-			Value:    refreshToken,
-			Path:     "/",
-			HttpOnly: true,
-			Secure:   true,
-			SameSite: http.SameSiteDefaultMode,
-			MaxAge:   60 * 60 * 24 * 60, // 60 days
-		})
+		utils.SetAccessCookie(w, accessToken)
+		utils.SetRefreshCookie(w, refreshToken)
 		w.Header().Set("Content-type", "text/html")
 		w.Header().Set("HX-Location", `{"path": "/workouts"}`)
 		w.WriteHeader(http.StatusCreated)
