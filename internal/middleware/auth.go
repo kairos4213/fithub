@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"log/slog"
 	"net/http"
@@ -37,51 +38,44 @@ func (mw *Middleware) Auth(next http.Handler) http.Handler {
 		//  Fail -> revoke and request re-login
 		accessCookie, err := r.Cookie("access_token")
 		if err != nil {
-			http.Redirect(w, r, "/unauthorized?reason=invalid_missing", http.StatusSeeOther)
-			mw.cfg.Logger.Info("missing access token", slog.String("error", err.Error()))
+			// Access cookie missing
+			// Attempt to refresh access
+			accessToken, errReason := mw.refreshAccessToken(w, r)
+			if errReason != "" {
+				http.Redirect(w, r, fmt.Sprintf("/unauthorized?reason=%v", errReason), http.StatusSeeOther)
+			}
+			// Successful access token refresh
+			http.SetCookie(w, &http.Cookie{
+				Name:     "access_token",
+				Value:    accessToken,
+				Path:     "/",
+				HttpOnly: true,
+				Secure:   true,
+				SameSite: http.SameSiteDefaultMode,
+				// TODO: Set max age / make a util for these
+			})
+			// Attempt creating claims
+			claims, err := auth.ValidateJWT(accessToken, mw.cfg.TokenSecret)
+			if err != nil {
+				// clear access cookie and redirect to try again
+				utils.ClearCookies(w, accessCookie)
+				http.Redirect(w, r, "/unauthorized?reason=internal_error", http.StatusSeeOther)
+				mw.cfg.Logger.Error("unable to validate JWT", slog.String("error", err.Error()))
+				return
+			}
+			ctx := context.WithValue(r.Context(), cntx.UserIDKey, claims.UserID)
+			next.ServeHTTP(w, r.WithContext(ctx))
 			return
 		}
+
 		accessToken := accessCookie.Value
 		claims, err := auth.ValidateJWT(accessToken, mw.cfg.TokenSecret)
 		if err != nil {
 			// Access token expired
 			if strings.Contains(err.Error(), "token is expired") {
-				// Check for refresh token existence
-				refreshCookie, err := r.Cookie("refresh_token")
-				if err != nil {
-					utils.ClearCookies(w, accessCookie)
-					http.Redirect(w, r, "/unauthorized?reason=invalid_missing", http.StatusSeeOther)
-					mw.cfg.Logger.Info("missing refresh token", slog.String("error", err.Error()))
-					return
-				}
-
-				// Check for valid refresh token in db
-				refreshToken := refreshCookie.Value
-				user, err := mw.cfg.DB.GetUserFromRefreshToken(r.Context(), refreshToken)
-				if err != nil {
-					utils.ClearCookies(w, accessCookie, refreshCookie)
-					http.Redirect(w, r, "/unauthorized?reason=expired", http.StatusSeeOther)
-					mw.cfg.Logger.Info("unable to fetch valid refresh token", slog.String("error", err.Error()))
-					return
-				}
-
-				// Try to make new access token
-				accessToken, err = auth.MakeJWT(user.ID, user.IsAdmin, mw.cfg.TokenSecret)
-				if err != nil {
-					// Error making access token -> need to remove any existing cookies and
-					// revoke valid refresh token
-					utils.ClearCookies(w, accessCookie, refreshCookie)
-
-					revokeErr := mw.cfg.DB.RevokeRefreshToken(r.Context(), refreshToken)
-					if revokeErr != nil {
-						http.Redirect(w, r, "/unauthorized?reason=internal_error", http.StatusSeeOther)
-						mw.cfg.Logger.Error("unable to revoke refresh token", slog.String("error", err.Error()))
-						return
-					}
-
-					http.Redirect(w, r, "/unauthorized?reason=internal_error", http.StatusSeeOther)
-					mw.cfg.Logger.Error("unable to make JWT", slog.String("error", err.Error()))
-					return
+				accessToken, errReason := mw.refreshAccessToken(w, r)
+				if errReason != "" {
+					http.Redirect(w, r, fmt.Sprintf("/unauthorized?reason=%v", errReason), http.StatusSeeOther)
 				}
 				// Successful access token refresh
 				http.SetCookie(w, &http.Cookie{
@@ -150,8 +144,44 @@ func (mw *Middleware) AdminAuth(next http.Handler) http.Handler {
 
 		accessCookie, err := r.Cookie("access_token")
 		if err != nil {
-			http.Redirect(w, r, "/unauthorized?reason=invalid_missing", http.StatusSeeOther)
-			mw.cfg.Logger.Info("missing access token", slog.String("error", err.Error()))
+			// Access cookie missing
+			// Attempt to refresh access
+			accessToken, errReason := mw.refreshAccessToken(w, r)
+			if errReason != "" {
+				http.Redirect(w, r, fmt.Sprintf("/unauthorized?reason=%v", errReason), http.StatusSeeOther)
+			}
+			// Successful access token refresh
+			http.SetCookie(w, &http.Cookie{
+				Name:     "access_token",
+				Value:    accessToken,
+				Path:     "/",
+				HttpOnly: true,
+				Secure:   true,
+				SameSite: http.SameSiteDefaultMode,
+				// TODO: Set max age / make a util for these
+			})
+			// Attempt creating claims
+			claims, err := auth.ValidateJWT(accessToken, mw.cfg.TokenSecret)
+			if err != nil {
+				// clear access cookie and redirect to try again
+				utils.ClearCookies(w, accessCookie)
+				http.Redirect(w, r, "/unauthorized?reason=internal_error", http.StatusSeeOther)
+				mw.cfg.Logger.Error("unable to validate JWT", slog.String("error", err.Error()))
+				return
+			}
+
+			if !claims.IsAdmin {
+				http.Redirect(w, r, "/forbidden", http.StatusSeeOther)
+				mw.cfg.Logger.Warn("unauthorized admin request",
+					slog.String("user", claims.UserID.String()),
+					slog.String("method", r.Method),
+					slog.String("path", r.URL.Path),
+				)
+				return
+			}
+
+			ctx := context.WithValue(r.Context(), cntx.UserIDKey, claims.UserID)
+			next.ServeHTTP(w, r.WithContext(ctx))
 			return
 		}
 
@@ -160,42 +190,9 @@ func (mw *Middleware) AdminAuth(next http.Handler) http.Handler {
 		if err != nil {
 			// Access token expired
 			if strings.Contains(err.Error(), "token is expired") {
-				// Check for refresh token existence
-				refreshCookie, err := r.Cookie("refresh_token")
-				if err != nil {
-					utils.ClearCookies(w, accessCookie)
-					http.Redirect(w, r, "/unauthorized?reason=invalid_missing", http.StatusSeeOther)
-					mw.cfg.Logger.Info("missing refresh token", slog.String("error", err.Error()))
-					return
-				}
-
-				// Check for valid refresh token in db
-				refreshToken := refreshCookie.Value
-				user, err := mw.cfg.DB.GetUserFromRefreshToken(r.Context(), refreshToken)
-				if err != nil {
-					utils.ClearCookies(w, accessCookie, refreshCookie)
-					http.Redirect(w, r, "/unauthorized?reason=expired", http.StatusSeeOther)
-					mw.cfg.Logger.Info("unable to fetch valid refresh token", slog.String("error", err.Error()))
-					return
-				}
-
-				// Try to make new access token
-				accessToken, err = auth.MakeJWT(user.ID, user.IsAdmin, mw.cfg.TokenSecret)
-				if err != nil {
-					// Error making access token -> need to remove any existing cookies and
-					// revoke valid refresh token
-					utils.ClearCookies(w, accessCookie, refreshCookie)
-
-					revokeErr := mw.cfg.DB.RevokeRefreshToken(r.Context(), refreshToken)
-					if revokeErr != nil {
-						http.Redirect(w, r, "/unauthorized?reason=internal_error", http.StatusSeeOther)
-						mw.cfg.Logger.Error("unable to revoke refresh token", slog.String("error", err.Error()))
-						return
-					}
-
-					http.Redirect(w, r, "/unauthorized?reason=internal_error", http.StatusSeeOther)
-					mw.cfg.Logger.Error("unable to make JWT", slog.String("error", err.Error()))
-					return
+				accessToken, errReason := mw.refreshAccessToken(w, r)
+				if errReason != "" {
+					http.Redirect(w, r, fmt.Sprintf("/unauthorized?reason=%v", errReason), http.StatusSeeOther)
 				}
 				// Successful access token refresh
 				http.SetCookie(w, &http.Cookie{
@@ -251,4 +248,41 @@ func (mw *Middleware) AdminAuth(next http.Handler) http.Handler {
 		ctx := context.WithValue(r.Context(), cntx.UserIDKey, claims.UserID)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
+}
+
+func (mw *Middleware) refreshAccessToken(w http.ResponseWriter, r *http.Request) (accessToken string, errReason string) {
+	// Check for refresh token existence
+	refreshCookie, err := r.Cookie("refresh_token")
+	if err != nil {
+		mw.cfg.Logger.Info("missing refresh token", slog.String("error", err.Error()))
+		return "", "invalid_missing"
+	}
+
+	// Check for valid refresh token in db
+	refreshToken := refreshCookie.Value
+	user, err := mw.cfg.DB.GetUserFromRefreshToken(r.Context(), refreshToken)
+	if err != nil {
+		utils.ClearCookies(w, refreshCookie)
+		mw.cfg.Logger.Info("unable to fetch valid refresh token", slog.String("error", err.Error()))
+		return "", "expired"
+	}
+
+	// Try to make new access token
+	accessToken, err = auth.MakeJWT(user.ID, user.IsAdmin, mw.cfg.TokenSecret)
+	if err != nil {
+		// Error making access token -> need to remove any existing cookies and
+		// revoke valid refresh token
+		utils.ClearCookies(w, refreshCookie)
+
+		revokeErr := mw.cfg.DB.RevokeRefreshToken(r.Context(), refreshToken)
+		if revokeErr != nil {
+			mw.cfg.Logger.Error("unable to revoke refresh token", slog.String("error", err.Error()))
+			return "", "internal_error"
+		}
+
+		mw.cfg.Logger.Error("unable to make JWT", slog.String("error", err.Error()))
+		return "", "internal_error"
+	}
+
+	return accessToken, ""
 }
