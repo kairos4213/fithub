@@ -7,6 +7,9 @@ import (
 
 func ClearCookies(w http.ResponseWriter, cookies ...*http.Cookie) {
 	for _, cookie := range cookies {
+		if cookie == nil {
+			continue
+		}
 		http.SetCookie(w, &http.Cookie{
 			Name:     cookie.Name,
 			Value:    "",
