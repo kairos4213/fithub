@@ -1,31 +1,19 @@
 package templates
 
-// Mock db call func
-func provideDummyData() []string {
-	exercises := []string{"Exercise 1", "Exercise 2", "Exercise 3"}
-	return exercises
-}
+import "fmt"
 
-// TODO: make muscle groups model from database -- need to probably create a
-// separate muscle group table and link to exercises table
 templ ExercisesPage(muscleGroups []string) {
-	<section>
-		<h2 class="text-3xl p-8">Exercises Page</h2>
-		<div>
-			<h3 class="text-2xl p-2">Primary Muscles Targeted</h3>
-			<ul class="list bg-base-100 rounded-box shadow-md">
-				for _, group := range muscleGroups {
-					<li class="list-row">
-						<div
-							tabindex="0"
-							class="bg-primary text-primary-content
-            focus:bg-secondary focus:text-secondary-content collapse"
-						>
-							<div class="collapse-title font-semibold">{ group }</div>
-						</div>
-					</li>
-				}
-			</ul>
-		</div>
-	</section>
+<section class="container mx-auto px-4 py-8 max-w-6xl">
+  <h2 class="text-3xl font-bold mb-8">Exercises by Muscle Group</h2>
+  <ul class="menu menu-xl bg-base-200 rounded-box w-full text-center">
+    <li class="menu-title">Muscle Group</li>
+    for _, group := range muscleGroups {
+    <li>
+      <a href={ templ.URL(fmt.Sprintf("/exercises/%v", group)) }>
+        { group }
+      </a>
+    </li>
+    }
+  </ul>
+</section>
 }

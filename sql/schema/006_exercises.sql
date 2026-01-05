@@ -9,6 +9,11 @@ CREATE TABLE exercises (
     updated_at TIMESTAMP NOT NULL
 );
 
+CREATE INDEX idx_exercises_primary_muscle ON exercises (primary_muscle_group);
+CREATE INDEX idx_exercises_secondary_muscle ON exercises (
+    secondary_muscle_group
+);
+
 -- +goose statementbegin
 INSERT INTO exercises (
     id,

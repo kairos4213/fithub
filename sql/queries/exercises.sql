@@ -56,3 +56,13 @@ WHERE primary_muscle_group = $1;
 -- name: GetExercisesBySecondaryMG :many
 SELECT * FROM exercises
 WHERE secondary_muscle_group = $1;
+
+-- name: GetAllMuscleGroups :many
+SELECT DISTINCT muscle_group
+FROM (
+    SELECT primary_muscle_group AS muscle_group FROM exercises
+    UNION
+    SELECT secondary_muscle_group AS muscle_group FROM exercises
+) AS all_groups
+WHERE muscle_group IS NOT NULL
+ORDER BY muscle_group;

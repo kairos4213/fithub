@@ -420,8 +420,23 @@ func (h *Handler) DeleteExerciseFromWorkout(w http.ResponseWriter, r *http.Reque
 }
 
 func (h *Handler) GetExercisesPage(w http.ResponseWriter, r *http.Request) {
-	muscleGroups := []string{"Chest", "Legs", "Back", "Shoulders"}
-	err := templates.Layout(templates.ExercisesPage(muscleGroups), "FitHub | Exercises", true).Render(r.Context(), w)
+	// TODO: Need to change this or the html side -- Either, or separate into
+	// primary/secondary
+	muscleGroups, err := h.cfg.DB.GetAllMuscleGroups(r.Context())
+	if err != nil {
+		HandleInternalServerError(w, r)
+		h.cfg.Logger.Error("failed to get muscle groups", slog.String("error", err.Error()))
+		return
+	}
+
+	mgrps := []string{}
+	for _, mg := range muscleGroups {
+		if mg.Valid {
+			mgrps = append(mgrps, mg.String)
+		}
+	}
+
+	err = templates.Layout(templates.ExercisesPage(mgrps), "FitHub | Exercises", true).Render(r.Context(), w)
 	if err != nil {
 		HandleInternalServerError(w, r)
 		h.cfg.Logger.Error("failed to render exercises page", slog.String("error", err.Error()))
