@@ -1,15 +1,5 @@
-.PHONY: templ server tailwind sync_static dev build-css
-
-init:
-	@templ generate
-	@npx @tailwindcss/cli -i "./static/css/input.css" -o "./static/css/output.css" --minify
-
 templ:
 	templ generate --watch --proxy="http://localhost:8080" --open-browser=false -v
-
-build-css:
-	templ generate
-	npx @tailwindcss/cli -i './static/css/input.css' -o "./static/css/output.css" --minify
 
 server:
 	go run github.com/air-verse/air@v1.61.7 \
@@ -22,7 +12,10 @@ server:
 		--misc.clean_on_exit true
 
 tailwind:
-	npx @tailwindcss/cli -i "./static/css/input.css" -o "./static/css/output.css" --minify --watch
+	npx --yes @tailwindcss/cli \
+		-i "./static/css/input.css" \
+		-o "./static/css/output.css" \
+		--minify --watch=always
 
 sync_static:
 	go run github.com/air-verse/air@v1.61.7 \
@@ -30,8 +23,8 @@ sync_static:
 		--build.bin "true" \
 		--build.delay "100" \
 		--build.exclude_dir "" \
-		--build.include_dir "static" \
+		--build.include_dir "static/css,static/js" \
 		--build.include_ext "js,css"
 
-dev: init
+dev:
 	make -j4 templ server tailwind sync_static

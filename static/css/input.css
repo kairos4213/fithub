@@ -1,6 +1,9 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
+ /* NOTE: MAY NEED THIS IF ISSUES WITH CHANGING DAISY COMPONENTS CONTINUES */
+ /* @source "../../internal/templates/*.templ" */
+
 @plugin "daisyui/theme" {
   name: "fithub-light";
   default: true;
