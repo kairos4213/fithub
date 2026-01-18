@@ -1,11 +1,11 @@
 templ:
-	templ generate --watch --proxy="http://localhost:8080" --open-browser=false -v
+	go tool templ generate --watch --proxy="http://localhost:8080" --open-browser=false
 
 server:
-	go run github.com/air-verse/air@v1.61.7 \
-		--build.cmd "go build -o tmp/bin/main" \
-		--build.bin "tmp/bin/main" \
-		--build.delay "100" \
+	go tool air \
+		--build.cmd "go build -o ./tmp/bin/main ." \
+		--build.entrypoint "./tmp/bin/main" \
+		--build.delay "1000" \
 		--build.exclude_dir "node_modules" \
 		--build.include_ext "go" \
 		--build.stop_on_error "false" \
@@ -18,13 +18,13 @@ tailwind:
 		--minify --watch=always
 
 sync_static:
-	go run github.com/air-verse/air@v1.61.7 \
-		--build.cmd "templ generate --notify-proxy" \
-		--build.bin "true" \
-		--build.delay "100" \
+	go tool air \
+		--build.cmd "go tool templ generate --notify-proxy" \
+		--build.entrypoint true \
+		--build.delay "1000" \
 		--build.exclude_dir "" \
 		--build.include_dir "static/css,static/js" \
 		--build.include_ext "js,css"
 
 dev:
-	make -j4 templ server tailwind sync_static
+	make -j4 tailwind templ server sync_static
