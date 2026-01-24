@@ -443,3 +443,20 @@ func (h *Handler) GetExercisesPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func (h *Handler) GetMGExercisesPage(w http.ResponseWriter, r *http.Request) {
+	group := r.PathValue("group")
+	exercises, err := h.cfg.DB.GetExercisesByPrimaryMG(r.Context(), sql.NullString{String: group, Valid: true})
+	if err != nil {
+		HandleInternalServerError(w, r)
+		h.cfg.Logger.Error("failed to get exercises by muscle group", slog.String("error", err.Error()))
+		return
+	}
+
+	err = templates.Layout(templates.ExercisesByGroup(group, exercises), "FtiHub | Exercises", true).Render(r.Context(), w)
+	if err != nil {
+		HandleInternalServerError(w, r)
+		h.cfg.Logger.Error("failed to render exercises by muscle group", slog.String("error", err.Error()))
+		return
+	}
+}
