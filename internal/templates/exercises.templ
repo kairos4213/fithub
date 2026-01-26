@@ -6,11 +6,15 @@ import "github.com/kairos4213/fithub/internal/utils"
 
 templ ExercisesPage(muscleGroups []string) {
 	<section class="container mx-auto px-4 py-8 max-w-6xl">
+		<div class="menu-title breadcrumbs text-sm justify-self-center">
+			<ul>
+				<li>Muscle Groups</li>
+			</ul>
+		</div>
 		<ul class="menu menu-xl bg-base-200 rounded-box w-full text-center">
-			<li class="menu-title">Muscle Group</li>
 			for _, group := range muscleGroups {
 				<li>
-					<a href={ templ.URL(fmt.Sprintf("/exercises/%v", group)) }>
+					<a href={ templ.URL(fmt.Sprintf("/exercises/groups/%v", group)) }>
 						{ utils.TitleString(group) }
 					</a>
 				</li>
@@ -21,15 +25,68 @@ templ ExercisesPage(muscleGroups []string) {
 
 templ ExercisesByGroup(group string, exercises []database.Exercise) {
 	<section class="container mx-auto px-4 py-8 max-w-6-xl">
+		<div class="menu-title breadcrumbs text-sm justify-self-center">
+			<ul>
+				<li><a href={ templ.URL("/exercises/groups") }>Muscle Groups</a></li>
+				<li>{ utils.TitleString(group) }</li>
+			</ul>
+		</div>
 		<ul class="menu menu-xl bg-base-200 rounded-box w-full text-center">
-			<li class="menu-title">{ utils.TitleString(group) }</li>
 			for _, exercise := range exercises {
 				<li>
-					<a href={ templ.URL(fmt.Sprintf("/exercises/%v", exercise.ID)) }>
+					<a
+						href={ templ.URL(fmt.Sprintf("/exercises/%v", exercise.ID)) }
+						hx-vals={ fmt.Sprintf(`{"muscle-group": "%v" }`,
+        group) }
+					>
 						{ utils.TitleString(exercise.Name) }
 					</a>
 				</li>
 			}
 		</ul>
+	</section>
+}
+
+templ ExercisePage(group string, exercise database.Exercise) {
+	<section class="container mx-auto px-4 py-8 max-w-6-xl align-baseline">
+		<div class="menu-title breadcrumbs text-sm justify-self-center">
+			<ul>
+				<li><a href={ templ.URL("/exercises/groups") }>Muscle Groups</a></li>
+				if group != "" {
+					<li><a href={ templ.URL(fmt.Sprintf("/exercises/groups/%v", group)) }>{ utils.TitleString(group) }</a></li>
+				} else {
+					<li>
+						<a href={ templ.URL(fmt.Sprintf("/exercises/groups/%v", group)) }>
+							{ 
+          utils.TitleString(exercise.PrimaryMuscleGroup.String) }
+						</a>
+					</li>
+				}
+				<li>{ utils.TitleString(exercise.Name) }</li>
+			</ul>
+		</div>
+		<div class="card card-xl card-border lg:card-side bg-base-300 shadow-sm">
+			<video class="rounded-lg lg:rounded-r-none" controls>
+				<source src="" type="video/webm"/>
+			</video>
+			<div class="card-body">
+				<h2 class="card-title">{ utils.TitleString(exercise.Name) }</h2>
+				<div class="">
+					<span class="badge badge-sm badge-soft badge-primary mx-0.5">
+						Primary Muscle Group: { 
+          utils.TitleString(exercise.PrimaryMuscleGroup.String) }
+					</span>
+					<span class="badge badge-sm badge-soft badge-secondary mx-0.5">
+						Secondary Muscle Group: { 
+          utils.TitleString(exercise.SecondaryMuscleGroup.String) }
+					</span>
+				</div>
+				<p>{ utils.TitleString(exercise.Description.String) }</p>
+				<div class="card-actions justify-end">
+					// TODO: Add link to pull list of user workouts to add exercise to
+					<button class="btn btn-primary">Add to Workout</button>
+				</div>
+			</div>
+		</div>
 	</section>
 }

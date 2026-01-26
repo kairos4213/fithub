@@ -460,3 +460,26 @@ func (h *Handler) GetMGExercisesPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func (h *Handler) GetSpecificExercise(w http.ResponseWriter, r *http.Request) {
+	muscleGroup := r.FormValue("muscle-group")
+	exerciseID, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		HandleInternalServerError(w, r)
+		h.cfg.Logger.Error("failed to parse exercise id", slog.String("error", err.Error()))
+		return
+	}
+	exercise, err := h.cfg.DB.GetExerciseByID(r.Context(), exerciseID)
+	if err != nil {
+		HandleInternalServerError(w, r)
+		h.cfg.Logger.Error("failed to fetch exercise", slog.String("error", err.Error()))
+		return
+	}
+
+	err = templates.Layout(templates.ExercisePage(muscleGroup, exercise), "FitHub | Exercises", true).Render(r.Context(), w)
+	if err != nil {
+		HandleInternalServerError(w, r)
+		h.cfg.Logger.Error("failed to render exercise page", slog.String("error", err.Error()))
+		return
+	}
+}
