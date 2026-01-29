@@ -34,11 +34,7 @@ templ ExercisesByGroup(group string, exercises []database.Exercise) {
 		<ul class="menu menu-xl bg-base-200 rounded-box w-full text-center">
 			for _, exercise := range exercises {
 				<li>
-					<a
-						href={ templ.URL(fmt.Sprintf("/exercises/%v", exercise.ID)) }
-						hx-vals={ fmt.Sprintf(`{"muscle-group": "%v" }`,
-        group) }
-					>
+					<a href={ templ.URL(fmt.Sprintf("/exercises/%v", exercise.ID)) }>
 						{ utils.TitleString(exercise.Name) }
 					</a>
 				</li>
@@ -48,7 +44,7 @@ templ ExercisesByGroup(group string, exercises []database.Exercise) {
 }
 
 templ ExercisePage(group string, exercise database.Exercise) {
-	<section class="container mx-auto px-4 py-8 max-w-6-xl align-baseline">
+	<section class="container mx-auto px-4 py-8 max-w-5xl align-baseline" x-data="{ open: false }">
 		<div class="menu-title breadcrumbs text-sm justify-self-center">
 			<ul>
 				<li><a href={ templ.URL("/exercises/groups") }>Muscle Groups</a></li>
@@ -56,16 +52,15 @@ templ ExercisePage(group string, exercise database.Exercise) {
 					<li><a href={ templ.URL(fmt.Sprintf("/exercises/groups/%v", group)) }>{ utils.TitleString(group) }</a></li>
 				} else {
 					<li>
-						<a href={ templ.URL(fmt.Sprintf("/exercises/groups/%v", group)) }>
-							{ 
-          utils.TitleString(exercise.PrimaryMuscleGroup.String) }
+						<a href={ templ.URL(fmt.Sprintf("/exercises/groups/%v", exercise.PrimaryMuscleGroup.String)) }>
+							{ utils.TitleString(exercise.PrimaryMuscleGroup.String) }
 						</a>
 					</li>
 				}
 				<li>{ utils.TitleString(exercise.Name) }</li>
 			</ul>
 		</div>
-		<div class="card card-xl card-border lg:card-side bg-base-300 shadow-sm">
+		<div class="card card-xl card-border lg:card-side max-w-5xl bg-base-300 shadow-sm">
 			<video class="rounded-lg lg:rounded-r-none" controls>
 				<source src="" type="video/webm"/>
 			</video>
@@ -84,9 +79,10 @@ templ ExercisePage(group string, exercise database.Exercise) {
 				<p>{ utils.TitleString(exercise.Description.String) }</p>
 				<div class="card-actions justify-end">
 					// TODO: Add link to pull list of user workouts to add exercise to
-					<button class="btn btn-primary">Add to Workout</button>
+					<button class="btn btn-primary" hx-get={ templ.URL("/workouts") } hx-target="#user-workouts" x-show="!open" @click="open = ! open">Add to Workout</button>
 				</div>
 			</div>
 		</div>
+		<div id="user-workouts" class="" x-cloak x-show="open"></div>
 	</section>
 }
