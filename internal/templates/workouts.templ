@@ -9,16 +9,16 @@ import (
 	"sort"
 )
 
-templ Workouts(workouts []database.Workout) {
+templ WorkoutsPage(workouts []database.Workout) {
 	<section>
 		<h2 class="text-3xl p-8">Upcoming Workouts</h2>
 		<div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100 mx-2">
-			@WorkoutsTable(workouts)
+			@WorkoutsPageTable(workouts)
 		</div>
 	</section>
 }
 
-templ WorkoutsTable(workouts []database.Workout) {
+templ WorkoutsPageTable(workouts []database.Workout) {
 	<table id="workouts-table" class="table table-in-rows md:table-fixed table-auto text-md text-center pt-2">
 		<thead>
 			<tr>
@@ -30,21 +30,21 @@ templ WorkoutsTable(workouts []database.Workout) {
 				<th class="w-1/6"></th>
 			</tr>
 		</thead>
-		@WorkoutsTableBody(workouts)
-		@WorkoutsTableFooter()
+		@WorkoutsPageTableBody(workouts)
+		@WorkoutsPageTableFooter()
 	</table>
 }
 
-templ WorkoutsTableBody(workouts []database.Workout) {
+templ WorkoutsPageTableBody(workouts []database.Workout) {
 	<tbody>
 		{{ sort.Slice(workouts, func(i, j int) bool { return workouts[i].PlannedDate.Before(workouts[j].PlannedDate) }) }}
 		for _, workout := range workouts {
-			@WorkoutsTableDataRow(workout)
+			@WorkoutsPageTableDataRow(workout)
 		}
 	</tbody>
 }
 
-templ WorkoutsTableDataRow(workout database.Workout) {
+templ WorkoutsPageTableDataRow(workout database.Workout) {
 	<tr id={ fmt.Sprintf("workout-%v", workout.ID) } x-data="{ editing: false }">
 		<td x-show="!editing">
 			<a class="link link-primary link-hover" href={ templ.URL(fmt.Sprintf("workouts/%v", workout.ID)) }>
@@ -133,7 +133,7 @@ templ WorkoutsTableDataRow(workout database.Workout) {
 	</tr>
 }
 
-templ WorkoutsTableFooter() {
+templ WorkoutsPageTableFooter() {
 	<tfoot id="add-workout-row" x-data="{ open: false }">
 		<tr x-show="!open">
 			<th></th>
@@ -679,6 +679,24 @@ templ ExerciseQuickSearchResults(exercises []database.Exercise, workout uuid.UUI
 					>Add Exercise</button>
 				</div>
 			</details>
+		}
+	</div>
+}
+
+templ UserWorkoutsHTML(workouts []database.Workout) {
+	<div class="carousel carousel-center bg-neutral rounded-box md:min-w-4xl md:max-w-5xl max-w-sm space-x-4 p-4">
+		for _, workout := range workouts {
+			<div class="carousel-item">
+				<div class="card bg-base-100 md:w-96 w-48 shadow-sm">
+					<div class="card-body">
+						<h2 class="card-title">{ utils.TitleString(workout.Title) }</h2>
+						<p>{ workout.Description.String }</p>
+						<div class="card-actions justify-end">
+							<button class="btn btn-primary">Add Exercise</button>
+						</div>
+					</div>
+				</div>
+			</div>
 		}
 	</div>
 }

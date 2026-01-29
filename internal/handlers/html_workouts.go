@@ -24,7 +24,20 @@ func (h *Handler) GetUserWorkouts(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "text/html")
-	contents := templates.Workouts(workouts)
+	currentURL := r.Header.Get("HX-Current-URL")
+	target := r.Header.Get("HX-Target")
+
+	if strings.Contains(currentURL, "/exercises/") && target == "user-workouts" {
+		err = templates.UserWorkoutsHTML(workouts).Render(r.Context(), w)
+		if err != nil {
+			HandleInternalServerError(w, r)
+			h.cfg.Logger.Error("failed to render user workouts html", slog.String("error", err.Error()))
+			return
+		}
+		return
+	}
+
+	contents := templates.WorkoutsPage(workouts)
 	err = templates.Layout(contents, "Fithub | Workouts", true).Render(r.Context(), w)
 	if err != nil {
 		HandleInternalServerError(w, r)
@@ -83,7 +96,7 @@ func (h *Handler) CreateUserWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = templates.WorkoutsTableBody(workouts).Render(r.Context(), w)
+	err = templates.WorkoutsPageTableBody(workouts).Render(r.Context(), w)
 	if err != nil {
 		HandleInternalServerError(w, r)
 		h.cfg.Logger.Error("failed to render workouts table body", slog.String("error", err.Error()))
@@ -171,7 +184,7 @@ func (h *Handler) EditUserWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = templates.WorkoutsTableBody(workouts).Render(r.Context(), w)
+	err = templates.WorkoutsPageTableBody(workouts).Render(r.Context(), w)
 	if err != nil {
 		HandleInternalServerError(w, r)
 		h.cfg.Logger.Error("failed to render workouts table body", slog.String("error", err.Error()))
