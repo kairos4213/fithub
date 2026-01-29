@@ -684,19 +684,17 @@ templ ExerciseQuickSearchResults(exercises []database.Exercise, workout uuid.UUI
 }
 
 templ UserWorkoutsHTML(workouts []database.Workout) {
-	<div class="carousel carousel-center bg-neutral rounded-box md:min-w-4xl md:max-w-5xl max-w-sm space-x-4 p-4">
-		for _, workout := range workouts {
-			<div class="carousel-item">
-				<div class="card bg-base-100 md:w-96 w-48 shadow-sm">
-					<div class="card-body">
-						<h2 class="card-title">{ utils.TitleString(workout.Title) }</h2>
-						<p>{ workout.Description.String }</p>
-						<div class="card-actions justify-end">
-							<button class="btn btn-primary">Add Exercise</button>
-						</div>
+	for _, workout := range workouts {
+		<div class="carousel-item">
+			<div class="card bg-base-100 md:w-96 w-48 shadow-sm">
+				<div class="card-body">
+					<h2 class="card-title">{ utils.TitleString(workout.Title) }</h2>
+					<p>{ workout.Description.String }</p>
+					<div class="card-actions justify-end">
+						<button class="btn btn-primary">Add Exercise</button>
 					</div>
 				</div>
 			</div>
-		}
-	</div>
+		</div>
+	}
 }
