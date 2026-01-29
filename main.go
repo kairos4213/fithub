@@ -100,13 +100,6 @@ func main() {
 	mux.Handle("GET /unauthorized", http.HandlerFunc(handlers.GetUnauthorizedPage))
 	mux.Handle("GET /forbidden", http.HandlerFunc(handlers.GetForbiddenPage))
 
-	mux.Handle("GET /admin", mw.AdminAuth(http.HandlerFunc(handler.GetAdminHome)))
-
-	mux.Handle("GET /admin/exercises", mw.AdminAuth(http.HandlerFunc(handler.GetAdminExercisesPage)))
-	mux.Handle("POST /admin/exercises", mw.AdminAuth(http.HandlerFunc(handler.AddDBExercise)))
-	mux.Handle("PUT /admin/exercises/{id}", mw.AdminAuth(http.HandlerFunc(handler.EditDBExercise)))
-	mux.Handle("DELETE /admin/exercises/{id}", mw.AdminAuth(http.HandlerFunc(handler.DeleteDBExercise)))
-
 	mux.HandleFunc("POST /api/v1/register", handler.CreateUser)
 	mux.HandleFunc("POST /api/v1/login", handler.LoginUser)
 	mux.Handle("PUT /api/v1/users", mw.Auth(http.HandlerFunc(handler.UpdateUser)))
