@@ -84,7 +84,7 @@ func main() {
 
 	mux.Handle("GET /exercises/groups", mw.Auth(http.HandlerFunc(handler.GetExercisesPage)))
 	mux.Handle("GET /exercises/groups/{group}", mw.Auth(http.HandlerFunc(handler.GetMGExercisesPage)))
-	mux.Handle("GET /exercises/{id}", mw.Auth(http.HandlerFunc(handler.GetSpecificExercise)))
+	mux.Handle("GET /exercises/{id}", mw.Auth(http.HandlerFunc(handler.GetSpecificExercisePage)))
 	mux.Handle("POST /exercises", mw.Auth(http.HandlerFunc(handler.GetExerciseByKeyword)))
 
 	mux.Handle("GET /metrics", mw.Auth(http.HandlerFunc(handler.GetAllMetrics)))

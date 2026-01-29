@@ -333,7 +333,7 @@ func (h *Handler) GetMGExercisesPage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *Handler) GetSpecificExercise(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetSpecificExercisePage(w http.ResponseWriter, r *http.Request) {
 	muscleGroup := r.FormValue("muscle-group")
 	exerciseID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
