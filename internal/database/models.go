@@ -6,6 +6,7 @@ package database
 
 import (
 	"database/sql"
+	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
@@ -90,6 +91,16 @@ type Workout struct {
 	DurationMinutes int32
 	PlannedDate     time.Time
 	DateCompleted   sql.NullTime
+	CreatedAt       time.Time
+	UpdatedAt       time.Time
+}
+
+type WorkoutTemplate struct {
+	ID              uuid.UUID
+	TemplateName    string
+	Description     string
+	ExerciseSetReps json.RawMessage
+	DurationMinutes int32
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
 }

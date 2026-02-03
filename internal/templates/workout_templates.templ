@@ -1,0 +1,11 @@
+package templates
+
+import "github.com/kairos4213/fithub/internal/database"
+
+templ WorkoutTemplatesPage(templates []database.GetAllWorkoutTemplatesRow) {
+	<section>
+		for _, template := range templates {
+			<h2>{ template.TemplateName }</h2>
+		}
+	</section>
+}
