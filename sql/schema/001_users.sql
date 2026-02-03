@@ -1,20 +1,20 @@
 -- +goose Up
-CREATE TABLE users (
-    id UUID PRIMARY KEY,
-    created_at TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP NOT NULL,
-    first_name VARCHAR(100) NOT NULL,
-    middle_name VARCHAR(100) DEFAULT NULL,
-    last_name VARCHAR(100) NOT NULL,
-    email VARCHAR(254) UNIQUE NOT NULL,
-    hashed_password TEXT NOT NULL,
-    profile_image VARCHAR(255) DEFAULT NULL,
-    preferences JSON DEFAULT NULL,
-    is_admin BOOLEAN DEFAULT FALSE NOT NULL
+create table users (
+    id uuid primary key,
+    created_at timestamp not null,
+    updated_at timestamp not null,
+    first_name varchar(100) not null,
+    middle_name varchar(100) default null,
+    last_name varchar(100) not null,
+    email varchar(254) unique not null,
+    hashed_password text not null,
+    profile_image varchar(255) default null,
+    preferences json default null,
+    is_admin boolean default false not null
 );
 
 -- +goose statementbegin
-INSERT INTO users (
+insert into users (
     id,
     created_at,
     updated_at,
@@ -23,17 +23,17 @@ INSERT INTO users (
     email,
     hashed_password,
     is_admin
-) VALUES (
+) values (
     gen_random_uuid(),
     now(),
     now(),
     'user',
     'test',
     'user@email.com',
-    '$2a$11$rkUv.RXaC.v.dMZMMF7fPugV4BhRjCrtz2trptLEZTAq9otV4XKo2',
-    FALSE
+    '$argon2id$v=19$m=65536,t=1,p=6$9doHnQdcfE3W2945paPvbA$6OQd1ACMSsdyDY/p1ohZ0+WD6Hrl9WnfB7IVu/r4kjg',
+    false
 );
 -- +goose statementend
 
 -- +goose Down
-DROP TABLE users;
+drop table users;

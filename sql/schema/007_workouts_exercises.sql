@@ -1,22 +1,22 @@
 -- +goose Up
-CREATE TABLE workouts_exercises (
-    id UUID PRIMARY KEY,
-    workout_id UUID NOT NULL,
-    exercise_id UUID NOT NULL,
-    sets_planned INT NOT NULL DEFAULT 1,
-    reps_per_set_planned INT [] NOT NULL,
-    sets_completed INT NOT NULL DEFAULT 0,
-    reps_per_set_completed INT [] NOT NULL,
-    weights_planned_lbs INT [] NOT NULL,
-    weights_completed_lbs INT [] NOT NULL,
-    date_completed TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL,
-    created_at TIMESTAMP NOT NULL,
-    sort_order INT NOT NULL DEFAULT 0
+create table workouts_exercises (
+    id uuid primary key,
+    workout_id uuid not null,
+    exercise_id uuid not null,
+    sets_planned int not null default 1,
+    reps_per_set_planned int [] not null,
+    sets_completed int not null default 0,
+    reps_per_set_completed int [] not null,
+    weights_planned_lbs int [] not null,
+    weights_completed_lbs int [] not null,
+    date_completed timestamp,
+    updated_at timestamp not null,
+    created_at timestamp not null,
+    sort_order int not null default 0
 );
 
 -- +goose statementbegin
-INSERT INTO workouts_exercises (
+insert into workouts_exercises (
     id,
     workout_id,
     exercise_id,
@@ -30,17 +30,16 @@ INSERT INTO workouts_exercises (
     updated_at,
     created_at,
     sort_order
-) VALUES
--- bench press in upper body strength workout
-(
+) values (
+  -- bench press in upper body strength workout
     gen_random_uuid(),
     (
-        SELECT id FROM workouts
-        WHERE title = 'upper body strength'
+        select id from workouts
+        where title = 'upper body strength'
     ),
     (
-        SELECT id FROM exercises
-        WHERE name = 'bench press'
+        select id from exercises
+        where name = 'barbell bench press'
     ),
     3,
     '{10,10,10}',
@@ -48,7 +47,7 @@ INSERT INTO workouts_exercises (
     '{10,9,8}',
     '{135,135,135}',
     '{135,135,135}',
-    now() - INTERVAL '14 days',
+    now() - interval '14 days',
     now(),
     now(),
     1
@@ -58,12 +57,12 @@ INSERT INTO workouts_exercises (
 (
     gen_random_uuid(),
     (
-        SELECT id FROM workouts
-        WHERE title = 'upper body strength'
+        select id from workouts
+        where title = 'upper body strength'
     ),
     (
-        SELECT id FROM exercises
-        WHERE name = 'pull-up'
+        select id from exercises
+        where name = 'pull-ups'
     ),
     4,
     '{8,8,6,6}',
@@ -71,7 +70,7 @@ INSERT INTO workouts_exercises (
     '{8,7,6,5}',
     '{0,0,0,0}',
     '{0,0,0,0}',
-    now() - INTERVAL '14 days',
+    now() - interval '14 days',
     now(),
     now(),
     2
@@ -81,12 +80,12 @@ INSERT INTO workouts_exercises (
 (
     gen_random_uuid(),
     (
-        SELECT id FROM workouts
-        WHERE title = 'leg day'
+        select id from workouts
+        where title = 'leg day'
     ),
     (
-        SELECT id FROM exercises
-        WHERE name = 'back squat'
+        select id from exercises
+        where name = 'barbell back squat'
     ),
     4,
     '{8,8,8,8}',
@@ -94,7 +93,7 @@ INSERT INTO workouts_exercises (
     '{8,8,7,6}',
     '{185,185,185,185}',
     '{185,185,185,175}',
-    now() - INTERVAL '10 days',
+    now() - interval '10 days',
     now(),
     now(),
     1
@@ -104,12 +103,12 @@ INSERT INTO workouts_exercises (
 (
     gen_random_uuid(),
     (
-        SELECT id FROM workouts
-        WHERE title = 'leg day'
+        select id from workouts
+        where title = 'leg day'
     ),
     (
-        SELECT id FROM exercises
-        WHERE name = 'lunge'
+        select id from exercises
+        where name = 'reverse lunges'
     ),
     3,
     '{10,10,10}',
@@ -117,7 +116,7 @@ INSERT INTO workouts_exercises (
     '{10,10,9}',
     '{0,0,0}',
     '{0,0,0}',
-    now() - INTERVAL '10 days',
+    now() - interval '10 days',
     now(),
     now(),
     2
@@ -125,4 +124,4 @@ INSERT INTO workouts_exercises (
 -- +goose statementend
 
 -- +goose Down
-DROP TABLE workouts_exercises;
+drop table workouts_exercises;

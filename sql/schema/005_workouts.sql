@@ -1,18 +1,18 @@
 -- +goose Up
-CREATE TABLE workouts (
-    id UUID PRIMARY KEY,
-    user_id UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
-    title TEXT NOT NULL,
-    description TEXT,
-    duration_minutes INTEGER NOT NULL,
-    planned_date TIMESTAMP NOT NULL,
-    date_completed TIMESTAMP,
-    created_at TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP NOT NULL
+create table workouts (
+    id uuid primary key,
+    user_id uuid not null references users (id) on delete cascade,
+    title text not null,
+    description text,
+    duration_minutes integer not null,
+    planned_date timestamp not null,
+    date_completed timestamp,
+    created_at timestamp not null,
+    updated_at timestamp not null
 );
 
 -- +goose statementbegin
-INSERT INTO workouts (
+insert into workouts (
     id,
     user_id,
     title,
@@ -22,60 +22,60 @@ INSERT INTO workouts (
     date_completed,
     created_at,
     updated_at
-) VALUES
+) values
 (
     gen_random_uuid(),
     (
-        SELECT id FROM users
-        WHERE first_name = 'user' AND last_name = 'test'
+        select id from users
+        where first_name = 'user' and last_name = 'test'
     ),
     'upper body strength',
     'bench press, shoulder press, pull-ups, biceps curls, triceps dips.',
     60,
-    now() - INTERVAL '14 days',
-    now() - INTERVAL '14 days',
-    now() - INTERVAL '14 days',
-    now() - INTERVAL '14 days'
+    now() - interval '14 days',
+    now() - interval '14 days',
+    now() - interval '14 days',
+    now() - interval '14 days'
 ),
 (
     gen_random_uuid(),
     (
-        SELECT id FROM users
-        WHERE first_name = 'user' AND last_name = 'test'
+        select id from users
+        where first_name = 'user' and last_name = 'test'
     ),
     'leg day',
     'squats, lunges, deadlifts, calf raises, hip thrusts.',
     70,
-    now() - INTERVAL '10 days',
-    now() - INTERVAL '10 days',
-    now() - INTERVAL '10 days',
-    now() - INTERVAL '10 days'
+    now() - interval '10 days',
+    now() - interval '10 days',
+    now() - interval '10 days',
+    now() - interval '10 days'
 ),
 (
     gen_random_uuid(),
     (
-        SELECT id FROM users
-        WHERE first_name = 'user' AND last_name = 'test'
+        select id from users
+        where first_name = 'user' and last_name = 'test'
     ),
     'cardio intervals',
     'treadmill intervals alternating between sprint and jog.',
     45,
-    now() - INTERVAL '5 days',
+    now() - interval '5 days',
     null,
-    now() - INTERVAL '5 days',
-    now() - INTERVAL '5 days'
+    now() - interval '5 days',
+    now() - interval '5 days'
 ),
 (
     gen_random_uuid(),
     (
-        SELECT id FROM users
-        WHERE first_name = 'user' AND last_name = 'test'
+        select id from users
+        where first_name = 'user' and last_name = 'test'
     ),
     'full body circuit',
     'mix of strength and cardio: burpees, kettlebell swings, push-ups, '
     || 'rows, mountain climbers.',
     55,
-    now() + INTERVAL '2 days',
+    now() + interval '2 days',
     null,
     now(),
     now()
@@ -83,4 +83,4 @@ INSERT INTO workouts (
 -- +goose statementend
 
 -- +goose Down
-DROP TABLE workouts;
+drop table workouts;
