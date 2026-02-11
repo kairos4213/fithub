@@ -9,6 +9,7 @@ import (
 	"github.com/kairos4213/fithub/internal/database"
 	"github.com/kairos4213/fithub/internal/templates"
 	"github.com/kairos4213/fithub/internal/utils"
+	"github.com/kairos4213/fithub/internal/validate"
 )
 
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
@@ -26,6 +27,14 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		email := r.FormValue("email")
 		password := r.FormValue("password")
+
+		if errs := validate.Fields(
+			validate.Required(email, "email"),
+			validate.Required(password, "password"),
+		); errs != nil {
+			HandleBadRequest(w, r, errs[0].Error())
+			return
+		}
 
 		user, err := h.cfg.DB.GetUser(r.Context(), email)
 		if err != nil {
