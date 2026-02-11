@@ -10,6 +10,7 @@ import (
 	"github.com/kairos4213/fithub/internal/database"
 	"github.com/kairos4213/fithub/internal/templates"
 	"github.com/kairos4213/fithub/internal/utils"
+	"github.com/kairos4213/fithub/internal/validate"
 )
 
 func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
@@ -30,6 +31,20 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 		lastName := r.FormValue("last_name")
 		email := r.FormValue("email")
 		password := r.FormValue("password")
+
+		if errs := validate.Fields(
+			validate.Required(firstName, "first name"),
+			validate.Required(lastName, "last name"),
+			validate.Required(email, "email"),
+			validate.Required(password, "password"),
+			validate.MinLen(password, 10, "password"),
+			validate.MaxLen(firstName, 100, "first name"),
+			validate.MaxLen(lastName, 100, "last name"),
+			validate.MaxLen(email, 255, "email"),
+		); errs != nil {
+			HandleBadRequest(w, r, errs[0].Error())
+			return
+		}
 
 		hashedPassword, err := auth.HashPassword(password)
 		if err != nil {
