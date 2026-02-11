@@ -12,6 +12,7 @@ import (
 	"github.com/kairos4213/fithub/internal/cntx"
 	"github.com/kairos4213/fithub/internal/database"
 	"github.com/kairos4213/fithub/internal/templates"
+	"github.com/kairos4213/fithub/internal/validate"
 )
 
 func (h *Handler) GetUserWorkouts(w http.ResponseWriter, r *http.Request) {
@@ -54,9 +55,15 @@ func (h *Handler) CreateUserWorkout(w http.ResponseWriter, r *http.Request) {
 	reqDuration := r.FormValue("duration")
 	reqPlannedDate := r.FormValue("planned-date")
 
-	if reqTitle == "" || reqDuration == "" || reqPlannedDate == "" {
-		HandleInternalServerError(w, r)
-		h.cfg.Logger.Info("unable to create workout: missing required form info", slog.String("user", userID.String()))
+	if errs := validate.Fields(
+		validate.Required(reqTitle, "title"),
+		validate.Required(reqDuration, "duration"),
+		validate.Required(reqPlannedDate, "planned date"),
+		validate.MaxLen(reqTitle, 100, "title"),
+		validate.MaxLen(reqDescription, 500, "description"),
+	); errs != nil {
+		HandleBadRequest(w, r, errs[0].Error())
+		h.cfg.Logger.Info("invalid form field", slog.Any("fields", errs))
 		return
 	}
 
@@ -68,15 +75,15 @@ func (h *Handler) CreateUserWorkout(w http.ResponseWriter, r *http.Request) {
 
 	duration, err := strconv.ParseInt(reqDuration, 10, 32)
 	if err != nil {
-		HandleInternalServerError(w, r)
-		h.cfg.Logger.Error("failed to parse duration", slog.String("error", err.Error()))
+		HandleBadRequest(w, r, "duration must be a number")
+		h.cfg.Logger.Info("invalid duration input", slog.String("value", reqDuration), slog.String("error", err.Error()))
 		return
 	}
 
 	plannedDate, err := time.Parse(time.DateOnly, reqPlannedDate)
 	if err != nil {
-		HandleInternalServerError(w, r)
-		h.cfg.Logger.Error("failed to parse planned date", slog.String("error", err.Error()))
+		HandleBadRequest(w, r, "planned date must be in YYYY-MM-DD format")
+		h.cfg.Logger.Info("invalid planned date input", slog.String("value", reqPlannedDate), slog.String("error", err.Error()))
 		return
 	}
 
@@ -119,6 +126,17 @@ func (h *Handler) EditUserWorkout(w http.ResponseWriter, r *http.Request) {
 	reqPlannedDate := r.FormValue("planned-date")
 	reqCompletionDate := r.FormValue("date-completed")
 
+	if errs := validate.Fields(
+		validate.Required(reqTitle, "title"),
+		validate.Required(reqDuration, "duration"),
+		validate.Required(reqPlannedDate, "planned date"),
+		validate.MaxLen(reqTitle, 100, "title"),
+		validate.MaxLen(reqDescription, 500, "description"),
+	); errs != nil {
+		HandleBadRequest(w, r, errs[0].Error())
+		return
+	}
+
 	description := sql.NullString{Valid: false}
 	if reqDescription != "" {
 		description.String = reqDescription
@@ -127,15 +145,15 @@ func (h *Handler) EditUserWorkout(w http.ResponseWriter, r *http.Request) {
 
 	duration, err := strconv.ParseInt(reqDuration, 10, 32)
 	if err != nil {
-		HandleInternalServerError(w, r)
-		h.cfg.Logger.Error("failed to parse duration", slog.String("error", err.Error()))
+		HandleBadRequest(w, r, "duration must be a number")
+		h.cfg.Logger.Info("invalid duration input", slog.String("value", reqDuration), slog.String("error", err.Error()))
 		return
 	}
 
 	plannedDate, err := time.Parse(time.DateOnly, reqPlannedDate)
 	if err != nil {
-		HandleInternalServerError(w, r)
-		h.cfg.Logger.Error("failed to parse planned date", slog.String("error", err.Error()))
+		HandleBadRequest(w, r, "planned date must be in YYYY-MM-DD format")
+		h.cfg.Logger.Info("invalid planned date input", slog.String("value", reqPlannedDate), slog.String("error", err.Error()))
 		return
 	}
 
