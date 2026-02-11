@@ -10,6 +10,7 @@ import (
 	"github.com/kairos4213/fithub/internal/cntx"
 	"github.com/kairos4213/fithub/internal/database"
 	"github.com/kairos4213/fithub/internal/templates"
+	"github.com/kairos4213/fithub/internal/validate"
 )
 
 func (h *Handler) GetAllGoals(w http.ResponseWriter, r *http.Request) {
@@ -38,10 +39,23 @@ func (h *Handler) AddNewGoal(w http.ResponseWriter, r *http.Request) {
 	reqGoalDate := r.FormValue("goal-date")
 	reqNotes := r.FormValue("notes")
 
+	if errs := validate.Fields(
+		validate.Required(reqGoalName, "goal name"),
+		validate.Required(reqDescription, "description"),
+		validate.Required(reqGoalDate, "goal date"),
+		validate.MaxLen(reqGoalName, 100, "goal name"),
+		validate.MaxLen(reqDescription, 500, "description"),
+		validate.MaxLen(reqNotes, 500, "notes"),
+	); errs != nil {
+		HandleBadRequest(w, r, errs[0].Error())
+		h.cfg.Logger.Info("invalid form field", slog.Any("fields", errs))
+		return
+	}
+
 	goalDate, err := time.Parse(time.DateOnly, reqGoalDate)
 	if err != nil {
-		HandleInternalServerError(w, r)
-		h.cfg.Logger.Error("failed to parse goal date", slog.String("error", err.Error()))
+		HandleBadRequest(w, r, "goal date must be in YYYY-MM-DD format")
+		h.cfg.Logger.Info("invalid goal date input", slog.String("value", reqGoalDate), slog.String("error", err.Error()))
 		return
 	}
 
@@ -87,10 +101,24 @@ func (h *Handler) EditGoal(w http.ResponseWriter, r *http.Request) {
 	reqGoalDate := r.FormValue("goal-date")
 	reqNotes := r.FormValue("notes")
 
+	if errs := validate.Fields(
+		validate.Required(reqGoalName, "goal name"),
+		validate.Required(reqStatus, "status"),
+		validate.Required(reqDescription, "description"),
+		validate.Required(reqGoalDate, "goal date"),
+		validate.MaxLen(reqGoalName, 100, "goal name"),
+		validate.MaxLen(reqDescription, 500, "description"),
+		validate.MaxLen(reqNotes, 500, "notes"),
+	); errs != nil {
+		HandleBadRequest(w, r, errs[0].Error())
+		h.cfg.Logger.Info("invalid form field", slog.Any("fields", errs))
+		return
+	}
+
 	goalDate, err := time.Parse(time.DateOnly, reqGoalDate)
 	if err != nil {
-		HandleInternalServerError(w, r)
-		h.cfg.Logger.Error("failed to parse goal date", slog.String("error", err.Error()))
+		HandleBadRequest(w, r, "goal date must be in YYYY-MM-DD format")
+		h.cfg.Logger.Info("invalid goal date input", slog.String("value", reqGoalDate), slog.String("error", err.Error()))
 		return
 	}
 
