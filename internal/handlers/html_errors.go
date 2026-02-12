@@ -20,7 +20,11 @@ func HandleInternalServerError(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusInternalServerError)
 
 	htmlErr := templates.HtmlErr{Code: http.StatusInternalServerError, Msg: ServerErrMsg}
-	templates.ErrorDisplay(htmlErr).Render(r.Context(), w)
+	err := templates.ErrorDisplay(htmlErr).Render(r.Context(), w)
+	if err != nil {
+		HandleInternalServerError(w, r)
+		return
+	}
 }
 
 func GetForbiddenPage(w http.ResponseWriter, r *http.Request) {
@@ -31,13 +35,17 @@ func GetForbiddenPage(w http.ResponseWriter, r *http.Request) {
 
 	htmlErr := templates.HtmlErr{Code: http.StatusForbidden, Msg: AccessForbidden}
 	contents := templates.ErrorDisplay(htmlErr)
-	templates.Layout(contents, "FitHub", true).Render(r.Context(), w)
+	err := templates.Layout(contents, "FitHub", true).Render(r.Context(), w)
+	if err != nil {
+		HandleInternalServerError(w, r)
+		return
+	}
 }
 
 func GetUnauthorizedPage(w http.ResponseWriter, r *http.Request) {
-	err := r.URL.Query().Get("reason")
+	errStr := r.URL.Query().Get("reason")
 	errMsg := NoAccessMsg
-	if err == "expired" {
+	if errStr == "expired" {
 		errMsg = AccessExpiredMsg
 	}
 
@@ -48,7 +56,11 @@ func GetUnauthorizedPage(w http.ResponseWriter, r *http.Request) {
 
 	htmlErr := templates.HtmlErr{Code: http.StatusUnauthorized, Msg: errMsg}
 	contents := templates.ErrorDisplay(htmlErr)
-	templates.Layout(contents, "FitHub", false).Render(r.Context(), w)
+	err := templates.Layout(contents, "FitHub", false).Render(r.Context(), w)
+	if err != nil {
+		HandleInternalServerError(w, r)
+		return
+	}
 }
 
 func HandleLoginFailure(w http.ResponseWriter, r *http.Request) {
@@ -56,7 +68,11 @@ func HandleLoginFailure(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusUnprocessableEntity)
 
 	htmlErr := templates.HtmlErr{Code: http.StatusUnprocessableEntity, Msg: LoginFailMsg}
-	templates.LoginFailure(htmlErr).Render(r.Context(), w)
+	err := templates.LoginFailure(htmlErr).Render(r.Context(), w)
+	if err != nil {
+		HandleInternalServerError(w, r)
+		return
+	}
 }
 
 func HandleRegPageEmailAlert(w http.ResponseWriter, r *http.Request) {
@@ -64,7 +80,11 @@ func HandleRegPageEmailAlert(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusConflict)
 
 	htmlErr := templates.HtmlErr{Code: http.StatusConflict, Msg: DuplicateEmailMsg}
-	templates.RegPageEmailAlert(htmlErr).Render(r.Context(), w)
+	err := templates.RegPageEmailAlert(htmlErr).Render(r.Context(), w)
+	if err != nil {
+		HandleInternalServerError(w, r)
+		return
+	}
 }
 
 func HandleBadRequest(w http.ResponseWriter, r *http.Request, errMsg string) {
@@ -72,5 +92,9 @@ func HandleBadRequest(w http.ResponseWriter, r *http.Request, errMsg string) {
 	w.WriteHeader(http.StatusBadRequest)
 
 	htmlErr := templates.HtmlErr{Code: http.StatusBadRequest, Msg: errMsg}
-	templates.RegPageEmailAlert(htmlErr).Render(r.Context(), w)
+	err := templates.RegPageEmailAlert(htmlErr).Render(r.Context(), w)
+	if err != nil {
+		HandleInternalServerError(w, r)
+		return
+	}
 }
