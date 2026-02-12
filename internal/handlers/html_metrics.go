@@ -8,6 +8,7 @@ import (
 	"github.com/kairos4213/fithub/internal/cntx"
 	"github.com/kairos4213/fithub/internal/database"
 	"github.com/kairos4213/fithub/internal/templates"
+	"github.com/kairos4213/fithub/internal/validate"
 )
 
 func (h *Handler) GetAllMetrics(w http.ResponseWriter, r *http.Request) {
@@ -49,6 +50,15 @@ func (h *Handler) LogMetrics(w http.ResponseWriter, r *http.Request) {
 	switch metricType {
 	case "bodyweights":
 		entry := r.FormValue("bodyweight")
+		if errs := validate.Fields(
+			validate.Required(entry, "bodyweight"),
+			validate.Numeric(entry, "bodyweight"),
+		); errs != nil {
+			HandleBadRequest(w, r, errs[0].Error())
+			h.cfg.Logger.Info("invalid bodyweight input", slog.String("value", entry))
+			return
+		}
+
 		bw, err := h.cfg.DB.AddBodyWeight(r.Context(), database.AddBodyWeightParams{UserID: userID, Measurement: entry})
 		if err != nil {
 			HandleInternalServerError(w, r)
@@ -64,6 +74,15 @@ func (h *Handler) LogMetrics(w http.ResponseWriter, r *http.Request) {
 		}
 	case "muscleMasses":
 		entry := r.FormValue("muscle-mass")
+		if errs := validate.Fields(
+			validate.Required(entry, "muscle mass"),
+			validate.Numeric(entry, "muscle mass"),
+		); errs != nil {
+			HandleBadRequest(w, r, errs[0].Error())
+			h.cfg.Logger.Info("invalid muscle mass input", slog.String("value", entry))
+			return
+		}
+
 		mm, err := h.cfg.DB.AddMuscleMass(r.Context(), database.AddMuscleMassParams{UserID: userID, Measurement: entry})
 		if err != nil {
 			HandleInternalServerError(w, r)
@@ -79,6 +98,15 @@ func (h *Handler) LogMetrics(w http.ResponseWriter, r *http.Request) {
 		}
 	case "bfPercents":
 		entry := r.FormValue("bf-percent")
+		if errs := validate.Fields(
+			validate.Required(entry, "body fat percent"),
+			validate.Numeric(entry, "body fat percent"),
+		); errs != nil {
+			HandleBadRequest(w, r, errs[0].Error())
+			h.cfg.Logger.Info("invalid body fat percent input", slog.String("value", entry))
+			return
+		}
+
 		bf, err := h.cfg.DB.AddBodyFatPerc(r.Context(), database.AddBodyFatPercParams{UserID: userID, Measurement: entry})
 		if err != nil {
 			HandleInternalServerError(w, r)
@@ -108,6 +136,14 @@ func (h *Handler) EditMetrics(w http.ResponseWriter, r *http.Request) {
 	switch metricType {
 	case "bodyweights":
 		entry := r.FormValue("bodyweight")
+		if errs := validate.Fields(
+			validate.Required(entry, "bodyweight"),
+			validate.Numeric(entry, "bodyweight"),
+		); errs != nil {
+			HandleBadRequest(w, r, errs[0].Error())
+			h.cfg.Logger.Info("invalid bodyweight input", slog.String("value", entry))
+			return
+		}
 
 		updatedBW, err := h.cfg.DB.UpdateBodyWeight(r.Context(), database.UpdateBodyWeightParams{Measurement: entry, ID: id, UserID: userID})
 		if err != nil {
@@ -124,6 +160,14 @@ func (h *Handler) EditMetrics(w http.ResponseWriter, r *http.Request) {
 		}
 	case "muscleMasses":
 		entry := r.FormValue("muscle-mass")
+		if errs := validate.Fields(
+			validate.Required(entry, "muscle mass"),
+			validate.Numeric(entry, "muscle mass"),
+		); errs != nil {
+			HandleBadRequest(w, r, errs[0].Error())
+			h.cfg.Logger.Info("invalid muscle mass input", slog.String("value", entry))
+			return
+		}
 
 		updatedMM, err := h.cfg.DB.UpdateMuscleMass(r.Context(), database.UpdateMuscleMassParams{Measurement: entry, ID: id, UserID: userID})
 		if err != nil {
@@ -140,6 +184,14 @@ func (h *Handler) EditMetrics(w http.ResponseWriter, r *http.Request) {
 		}
 	case "bfPercents":
 		entry := r.FormValue("bf-percent")
+		if errs := validate.Fields(
+			validate.Required(entry, "body fat percent"),
+			validate.Numeric(entry, "body fat percent"),
+		); errs != nil {
+			HandleBadRequest(w, r, errs[0].Error())
+			h.cfg.Logger.Info("invalid body fat percent input", slog.String("value", entry))
+			return
+		}
 
 		updatedBF, err := h.cfg.DB.UpdateBodyFatPerc(r.Context(), database.UpdateBodyFatPercParams{Measurement: entry, ID: id, UserID: userID})
 		if err != nil {
