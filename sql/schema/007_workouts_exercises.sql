@@ -1,8 +1,8 @@
 -- +goose Up
 create table workouts_exercises (
     id uuid primary key,
-    workout_id uuid not null,
-    exercise_id uuid not null,
+    workout_id uuid not null references workouts (id) on delete cascade,
+    exercise_id uuid not null references exercises (id) on delete cascade,
     sets_planned int not null default 1,
     reps_per_set_planned int [] not null,
     sets_completed int not null default 0,
