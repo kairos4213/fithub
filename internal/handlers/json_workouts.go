@@ -11,6 +11,7 @@ import (
 	"github.com/kairos4213/fithub/internal/cntx"
 	"github.com/kairos4213/fithub/internal/database"
 	"github.com/kairos4213/fithub/internal/utils"
+	"github.com/kairos4213/fithub/internal/validate"
 )
 
 type Workout struct {
@@ -34,9 +35,20 @@ func (h *Handler) CreateWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if errs := validate.Fields(
+		validate.Required(reqParams.Title, "title"),
+		validate.Required(reqParams.Duration, "duration"),
+		validate.Required(reqParams.PlannedDate, "planned date"),
+		validate.MaxLen(reqParams.Title, 100, "title"),
+		validate.MaxLen(reqParams.Description, 500, "description"),
+	); errs != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, errs[0].Error(), nil)
+		return
+	}
+
 	plannedDate, err := time.Parse(time.DateOnly, reqParams.PlannedDate)
 	if err != nil {
-		utils.RespondWithError(w, http.StatusBadRequest, "not a valid date", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "planned date must be in YYYY-MM-DD format", err)
 		return
 	}
 
@@ -48,7 +60,8 @@ func (h *Handler) CreateWorkout(w http.ResponseWriter, r *http.Request) {
 
 	workoutDuration, err := strconv.Atoi(reqParams.Duration)
 	if err != nil {
-		utils.RespondWithError(w, http.StatusBadRequest, "not a valid time duration", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "duration must be a number", err)
+		return
 	}
 
 	workout, err := h.cfg.DB.CreateWorkout(r.Context(), database.CreateWorkoutParams{
@@ -117,6 +130,17 @@ func (h *Handler) UpdateWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if errs := validate.Fields(
+		validate.Required(reqParams.Title, "title"),
+		validate.Required(reqParams.Duration, "duration"),
+		validate.Required(reqParams.PlannedDate, "planned date"),
+		validate.MaxLen(reqParams.Title, 100, "title"),
+		validate.MaxLen(reqParams.Description, 500, "description"),
+	); errs != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, errs[0].Error(), nil)
+		return
+	}
+
 	workoutDescription := sql.NullString{Valid: false}
 	if reqParams.Description != "" {
 		workoutDescription = sql.NullString{Valid: true, String: reqParams.Description}
@@ -124,12 +148,13 @@ func (h *Handler) UpdateWorkout(w http.ResponseWriter, r *http.Request) {
 
 	workoutDuration, err := strconv.Atoi(reqParams.Duration)
 	if err != nil {
-		utils.RespondWithError(w, http.StatusBadRequest, "invalid time duration", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "duration must be a number", err)
+		return
 	}
 
 	plannedDate, err := time.Parse(time.DateOnly, reqParams.PlannedDate)
 	if err != nil {
-		utils.RespondWithError(w, http.StatusBadRequest, "incorrect date format", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "planned date must be in YYYY-MM-DD format", err)
 		return
 	}
 
