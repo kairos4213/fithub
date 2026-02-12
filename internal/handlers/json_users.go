@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"database/sql"
-	"errors"
 	"net/http"
 	"strings"
 	"time"
@@ -12,6 +11,7 @@ import (
 	"github.com/kairos4213/fithub/internal/cntx"
 	"github.com/kairos4213/fithub/internal/database"
 	"github.com/kairos4213/fithub/internal/utils"
+	"github.com/kairos4213/fithub/internal/validate"
 )
 
 type User struct {
@@ -36,23 +36,17 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if reqParams.FirstName == "" {
-		utils.RespondWithError(w, http.StatusBadRequest, "Missing First Name", errors.New("malformed request"))
-		return
-	}
-
-	if reqParams.LastName == "" {
-		utils.RespondWithError(w, http.StatusBadRequest, "Missing Last Name", errors.New("malformed request"))
-		return
-	}
-
-	if reqParams.Email == "" {
-		utils.RespondWithError(w, http.StatusBadRequest, "Missing Email", errors.New("malformed request"))
-		return
-	}
-
-	if len(reqParams.Password) < 10 {
-		utils.RespondWithError(w, http.StatusBadRequest, "Password must be at least 10 characters", errors.New("malformed request"))
+	if errs := validate.Fields(
+		validate.Required(reqParams.FirstName, "first name"),
+		validate.Required(reqParams.LastName, "last name"),
+		validate.Required(reqParams.Email, "email"),
+		validate.Required(reqParams.Password, "password"),
+		validate.MinLen(reqParams.Password, 10, "password"),
+		validate.MaxLen(reqParams.FirstName, 100, "first name"),
+		validate.MaxLen(reqParams.LastName, 100, "last name"),
+		validate.MaxLen(reqParams.Email, 255, "email"),
+	); errs != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, errs[0].Error(), nil)
 		return
 	}
 
@@ -122,13 +116,11 @@ func (h *Handler) LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if reqParams.Email == "" {
-		utils.RespondWithError(w, http.StatusBadRequest, "Missing Email", errors.New("malformed request"))
-		return
-	}
-
-	if reqParams.Password == "" {
-		utils.RespondWithError(w, http.StatusBadRequest, "Missing Password", errors.New("malformed request"))
+	if errs := validate.Fields(
+		validate.Required(reqParams.Email, "email"),
+		validate.Required(reqParams.Password, "password"),
+	); errs != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, errs[0].Error(), nil)
 		return
 	}
 
