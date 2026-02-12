@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/kairos4213/fithub/internal/database"
 	"github.com/kairos4213/fithub/internal/templates"
+	"github.com/kairos4213/fithub/internal/validate"
 )
 
 func (h *Handler) GetExerciseByKeyword(w http.ResponseWriter, r *http.Request) {
@@ -23,6 +24,14 @@ func (h *Handler) GetExerciseByKeyword(w http.ResponseWriter, r *http.Request) {
 
 	if exerciseSearch == "" {
 		templates.ExerciseQuickSearchResults([]database.Exercise{}, workoutID).Render(r.Context(), w)
+		return
+	}
+
+	if errs := validate.Fields(
+		validate.MaxLen(exerciseSearch, 100, "exercise search"),
+	); errs != nil {
+		HandleBadRequest(w, r, errs[0].Error())
+		h.cfg.Logger.Info("invalid exercise search input", slog.String("value", exerciseSearch))
 		return
 	}
 
@@ -50,6 +59,18 @@ func (h *Handler) AddExerciseToWorkout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	exerciseName := r.FormValue("exercise-name")
+	reqPlannedSets := r.FormValue("planned-sets")
+
+	if errs := validate.Fields(
+		validate.Required(exerciseName, "exercise name"),
+		validate.Required(reqPlannedSets, "planned sets"),
+		validate.MaxLen(exerciseName, 100, "exercise name"),
+	); errs != nil {
+		HandleBadRequest(w, r, errs[0].Error())
+		h.cfg.Logger.Info("invalid form field", slog.Any("fields", errs))
+		return
+	}
+
 	exercise, err := h.cfg.DB.GetExerciseByName(r.Context(), exerciseName)
 	if err != nil {
 		HandleInternalServerError(w, r)
@@ -57,10 +78,10 @@ func (h *Handler) AddExerciseToWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	plannedSets, err := strconv.ParseInt(r.FormValue("planned-sets"), 10, 32)
+	plannedSets, err := strconv.ParseInt(reqPlannedSets, 10, 32)
 	if err != nil {
-		HandleInternalServerError(w, r)
-		h.cfg.Logger.Error("failed to parse planned sets", slog.String("error", err.Error()))
+		HandleBadRequest(w, r, "planned sets must be a number")
+		h.cfg.Logger.Info("invalid planned sets input", slog.String("value", reqPlannedSets), slog.String("error", err.Error()))
 		return
 	}
 
@@ -145,10 +166,22 @@ func (h *Handler) UpdateWorkoutExercise(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	plannedSets, err := strconv.ParseInt(r.FormValue("planned-sets"), 10, 32)
+	reqPlannedSets := r.FormValue("planned-sets")
+	reqCompletedSets := r.FormValue("completed-sets")
+
+	if errs := validate.Fields(
+		validate.Required(reqPlannedSets, "planned sets"),
+		validate.Required(reqCompletedSets, "completed sets"),
+	); errs != nil {
+		HandleBadRequest(w, r, errs[0].Error())
+		h.cfg.Logger.Info("invalid form field", slog.Any("fields", errs))
+		return
+	}
+
+	plannedSets, err := strconv.ParseInt(reqPlannedSets, 10, 32)
 	if err != nil {
-		HandleInternalServerError(w, r)
-		h.cfg.Logger.Error("failed to parse planned sets", slog.String("error", err.Error()))
+		HandleBadRequest(w, r, "planned sets must be a number")
+		h.cfg.Logger.Info("invalid planned sets input", slog.String("value", reqPlannedSets), slog.String("error", err.Error()))
 		return
 	}
 
@@ -157,8 +190,8 @@ func (h *Handler) UpdateWorkoutExercise(w http.ResponseWriter, r *http.Request) 
 	for i, plannedRep := range plannedRepsSlice {
 		rep, err := strconv.ParseInt(plannedRep, 10, 32)
 		if err != nil {
-			HandleInternalServerError(w, r)
-			h.cfg.Logger.Error("failed to parse planned rep", slog.String("error", err.Error()))
+			HandleBadRequest(w, r, "planned reps must be numbers")
+			h.cfg.Logger.Info("invalid planned rep input", slog.String("value", plannedRep), slog.String("error", err.Error()))
 			return
 		}
 		plannedReps[i] = int32(rep)
@@ -169,17 +202,17 @@ func (h *Handler) UpdateWorkoutExercise(w http.ResponseWriter, r *http.Request) 
 	for i, plannedWeight := range plannedWeightsSlice {
 		weight, err := strconv.ParseInt(plannedWeight, 10, 32)
 		if err != nil {
-			HandleInternalServerError(w, r)
-			h.cfg.Logger.Error("failed to parse planned weight", slog.String("error", err.Error()))
+			HandleBadRequest(w, r, "planned weights must be numbers")
+			h.cfg.Logger.Info("invalid planned weight input", slog.String("value", plannedWeight), slog.String("error", err.Error()))
 			return
 		}
 		plannedWeights[i] = int32(weight)
 	}
 
-	completedSets, err := strconv.ParseInt(r.FormValue("completed-sets"), 10, 32)
+	completedSets, err := strconv.ParseInt(reqCompletedSets, 10, 32)
 	if err != nil {
-		HandleInternalServerError(w, r)
-		h.cfg.Logger.Error("failed to parse completed sets", slog.String("error", err.Error()))
+		HandleBadRequest(w, r, "completed sets must be a number")
+		h.cfg.Logger.Info("invalid completed sets input", slog.String("value", reqCompletedSets), slog.String("error", err.Error()))
 		return
 	}
 
@@ -188,8 +221,8 @@ func (h *Handler) UpdateWorkoutExercise(w http.ResponseWriter, r *http.Request) 
 	for i, completedRep := range completedRepsSlice {
 		rep, err := strconv.ParseInt(completedRep, 10, 32)
 		if err != nil {
-			HandleInternalServerError(w, r)
-			h.cfg.Logger.Error("failed to parse completed rep", slog.String("error", err.Error()))
+			HandleBadRequest(w, r, "completed reps must be numbers")
+			h.cfg.Logger.Info("invalid completed rep input", slog.String("value", completedRep), slog.String("error", err.Error()))
 			return
 		}
 		completedReps[i] = int32(rep)
@@ -200,8 +233,8 @@ func (h *Handler) UpdateWorkoutExercise(w http.ResponseWriter, r *http.Request) 
 	for i, completedWeight := range completedWeightsSlice {
 		weight, err := strconv.ParseInt(completedWeight, 10, 32)
 		if err != nil {
-			HandleInternalServerError(w, r)
-			h.cfg.Logger.Error("failed to parse completed weight", slog.String("error", err.Error()))
+			HandleBadRequest(w, r, "completed weights must be numbers")
+			h.cfg.Logger.Info("invalid completed weight input", slog.String("value", completedWeight), slog.String("error", err.Error()))
 			return
 		}
 		completedWeights[i] = int32(weight)
