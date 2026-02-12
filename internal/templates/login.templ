@@ -4,7 +4,6 @@ templ LoginPage() {
 	<section class="container mx-auto p-10 h-screen">
 		<form
 			hx-post={ templ.URL("/login") }
-			hx-target="main"
 			hx-target-422="#login-failure"
 			hx-target-500="body"
 			hx-swap="outerHTML"

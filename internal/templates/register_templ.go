@@ -42,14 +42,14 @@ func RegisterPage() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" hx-target=\"main\" hx-target-500=\"body\" hx-target-409=\"#email-alert\" class=\"justify-self-center\"><h1 class=\"text-5xl\">FitHub</h1><fieldset class=\"fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4\"><legend class=\"fieldset-legend text-lg\">Register</legend> <input class=\"input\" type=\"text\" name=\"first_name\" placeholder=\"First Name\" required> <input class=\"input\" type=\"text\" name=\"last_name\" placeholder=\"Last Name\" required> <input class=\"input\" type=\"email\" name=\"email\" placeholder=\"Email\" hx-post=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" hx-target-500=\"body\" hx-target-409=\"#email-alert\" class=\"justify-self-center\"><h1 class=\"text-5xl\">FitHub</h1><fieldset class=\"fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4\"><legend class=\"fieldset-legend text-lg\">Register</legend> <input class=\"input\" type=\"text\" name=\"first_name\" placeholder=\"First Name\" required> <input class=\"input\" type=\"text\" name=\"last_name\" placeholder=\"Last Name\" required> <input class=\"input\" type=\"email\" name=\"email\" placeholder=\"Email\" hx-post=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(templ.URL("/users/email"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/register.templ`, Line: 22, Col: 40}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/register.templ`, Line: 21, Col: 40}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
@@ -62,7 +62,7 @@ func RegisterPage() templ.Component {
 		var templ_7745c5c3_Var4 templ.SafeURL
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinURLErrs(templ.URL("/login"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/register.templ`, Line: 33, Col: 51}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/register.templ`, Line: 32, Col: 51}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -105,7 +105,7 @@ func RegPageEmailAlert(err HtmlErr) templ.Component {
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(err.Msg)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/register.templ`, Line: 42, Col: 73}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/register.templ`, Line: 41, Col: 73}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {

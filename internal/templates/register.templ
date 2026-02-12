@@ -4,7 +4,6 @@ templ RegisterPage() {
 	<section class="container mx-auto p-10 h-screen">
 		<form
 			hx-post={ templ.URL("/register") }
-			hx-target="main"
 			hx-target-500="body"
 			hx-target-409="#email-alert"
 			class="justify-self-center"
