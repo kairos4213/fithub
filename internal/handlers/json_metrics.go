@@ -8,6 +8,7 @@ import (
 	"github.com/kairos4213/fithub/internal/cntx"
 	"github.com/kairos4213/fithub/internal/database"
 	"github.com/kairos4213/fithub/internal/utils"
+	"github.com/kairos4213/fithub/internal/validate"
 )
 
 type Metric struct {
@@ -25,6 +26,14 @@ func (h *Handler) AddMetric(w http.ResponseWriter, r *http.Request) {
 	reqParams := Metric{}
 	if err := utils.ParseJSON(r, &reqParams); err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "malformed request", err)
+		return
+	}
+
+	if errs := validate.Fields(
+		validate.Required(reqParams.Measurement, "measurement"),
+		validate.Numeric(reqParams.Measurement, "measurement"),
+	); errs != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, errs[0].Error(), nil)
 		return
 	}
 
@@ -162,6 +171,14 @@ func (h *Handler) UpdateMetric(w http.ResponseWriter, r *http.Request) {
 	reqParams := Metric{}
 	if err := utils.ParseJSON(r, &reqParams); err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "malformed request", err)
+		return
+	}
+
+	if errs := validate.Fields(
+		validate.Required(reqParams.Measurement, "measurement"),
+		validate.Numeric(reqParams.Measurement, "measurement"),
+	); errs != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, errs[0].Error(), nil)
 		return
 	}
 
