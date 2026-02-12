@@ -10,6 +10,7 @@ import (
 	"github.com/kairos4213/fithub/internal/cntx"
 	"github.com/kairos4213/fithub/internal/database"
 	"github.com/kairos4213/fithub/internal/utils"
+	"github.com/kairos4213/fithub/internal/validate"
 )
 
 type Goal struct {
@@ -34,9 +35,21 @@ func (h *Handler) CreateGoal(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if errs := validate.Fields(
+		validate.Required(reqParams.Name, "name"),
+		validate.Required(reqParams.Description, "description"),
+		validate.Required(reqParams.GoalDate, "goal date"),
+		validate.MaxLen(reqParams.Name, 100, "name"),
+		validate.MaxLen(reqParams.Description, 500, "description"),
+		validate.MaxLen(reqParams.Notes, 500, "notes"),
+	); errs != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, errs[0].Error(), nil)
+		return
+	}
+
 	goalDate, err := time.Parse(time.DateOnly, reqParams.GoalDate)
 	if err != nil {
-		utils.RespondWithError(w, http.StatusInternalServerError, "Error parsing date", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "goal date must be in YYYY-MM-DD format", err)
 		return
 	}
 
@@ -114,6 +127,19 @@ func (h *Handler) UpdateGoal(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if errs := validate.Fields(
+		validate.Required(reqParams.Name, "name"),
+		validate.Required(reqParams.Description, "description"),
+		validate.Required(reqParams.GoalDate, "goal date"),
+		validate.Required(reqParams.Status, "status"),
+		validate.MaxLen(reqParams.Name, 100, "name"),
+		validate.MaxLen(reqParams.Description, 500, "description"),
+		validate.MaxLen(reqParams.Notes, 500, "notes"),
+	); errs != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, errs[0].Error(), nil)
+		return
+	}
+
 	updateGoalParams := database.UpdateGoalParams{
 		ID:          goalID,
 		GoalName:    reqParams.Name,
@@ -124,7 +150,7 @@ func (h *Handler) UpdateGoal(w http.ResponseWriter, r *http.Request) {
 
 	goalDate, err := time.Parse(time.DateOnly, reqParams.GoalDate)
 	if err != nil {
-		utils.RespondWithError(w, http.StatusInternalServerError, "Error parsing date", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "goal date must be in YYYY-MM-DD format", err)
 		return
 	}
 	updateGoalParams.GoalDate = goalDate
@@ -134,7 +160,7 @@ func (h *Handler) UpdateGoal(w http.ResponseWriter, r *http.Request) {
 	} else {
 		completionDate, err := time.Parse(time.DateOnly, reqParams.CompletionDate)
 		if err != nil {
-			utils.RespondWithError(w, http.StatusInternalServerError, "Error parsing date", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "completion date must be in YYYY-MM-DD format", err)
 			return
 		}
 		updateGoalParams.CompletionDate = sql.NullTime{Time: completionDate, Valid: true}
