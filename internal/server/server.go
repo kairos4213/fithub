@@ -31,9 +31,12 @@ func (s *Server) Start() {
 	mux := http.NewServeMux()
 	s.registerRoutes(mux)
 
+	// 100 requests per minute per IP as a global safety net
+	globalLimit := s.mw.RateLimit(100, time.Minute)
+
 	srv := &http.Server{
 		Addr:         ":" + s.port,
-		Handler:      s.mw.Log(s.mw.Cop(mux)),
+		Handler:      s.mw.Log(globalLimit(s.mw.SecureHeaders(s.mw.Cop(mux)))),
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}

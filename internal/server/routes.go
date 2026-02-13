@@ -2,6 +2,7 @@ package server
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/kairos4213/fithub/internal/handlers"
 )
@@ -11,15 +12,19 @@ func (s *Server) registerRoutes(mux *http.ServeMux) {
 	fileServer := http.FileServer(http.Dir(s.fileDir))
 	mux.Handle("GET /static/", http.StripPrefix("/static/", fileServer))
 
+	// Rate limit auth endpoints: 10 requests per minute per IP
+	authLimit := s.mw.RateLimit(10, time.Minute)
+
 	// Public pages
 	mux.HandleFunc("GET /", s.handler.Index)
 	// FIX: /login & /register not showing up in browser network dev tool
 	mux.HandleFunc("GET /login", s.handler.Login)
-	mux.HandleFunc("POST /login", s.handler.Login)
+	mux.Handle("POST /login", authLimit(http.HandlerFunc(s.handler.Login)))
 	mux.HandleFunc("POST /logout", s.handler.Logout)
 	mux.HandleFunc("GET /register", s.handler.Register)
-	mux.HandleFunc("POST /register", s.handler.Register)
+	mux.Handle("POST /register", authLimit(http.HandlerFunc(s.handler.Register)))
 	mux.HandleFunc("POST /users/email", s.handler.CheckUserEmail)
+
 
 	// Error pages
 	mux.Handle("GET /unauthorized", http.HandlerFunc(handlers.GetUnauthorizedPage))
