@@ -57,6 +57,19 @@ WHERE primary_muscle_group = $1;
 SELECT * FROM exercises
 WHERE secondary_muscle_group = $1;
 
+-- name: GetRandomExercisesByMuscleGroup :many
+SELECT * FROM exercises
+WHERE primary_muscle_group = $1
+ORDER BY RANDOM()
+LIMIT $2;
+
+-- name: GetRandomExerciseExcluding :one
+SELECT * FROM exercises
+WHERE primary_muscle_group = $1
+  AND id != ALL(@exclude_ids::uuid[])
+ORDER BY RANDOM()
+LIMIT 1;
+
 -- name: GetAllMuscleGroups :many
 SELECT DISTINCT muscle_group
 FROM (

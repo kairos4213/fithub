@@ -10,6 +10,7 @@ import (
 	"database/sql"
 
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 )
 
 const createExercise = `-- name: CreateExercise :one
@@ -259,6 +260,77 @@ WHERE secondary_muscle_group = $1
 
 func (q *Queries) GetExercisesBySecondaryMG(ctx context.Context, secondaryMuscleGroup sql.NullString) ([]Exercise, error) {
 	rows, err := q.db.QueryContext(ctx, getExercisesBySecondaryMG, secondaryMuscleGroup)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Exercise
+	for rows.Next() {
+		var i Exercise
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.PrimaryMuscleGroup,
+			&i.SecondaryMuscleGroup,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getRandomExerciseExcluding = `-- name: GetRandomExerciseExcluding :one
+SELECT id, name, description, primary_muscle_group, secondary_muscle_group, created_at, updated_at FROM exercises
+WHERE primary_muscle_group = $1
+  AND id != ALL($2::uuid[])
+ORDER BY RANDOM()
+LIMIT 1
+`
+
+type GetRandomExerciseExcludingParams struct {
+	PrimaryMuscleGroup sql.NullString
+	ExcludeIds         []uuid.UUID
+}
+
+func (q *Queries) GetRandomExerciseExcluding(ctx context.Context, arg GetRandomExerciseExcludingParams) (Exercise, error) {
+	row := q.db.QueryRowContext(ctx, getRandomExerciseExcluding, arg.PrimaryMuscleGroup, pq.Array(arg.ExcludeIds))
+	var i Exercise
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Description,
+		&i.PrimaryMuscleGroup,
+		&i.SecondaryMuscleGroup,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getRandomExercisesByMuscleGroup = `-- name: GetRandomExercisesByMuscleGroup :many
+SELECT id, name, description, primary_muscle_group, secondary_muscle_group, created_at, updated_at FROM exercises
+WHERE primary_muscle_group = $1
+ORDER BY RANDOM()
+LIMIT $2
+`
+
+type GetRandomExercisesByMuscleGroupParams struct {
+	PrimaryMuscleGroup sql.NullString
+	Limit              int32
+}
+
+func (q *Queries) GetRandomExercisesByMuscleGroup(ctx context.Context, arg GetRandomExercisesByMuscleGroupParams) ([]Exercise, error) {
+	rows, err := q.db.QueryContext(ctx, getRandomExercisesByMuscleGroup, arg.PrimaryMuscleGroup, arg.Limit)
 	if err != nil {
 		return nil, err
 	}

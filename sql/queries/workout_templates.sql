@@ -6,3 +6,7 @@ SELECT
     exercise_set_reps,
     duration_minutes
 FROM workout_templates;
+
+-- name: GetWorkoutTemplateByID :one
+SELECT * FROM workout_templates
+WHERE id = $1;

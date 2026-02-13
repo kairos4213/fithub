@@ -58,3 +58,23 @@ func (q *Queries) GetAllWorkoutTemplates(ctx context.Context) ([]GetAllWorkoutTe
 	}
 	return items, nil
 }
+
+const getWorkoutTemplateByID = `-- name: GetWorkoutTemplateByID :one
+SELECT id, template_name, description, exercise_set_reps, duration_minutes, created_at, updated_at FROM workout_templates
+WHERE id = $1
+`
+
+func (q *Queries) GetWorkoutTemplateByID(ctx context.Context, id uuid.UUID) (WorkoutTemplate, error) {
+	row := q.db.QueryRowContext(ctx, getWorkoutTemplateByID, id)
+	var i WorkoutTemplate
+	err := row.Scan(
+		&i.ID,
+		&i.TemplateName,
+		&i.Description,
+		&i.ExerciseSetReps,
+		&i.DurationMinutes,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
