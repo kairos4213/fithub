@@ -6,7 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/kairos4213/fithub/internal/auth"
 	"github.com/kairos4213/fithub/internal/cntx"
 	"github.com/kairos4213/fithub/internal/database"
@@ -178,7 +177,11 @@ func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	// TODO: Split this handler into two separate handlers
 	// updateUsersHandlerPassword
 	// updateUsersHandlerInfo (handles all other user information)
-	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
+	userID, ok := cntx.UserID(r.Context())
+	if !ok {
+		utils.RespondWithError(w, http.StatusInternalServerError, "missing user id in context", nil)
+		return
+	}
 
 	reqParams := User{}
 	if err := utils.ParseJSON(r, &reqParams); err != nil {
@@ -220,7 +223,11 @@ func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
+	userID, ok := cntx.UserID(r.Context())
+	if !ok {
+		utils.RespondWithError(w, http.StatusInternalServerError, "missing user id in context", nil)
+		return
+	}
 
 	if err := h.cfg.DB.DeleteUser(r.Context(), userID); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, "Error deleting user profile", err)

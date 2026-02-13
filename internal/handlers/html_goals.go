@@ -14,7 +14,12 @@ import (
 )
 
 func (h *Handler) GetAllGoals(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
+	userID, ok := cntx.UserID(r.Context())
+	if !ok {
+		HandleInternalServerError(w, r)
+		h.cfg.Logger.Error("missing user id in context")
+		return
+	}
 	goals, err := h.cfg.DB.GetAllUserGoals(r.Context(), userID)
 	if err != nil {
 		HandleInternalServerError(w, r)
@@ -32,7 +37,12 @@ func (h *Handler) GetAllGoals(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) AddNewGoal(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
+	userID, ok := cntx.UserID(r.Context())
+	if !ok {
+		HandleInternalServerError(w, r)
+		h.cfg.Logger.Error("missing user id in context")
+		return
+	}
 
 	reqGoalName := r.FormValue("goal-name")
 	reqDescription := r.FormValue("description")
@@ -87,7 +97,12 @@ func (h *Handler) AddNewGoal(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) EditGoal(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
+	userID, ok := cntx.UserID(r.Context())
+	if !ok {
+		HandleInternalServerError(w, r)
+		h.cfg.Logger.Error("missing user id in context")
+		return
+	}
 	goalID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		HandleInternalServerError(w, r)
@@ -159,7 +174,12 @@ func (h *Handler) EditGoal(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) DeleteGoal(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
+	userID, ok := cntx.UserID(r.Context())
+	if !ok {
+		HandleInternalServerError(w, r)
+		h.cfg.Logger.Error("missing user id in context")
+		return
+	}
 	goalID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		HandleInternalServerError(w, r)

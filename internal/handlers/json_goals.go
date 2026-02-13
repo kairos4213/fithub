@@ -27,7 +27,11 @@ type Goal struct {
 }
 
 func (h *Handler) CreateGoal(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
+	userID, ok := cntx.UserID(r.Context())
+	if !ok {
+		utils.RespondWithError(w, http.StatusInternalServerError, "missing user id in context", nil)
+		return
+	}
 
 	reqParams := Goal{}
 	if err := utils.ParseJSON(r, &reqParams); err != nil {
@@ -88,7 +92,11 @@ func (h *Handler) CreateGoal(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetAllUserGoals(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
+	userID, ok := cntx.UserID(r.Context())
+	if !ok {
+		utils.RespondWithError(w, http.StatusInternalServerError, "missing user id in context", nil)
+		return
+	}
 	goals, err := h.cfg.DB.GetAllUserGoals(r.Context(), userID)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, "Error getting goals", err)
@@ -114,7 +122,11 @@ func (h *Handler) GetAllUserGoals(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) UpdateGoal(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
+	userID, ok := cntx.UserID(r.Context())
+	if !ok {
+		utils.RespondWithError(w, http.StatusInternalServerError, "missing user id in context", nil)
+		return
+	}
 	goalID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "invalid goal id", err)
@@ -193,7 +205,11 @@ func (h *Handler) UpdateGoal(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) DeleteGoalJSON(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
+	userID, ok := cntx.UserID(r.Context())
+	if !ok {
+		utils.RespondWithError(w, http.StatusInternalServerError, "missing user id in context", nil)
+		return
+	}
 	goalID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, "Error parsing goal id", err)
@@ -212,7 +228,11 @@ func (h *Handler) DeleteGoalJSON(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) DeleteAllUserGoals(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
+	userID, ok := cntx.UserID(r.Context())
+	if !ok {
+		utils.RespondWithError(w, http.StatusInternalServerError, "missing user id in context", nil)
+		return
+	}
 
 	if err := h.cfg.DB.DeleteAllUserGoals(r.Context(), userID); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, "Error deleting goals", err)

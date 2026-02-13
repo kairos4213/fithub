@@ -27,7 +27,11 @@ type Workout struct {
 }
 
 func (h *Handler) CreateWorkout(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
+	userID, ok := cntx.UserID(r.Context())
+	if !ok {
+		utils.RespondWithError(w, http.StatusInternalServerError, "missing user id in context", nil)
+		return
+	}
 
 	reqParams := Workout{}
 	if err := utils.ParseJSON(r, &reqParams); err != nil {
@@ -90,7 +94,11 @@ func (h *Handler) CreateWorkout(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetAllUserWorkouts(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
+	userID, ok := cntx.UserID(r.Context())
+	if !ok {
+		utils.RespondWithError(w, http.StatusInternalServerError, "missing user id in context", nil)
+		return
+	}
 
 	userWorkouts, err := h.cfg.DB.GetAllUserWorkouts(r.Context(), userID)
 	if err != nil {
@@ -117,7 +125,11 @@ func (h *Handler) GetAllUserWorkouts(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) UpdateWorkout(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
+	userID, ok := cntx.UserID(r.Context())
+	if !ok {
+		utils.RespondWithError(w, http.StatusInternalServerError, "missing user id in context", nil)
+		return
+	}
 	workoutID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "invalid workout id", err)
@@ -201,7 +213,11 @@ func (h *Handler) DeleteWorkout(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusBadRequest, "invalid workout id", err)
 		return
 	}
-	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
+	userID, ok := cntx.UserID(r.Context())
+	if !ok {
+		utils.RespondWithError(w, http.StatusInternalServerError, "missing user id in context", nil)
+		return
+	}
 
 	err = h.cfg.DB.DeleteWorkout(r.Context(), database.DeleteWorkoutParams{
 		ID: workoutID, UserID: userID,
@@ -215,7 +231,11 @@ func (h *Handler) DeleteWorkout(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) DeleteAllUserWorkouts(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
+	userID, ok := cntx.UserID(r.Context())
+	if !ok {
+		utils.RespondWithError(w, http.StatusInternalServerError, "missing user id in context", nil)
+		return
+	}
 
 	if err := h.cfg.DB.DeleteAllUserWorkouts(r.Context(), userID); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, "error deleting user workouts", err)

@@ -12,7 +12,12 @@ import (
 )
 
 func (h *Handler) GetAllMetrics(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
+	userID, ok := cntx.UserID(r.Context())
+	if !ok {
+		HandleInternalServerError(w, r)
+		h.cfg.Logger.Error("missing user id in context")
+		return
+	}
 
 	bodyweights, err := h.cfg.DB.GetAllBodyWeights(r.Context(), userID)
 	if err != nil {
@@ -44,7 +49,12 @@ func (h *Handler) GetAllMetrics(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) LogMetrics(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
+	userID, ok := cntx.UserID(r.Context())
+	if !ok {
+		HandleInternalServerError(w, r)
+		h.cfg.Logger.Error("missing user id in context")
+		return
+	}
 
 	metricType := r.PathValue("type")
 	switch metricType {
@@ -124,7 +134,12 @@ func (h *Handler) LogMetrics(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) EditMetrics(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
+	userID, ok := cntx.UserID(r.Context())
+	if !ok {
+		HandleInternalServerError(w, r)
+		h.cfg.Logger.Error("missing user id in context")
+		return
+	}
 
 	metricType := r.PathValue("type")
 	id, err := uuid.Parse(r.PathValue("id"))
@@ -210,7 +225,12 @@ func (h *Handler) EditMetrics(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) DeleteMetrics(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
+	userID, ok := cntx.UserID(r.Context())
+	if !ok {
+		HandleInternalServerError(w, r)
+		h.cfg.Logger.Error("missing user id in context")
+		return
+	}
 
 	metricType := r.PathValue("type")
 	id, err := uuid.Parse(r.PathValue("id"))

@@ -52,7 +52,12 @@ func (h *Handler) GetExerciseByKeyword(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) AddExerciseToWorkout(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
+	userID, ok := cntx.UserID(r.Context())
+	if !ok {
+		HandleInternalServerError(w, r)
+		h.cfg.Logger.Error("missing user id in context")
+		return
+	}
 	workoutID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		HandleInternalServerError(w, r)
@@ -152,7 +157,12 @@ func (h *Handler) AddExerciseToWorkout(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) UpdateWorkoutExercise(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
+	userID, ok := cntx.UserID(r.Context())
+	if !ok {
+		HandleInternalServerError(w, r)
+		h.cfg.Logger.Error("missing user id in context")
+		return
+	}
 	workoutID, err := uuid.Parse(r.PathValue("workoutID"))
 	if err != nil {
 		HandleInternalServerError(w, r)
@@ -285,7 +295,12 @@ func (h *Handler) UpdateWorkoutExercise(w http.ResponseWriter, r *http.Request) 
 }
 
 func (h *Handler) UpdateWorkoutExercisesSortOrder(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
+	userID, ok := cntx.UserID(r.Context())
+	if !ok {
+		HandleInternalServerError(w, r)
+		h.cfg.Logger.Error("missing user id in context")
+		return
+	}
 	workoutID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		HandleInternalServerError(w, r)
@@ -324,7 +339,12 @@ func (h *Handler) UpdateWorkoutExercisesSortOrder(w http.ResponseWriter, r *http
 }
 
 func (h *Handler) DeleteExerciseFromWorkout(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
+	userID, ok := cntx.UserID(r.Context())
+	if !ok {
+		HandleInternalServerError(w, r)
+		h.cfg.Logger.Error("missing user id in context")
+		return
+	}
 	workoutID, err := uuid.Parse(r.PathValue("workoutID"))
 	if err != nil {
 		HandleInternalServerError(w, r)

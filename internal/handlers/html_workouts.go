@@ -16,7 +16,12 @@ import (
 )
 
 func (h *Handler) GetUserWorkouts(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
+	userID, ok := cntx.UserID(r.Context())
+	if !ok {
+		HandleInternalServerError(w, r)
+		h.cfg.Logger.Error("missing user id in context")
+		return
+	}
 	workouts, err := h.cfg.DB.GetAllUserWorkouts(r.Context(), userID)
 	if err != nil {
 		HandleInternalServerError(w, r)
@@ -48,7 +53,12 @@ func (h *Handler) GetUserWorkouts(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) CreateUserWorkout(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
+	userID, ok := cntx.UserID(r.Context())
+	if !ok {
+		HandleInternalServerError(w, r)
+		h.cfg.Logger.Error("missing user id in context")
+		return
+	}
 
 	reqTitle := r.FormValue("title")
 	reqDescription := r.FormValue("workout-description")
@@ -112,7 +122,12 @@ func (h *Handler) CreateUserWorkout(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) EditUserWorkout(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
+	userID, ok := cntx.UserID(r.Context())
+	if !ok {
+		HandleInternalServerError(w, r)
+		h.cfg.Logger.Error("missing user id in context")
+		return
+	}
 	workoutID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		HandleInternalServerError(w, r)
@@ -211,7 +226,12 @@ func (h *Handler) EditUserWorkout(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) DeleteUserWorkout(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
+	userID, ok := cntx.UserID(r.Context())
+	if !ok {
+		HandleInternalServerError(w, r)
+		h.cfg.Logger.Error("missing user id in context")
+		return
+	}
 	workoutID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		HandleInternalServerError(w, r)
@@ -239,7 +259,12 @@ func (h *Handler) DeleteUserWorkout(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetUserWorkoutExercises(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
+	userID, ok := cntx.UserID(r.Context())
+	if !ok {
+		HandleInternalServerError(w, r)
+		h.cfg.Logger.Error("missing user id in context")
+		return
+	}
 	workoutID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		HandleInternalServerError(w, r)

@@ -21,7 +21,11 @@ type Metric struct {
 }
 
 func (h *Handler) AddMetric(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
+	userID, ok := cntx.UserID(r.Context())
+	if !ok {
+		utils.RespondWithError(w, http.StatusInternalServerError, "missing user id in context", nil)
+		return
+	}
 
 	reqParams := Metric{}
 	if err := utils.ParseJSON(r, &reqParams); err != nil {
@@ -97,7 +101,11 @@ func (h *Handler) AddMetric(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetAllUserMetrics(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
+	userID, ok := cntx.UserID(r.Context())
+	if !ok {
+		utils.RespondWithError(w, http.StatusInternalServerError, "missing user id in context", nil)
+		return
+	}
 
 	bodyWeightsResp := []Metric{}
 	muscleMassesResp := []Metric{}
@@ -161,7 +169,11 @@ func (h *Handler) GetAllUserMetrics(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) UpdateMetric(w http.ResponseWriter, r *http.Request) {
 	metricType := r.PathValue("type")
-	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
+	userID, ok := cntx.UserID(r.Context())
+	if !ok {
+		utils.RespondWithError(w, http.StatusInternalServerError, "missing user id in context", nil)
+		return
+	}
 	metricID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, "error parsing metric id", err)
@@ -244,7 +256,11 @@ func (h *Handler) UpdateMetric(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) DeleteMetric(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
+	userID, ok := cntx.UserID(r.Context())
+	if !ok {
+		utils.RespondWithError(w, http.StatusInternalServerError, "missing user id in context", nil)
+		return
+	}
 	metricType := r.PathValue("type")
 	metricID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
@@ -289,7 +305,11 @@ func (h *Handler) DeleteMetric(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) DeleteAllUserMetrics(w http.ResponseWriter, r *http.Request) {
 	metricType := r.PathValue("type")
-	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
+	userID, ok := cntx.UserID(r.Context())
+	if !ok {
+		utils.RespondWithError(w, http.StatusInternalServerError, "missing user id in context", nil)
+		return
+	}
 
 	switch metricType {
 	case "body_weights":
