@@ -22,18 +22,17 @@ func (h *Handler) GetUserWorkouts(w http.ResponseWriter, r *http.Request) {
 		h.cfg.Logger.Error("missing user id in context")
 		return
 	}
-	workouts, err := h.cfg.DB.GetAllUserWorkouts(r.Context(), userID)
-	if err != nil {
-		HandleInternalServerError(w, r)
-		h.cfg.Logger.Error("failed to get user workouts", slog.String("error", err.Error()))
-		return
-	}
 
-	w.Header().Set("Content-Type", "text/html")
+	// Exercises page carousel — keep existing behavior
 	currentURL := r.Header.Get("HX-Current-URL")
 	target := r.Header.Get("HX-Target")
-
 	if strings.Contains(currentURL, "/exercises/") && target == "user-workouts" {
+		workouts, err := h.cfg.DB.GetAllUserWorkouts(r.Context(), userID)
+		if err != nil {
+			HandleInternalServerError(w, r)
+			h.cfg.Logger.Error("failed to get user workouts", slog.String("error", err.Error()))
+			return
+		}
 		err = templates.UserWorkoutsHTML(workouts).Render(r.Context(), w)
 		if err != nil {
 			HandleInternalServerError(w, r)
@@ -43,7 +42,38 @@ func (h *Handler) GetUserWorkouts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	contents := templates.WorkoutsPage(workouts)
+	// Tab-based filtering
+	tab := r.URL.Query().Get("tab")
+	if tab != "completed" {
+		tab = "upcoming"
+	}
+
+	var workouts []database.Workout
+	var err error
+	if tab == "completed" {
+		workouts, err = h.cfg.DB.GetCompletedUserWorkouts(r.Context(), userID)
+	} else {
+		workouts, err = h.cfg.DB.GetUpcomingUserWorkouts(r.Context(), userID)
+	}
+	if err != nil {
+		HandleInternalServerError(w, r)
+		h.cfg.Logger.Error("failed to get user workouts", slog.String("error", err.Error()))
+		return
+	}
+
+	// HTMX tab switch — return just the card grid fragment
+	if target == "workouts-content" {
+		err = templates.WorkoutsCardGrid(workouts, tab).Render(r.Context(), w)
+		if err != nil {
+			HandleInternalServerError(w, r)
+			h.cfg.Logger.Error("failed to render workouts card grid", slog.String("error", err.Error()))
+			return
+		}
+		return
+	}
+
+	// Full page render
+	contents := templates.WorkoutsPage(workouts, tab)
 	err = templates.Layout(contents, "Fithub | Workouts", true).Render(r.Context(), w)
 	if err != nil {
 		HandleInternalServerError(w, r)
@@ -106,17 +136,18 @@ func (h *Handler) CreateUserWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	workouts, err := h.cfg.DB.GetAllUserWorkouts(r.Context(), userID)
+	workouts, err := h.cfg.DB.GetUpcomingUserWorkouts(r.Context(), userID)
 	if err != nil {
 		HandleInternalServerError(w, r)
-		h.cfg.Logger.Error("failed to fetch all workouts", slog.String("error", err.Error()))
+		h.cfg.Logger.Error("failed to fetch upcoming workouts", slog.String("error", err.Error()))
 		return
 	}
 
-	err = templates.WorkoutsPageTableBody(workouts).Render(r.Context(), w)
+	w.Header().Set("HX-Push-Url", "/workouts?tab=upcoming")
+	err = templates.WorkoutsCardGrid(workouts, "upcoming").Render(r.Context(), w)
 	if err != nil {
 		HandleInternalServerError(w, r)
-		h.cfg.Logger.Error("failed to render workouts table body", slog.String("error", err.Error()))
+		h.cfg.Logger.Error("failed to render workouts card grid", slog.String("error", err.Error()))
 		return
 	}
 }
@@ -210,17 +241,10 @@ func (h *Handler) EditUserWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	workouts, err := h.cfg.DB.GetAllUserWorkouts(r.Context(), userID)
+	err = templates.WorkoutCard(updatedWorkout).Render(r.Context(), w)
 	if err != nil {
 		HandleInternalServerError(w, r)
-		h.cfg.Logger.Error("failed to get all user workouts", slog.String("error", err.Error()))
-		return
-	}
-
-	err = templates.WorkoutsPageTableBody(workouts).Render(r.Context(), w)
-	if err != nil {
-		HandleInternalServerError(w, r)
-		h.cfg.Logger.Error("failed to render workouts table body", slog.String("error", err.Error()))
+		h.cfg.Logger.Error("failed to render workout card", slog.String("error", err.Error()))
 		return
 	}
 }

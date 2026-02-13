@@ -6,184 +6,176 @@ import (
 	"github.com/google/uuid"
 	"github.com/kairos4213/fithub/internal/database"
 	"github.com/kairos4213/fithub/internal/utils"
-	"sort"
 )
 
-templ WorkoutsPage(workouts []database.Workout) {
-	<section>
-		<h2 class="text-3xl p-8">Upcoming Workouts</h2>
-		<div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100 mx-2">
-			@WorkoutsPageTable(workouts)
+templ WorkoutsPage(workouts []database.Workout, activeTab string) {
+	<section class="max-w-5xl mx-auto px-4 py-6">
+		<h2 class="text-3xl font-bold mb-6">My Workouts</h2>
+		@WorkoutsCreateCard()
+		@WorkoutsTabs(activeTab)
+		<div id="workouts-content">
+			@WorkoutsCardGrid(workouts, activeTab)
 		</div>
 	</section>
 }
 
-templ WorkoutsPageTable(workouts []database.Workout) {
-	<table id="workouts-table" class="table table-in-rows md:table-fixed table-auto text-md text-center pt-2">
-		<thead>
-			<tr>
-				<th class="w-1/6">Title</th>
-				<th class="w-1/6">Description</th>
-				<th class="w-1/6">Duration (Minutes)</th>
-				<th class="w-1/6">Planned Date</th>
-				<th class="w-1/6">Completion Date</th>
-				<th class="w-1/6"></th>
-			</tr>
-		</thead>
-		@WorkoutsPageTableBody(workouts)
-		@WorkoutsPageTableFooter()
-	</table>
+templ WorkoutsCreateCard() {
+	<div id="create-workout-card" class="mb-6" x-data="{ open: false }">
+		<button
+			x-show="!open"
+			class="btn btn-primary btn-outline w-full"
+			@click="open = true"
+		>+ Create Workout</button>
+		<div x-cloak x-show="open" class="card bg-base-100 border border-base-content/10 shadow-sm">
+			<div class="card-body p-4">
+				<h3 class="card-title text-base">New Workout</h3>
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+					<div>
+						<label class="label" for="new-title"><span class="label-text">Title</span></label>
+						<input id="new-title" class="input input-bordered w-full" type="text" name="title" placeholder="Workout Title" maxlength="100" required/>
+					</div>
+					<div>
+						<label class="label" for="new-duration"><span class="label-text">Duration (min)</span></label>
+						<input id="new-duration" class="input input-bordered w-full" type="number" name="duration" placeholder="Minutes" min="1" required/>
+					</div>
+					<div class="md:col-span-2">
+						<label class="label" for="new-description"><span class="label-text">Description</span></label>
+						<textarea id="new-description" class="textarea textarea-bordered w-full" name="workout-description" placeholder="Optional description" maxlength="500" rows="2"></textarea>
+					</div>
+					<div>
+						<label class="label" for="new-planned-date"><span class="label-text">Planned Date</span></label>
+						<input id="new-planned-date" class="input input-bordered w-full" type="date" name="planned-date" required/>
+					</div>
+				</div>
+				<div class="card-actions justify-end mt-3">
+					<button
+						hx-post="/workouts"
+						hx-include="#create-workout-card"
+						hx-target="#workouts-content"
+						hx-swap="innerHTML"
+						hx-target-4*="body"
+						class="btn btn-primary btn-sm"
+						@click="open = false"
+					>Create</button>
+					<button class="btn btn-ghost btn-sm" @click="open = false">Cancel</button>
+				</div>
+			</div>
+		</div>
+	</div>
 }
 
-templ WorkoutsPageTableBody(workouts []database.Workout) {
-	<tbody>
-		{{ sort.Slice(workouts, func(i, j int) bool { return workouts[i].PlannedDate.Before(workouts[j].PlannedDate) }) }}
+templ WorkoutsTabs(activeTab string) {
+	<div class="tabs tabs-border mb-4">
+		<a
+			class={ "tab", templ.KV("tab-active", activeTab == "upcoming") }
+			hx-get="/workouts?tab=upcoming"
+			hx-target="#workouts-content"
+			hx-swap="innerHTML"
+			hx-push-url="/workouts?tab=upcoming"
+			hx-target-4*="body"
+		>Upcoming</a>
+		<a
+			class={ "tab", templ.KV("tab-active", activeTab == "completed") }
+			hx-get="/workouts?tab=completed"
+			hx-target="#workouts-content"
+			hx-swap="innerHTML"
+			hx-push-url="/workouts?tab=completed"
+			hx-target-4*="body"
+		>Completed</a>
+	</div>
+}
+
+templ WorkoutsCardGrid(workouts []database.Workout, activeTab string) {
+	<div id="workouts-card-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+		if len(workouts) == 0 {
+			<div class="md:col-span-2 lg:col-span-3 text-center py-12 text-base-content/50">
+				if activeTab == "upcoming" {
+					<p>No upcoming workouts. Create one above!</p>
+				} else {
+					<p>No completed workouts yet.</p>
+				}
+			</div>
+		}
 		for _, workout := range workouts {
-			@WorkoutsPageTableDataRow(workout)
+			@WorkoutCard(workout)
 		}
-	</tbody>
+	</div>
 }
 
-templ WorkoutsPageTableDataRow(workout database.Workout) {
-	<tr id={ fmt.Sprintf("workout-%v", workout.ID) } x-data="{ editing: false }">
-		<td x-show="!editing">
-			<a class="link link-primary link-hover" href={ templ.URL(fmt.Sprintf("workouts/%v", workout.ID)) }>
-				{ workout.Title }
-			</a>
-		</td>
-		<td x-cloak x-show="editing">
-			<input
-				class="input input-ghost text-center border-secondary"
-				type="text"
-				name="title"
-				value={ fmt.Sprintf("%v",
-      workout.Title) }
-				required
-			/>
-		</td>
-		if workout.Description.Valid {
-			<td x-show="!editing">
-				{ workout.Description.String }
-			</td>
-		} else {
-			<td x-show="!editing">No description</td>
-		}
-		<td x-cloak x-show="editing">
-			<textarea
-				class="textarea textarea-xs text-center border-secondary"
-				name="workout-description"
-				placeholder="Enter a description"
-				required
-			>{ workout.Description.String }</textarea>
-		</td>
-		<td x-show="!editing">
-			{ workout.DurationMinutes }
-		</td>
-		<td x-cloak x-show="editing">
-			<input
-				class="input validator"
-				type="number"
-				name="duration"
-				placeholder="Planned Duration in Minutes"
-				min="0"
-				value={ workout.DurationMinutes }
-				required
-			/>
-		</td>
-		<td x-show="!editing">
-			{ workout.PlannedDate.Format("Mon, Jan 02 2006") }
-		</td>
-		<td x-cloak x-show="editing">
-			<input class="input" type="date" name="planned-date" value={ workout.PlannedDate.Format("2006-01-02") }/>
-		</td>
-		if workout.DateCompleted.Valid {
-			<td x-show="!editing">{ workout.DateCompleted.Time.Format("Mon, Jan 02 2006") }</td>
-			<td x-cloak x-show="editing">
-				<input class="input" type="date" name="date-completed" value={ workout.DateCompleted.Time.Format("2006-01-02") }/>
-			</td>
-		} else {
-			<td x-show="!editing">N/A</td>
-			<td x-cloak x-show="editing">
-				<input class="input" type="date" name="date-completed"/>
-			</td>
-		}
-		<td>
-			<button x-show="!editing" class="btn btn-secondary m-1" @click="editing = !editing">Edit</button>
-			<button
-				x-show="!editing"
-				hx-delete={ templ.URL(fmt.Sprintf("/workouts/%v", workout.ID)) }
-				hx-target={ fmt.Sprintf("#workout-%v", workout.ID) }
-				hx-swap="delete"
-				hx-target-4*="body"
-				class="btn btn-warning"
-			>Delete</button>
-			<button
-				x-cloak
-				x-show="editing"
-				hx-put={ templ.URL(fmt.Sprintf("/workouts/%v", workout.ID)) }
-				hx-include={ fmt.Sprintf("#workout-%v", workout.ID) }
-				hx-target="tbody"
-				hx-swap="outerHTML"
-				hx-target-4*="body"
-				class="btn btn-primary"
-				@click="editing = !editing"
-			>Submit</button>
-			<button x-cloak x-show="editing" class="btn btn-warning" @click="editing = !editing">Cancel</button>
-		</td>
-	</tr>
-}
-
-templ WorkoutsPageTableFooter() {
-	<tfoot id="add-workout-row" x-data="{ open: false }">
-		<tr x-show="!open">
-			<th></th>
-			<th></th>
-			<th></th>
-			<th></th>
-			<th></th>
-			<th>
-				<button class="btn btn-outline btn-primary btn-ghost" @click="open = ! open">Create Workout</button>
-			</th>
-		</tr>
-		<tr x-cloak x-show="open">
-			<th>
-				<input class="input text-center" type="text" name="title" placeholder="Workout Title" required/>
-			</th>
-			<th>
-				<textarea
-					class="textarea textarea-xs text-center"
-					name="workout-description"
-					placeholder="Enter a description"
-				></textarea>
-			</th>
-			<th>
-				<input
-					class="input validator"
-					type="number"
-					name="duration"
-					placeholder="Planned Duration in Minutes"
-					min="0"
-					required
-				/>
-			</th>
-			<th>
-				<input class="input" type="date" name="planned-date" required/>
-			</th>
-			<th>N/A</th>
-			<th>
+templ WorkoutCard(workout database.Workout) {
+	<div
+		id={ fmt.Sprintf("workout-%v", workout.ID) }
+		class="card bg-base-100 border border-base-content/10 shadow-sm"
+		x-data="{ editing: false }"
+	>
+		<!-- View mode -->
+		<div x-show="!editing" class="card-body p-4">
+			<h3 class="card-title text-base">
+				<a class="link link-primary link-hover" href={ templ.URL(fmt.Sprintf("/workouts/%v", workout.ID)) }>
+					{ utils.TitleString(workout.Title) }
+				</a>
+			</h3>
+			if workout.Description.Valid {
+				<p class="text-sm text-base-content/60 line-clamp-2">{ workout.Description.String }</p>
+			}
+			<div class="flex items-center gap-4 mt-2 text-xs text-base-content/50">
+				<span>~{ fmt.Sprintf("%d", workout.DurationMinutes) } min</span>
+				<span>{ workout.PlannedDate.Format("Mon, Jan 02 2006") }</span>
+			</div>
+			if workout.DateCompleted.Valid {
+				<div class="badge badge-success badge-sm mt-2">
+					Completed { workout.DateCompleted.Time.Format("Jan 02 2006") }
+				</div>
+			}
+			<div class="card-actions justify-end mt-3">
+				<button class="btn btn-secondary btn-sm" @click="editing = true">Edit</button>
 				<button
-					hx-post={ templ.URL("/workouts") }
-					hx-include="#add-workout-row"
-					hx-target="tbody"
+					class="btn btn-warning btn-sm"
+					hx-delete={ templ.URL(fmt.Sprintf("/workouts/%v", workout.ID)) }
+					hx-target={ fmt.Sprintf("#workout-%v", workout.ID) }
+					hx-swap="delete"
+					hx-target-4*="body"
+				>Delete</button>
+			</div>
+		</div>
+		<!-- Edit mode -->
+		<div x-cloak x-show="editing" class="card-body p-4">
+			<div class="grid grid-cols-1 gap-3">
+				<div>
+					<label class="label"><span class="label-text">Title</span></label>
+					<input class="input input-bordered w-full" type="text" name="title" value={ workout.Title } maxlength="100" required/>
+				</div>
+				<div>
+					<label class="label"><span class="label-text">Description</span></label>
+					<textarea class="textarea textarea-bordered w-full" name="workout-description" maxlength="500" rows="2">{ workout.Description.String }</textarea>
+				</div>
+				<div>
+					<label class="label"><span class="label-text">Duration (min)</span></label>
+					<input class="input input-bordered w-full" type="number" name="duration" min="1" value={ fmt.Sprintf("%d", workout.DurationMinutes) } required/>
+				</div>
+				<div>
+					<label class="label"><span class="label-text">Planned Date</span></label>
+					<input class="input input-bordered w-full" type="date" name="planned-date" value={ workout.PlannedDate.Format("2006-01-02") }/>
+				</div>
+				<div>
+					<label class="label"><span class="label-text">Date Completed</span></label>
+					<input class="input input-bordered w-full" type="date" name="date-completed" value={ dateCompletedValue(workout) }/>
+				</div>
+			</div>
+			<div class="card-actions justify-end mt-3">
+				<button
+					class="btn btn-primary btn-sm"
+					hx-put={ templ.URL(fmt.Sprintf("/workouts/%v", workout.ID)) }
+					hx-include={ fmt.Sprintf("#workout-%v", workout.ID) }
+					hx-target={ fmt.Sprintf("#workout-%v", workout.ID) }
 					hx-swap="outerHTML"
-					class="btn btn-primary"
-					type="submit"
-					@click="open = ! open"
-				>Create Workout</button>
-				<button class="btn btn-warning" @click="open = ! open">Cancel</button>
-			</th>
-		</tr>
-	</tfoot>
+					hx-target-4*="body"
+					@click="editing = false"
+				>Save</button>
+				<button class="btn btn-ghost btn-sm" @click="editing = false">Cancel</button>
+			</div>
+		</div>
+	</div>
 }
 
 templ WorkoutPage(
@@ -191,33 +183,36 @@ templ WorkoutPage(
 	workoutExercises []database.WorkoutAndExercisesRow,
 	exercises []database.Exercise,
 ) {
-	<section class="card w-auto bg-base-200 card-xl shadow-md m-4">
-		<div class="card-body" x-data="{ editingWorkout: false }">
-			@WorkoutInfo(workout)
-			@EditWorkoutInfoForm(workout)
-			<div class="divider divider-accent"></div>
-			<div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100 mx-2">
-				@WorkoutExercisesTable(workout, workoutExercises)
+	<section class="max-w-5xl mx-auto px-4 py-6">
+		<div class="mb-4">
+			<a href="/workouts" class="link link-primary text-sm">&larr; Back to Workouts</a>
+		</div>
+		<div class="card bg-base-200 shadow-md mb-6">
+			<div class="card-body" x-data="{ editingWorkout: false }">
+				@WorkoutInfo(workout)
+				@EditWorkoutInfoForm(workout)
 			</div>
 		</div>
-	</section>
-	<section class="card w-auto bg-base-200 card-xl shadow-md m-4">
-		<div class="card-body h-96">
-			<h3>Quick Search<span class="htmx-indicator loading loading-ring loading-sm"></span></h3>
-			<input
-				class="form-control"
-				type="search"
-				name="exercise-search"
-				placeholder="Begin Typing To Find Exercises..."
-				hx-post={ templ.URL("/exercises") }
-				hx-vals={ jsonVals(map[string]any{"workoutID": workout.ID.String()}) }
-				hx-trigger="input changed delay:500ms, keyup[key=='Enter']"
-				hx-indicator=".htmx-indicator"
-				hx-target="#exercise-search-results"
-				required
-			/>
-			<div class="divider divider-accent"></div>
-			@ExerciseQuickSearchResults(exercises, workout.ID)
+		<h3 class="text-xl font-semibold mb-3">Exercises</h3>
+		@WorkoutExercisesList(workout, workoutExercises)
+		<div class="card bg-base-200 shadow-md mt-6">
+			<div class="card-body">
+				<h3 class="text-lg font-semibold">Quick Search<span class="htmx-indicator loading loading-ring loading-sm ml-2"></span></h3>
+				<input
+					class="input input-bordered w-full"
+					type="search"
+					name="exercise-search"
+					placeholder="Begin Typing To Find Exercises..."
+					hx-post={ templ.URL("/exercises") }
+					hx-vals={ jsonVals(map[string]any{"workoutID": workout.ID.String()}) }
+					hx-trigger="input changed delay:500ms, keyup[key=='Enter']"
+					hx-indicator=".htmx-indicator"
+					hx-target="#exercise-search-results"
+					required
+				/>
+				<div class="divider divider-accent"></div>
+				@ExerciseQuickSearchResults(exercises, workout.ID)
+			</div>
 		</div>
 	</section>
 }
@@ -312,39 +307,25 @@ templ EditWorkoutInfoForm(workout database.Workout) {
 	</form>
 }
 
-templ WorkoutExercisesTable(workout database.Workout, workoutExercises []database.WorkoutAndExercisesRow) {
-	<table id="exercises-table" class="table table-in-rows md:table-fixed table-auto text-md text-center">
-		<thead>
-			<tr>
-				<th class="w-1/12"></th>
-				<th class="w-1/12">Exercise</th>
-				<th class="w-1/12">Planned Sets</th>
-				<th class="w-1/12">Planned Reps</th>
-				<th class="w-1/12">Planned Weights (lbs)</th>
-				<th class="w-1/12">Sets Completed</th>
-				<th class="w-1/12">Reps Completed</th>
-				<th class="w-1/12">Weights Completed (lbs)</th>
-				<th class="w-3/12"></th>
-			</tr>
-		</thead>
-		<tbody
-			id="workout-exercises"
-			hx-put={ fmt.Sprintf("/workouts/%v/sort", workout.ID) }
-			hx-trigger="end"
-			hx-include=".exercise-order"
-			hx-target-4*="body"
-			hx-target-5*="body"
-			x-sort="sortExercises()"
-		>
-			for _, workoutExercise := range workoutExercises {
-				@WorkoutExercisesTableDataRow(workoutExercise)
-			}
-		</tbody>
-		@WorkoutExercisesTableFooter(workout)
-	</table>
+templ WorkoutExercisesList(workout database.Workout, workoutExercises []database.WorkoutAndExercisesRow) {
+	<div
+		id="workout-exercises"
+		class="space-y-3"
+		hx-put={ fmt.Sprintf("/workouts/%v/sort", workout.ID) }
+		hx-trigger="end"
+		hx-include=".exercise-order"
+		hx-target-4*="body"
+		hx-target-5*="body"
+		x-sort="sortExercises()"
+	>
+		for _, workoutExercise := range workoutExercises {
+			@WorkoutExerciseCard(workoutExercise)
+		}
+	</div>
+	@WorkoutExerciseAddCard(workout)
 }
 
-templ WorkoutExercisesTableDataRow(workoutExercise database.WorkoutAndExercisesRow) {
+templ WorkoutExerciseCard(workoutExercise database.WorkoutAndExercisesRow) {
 	{{
 		plannedSets := workoutExercise.WorkoutsExercise.SetsPlanned
 		plannedReps, _ := json.Marshal(workoutExercise.WorkoutsExercise.RepsPerSetPlanned)
@@ -352,294 +333,316 @@ templ WorkoutExercisesTableDataRow(workoutExercise database.WorkoutAndExercisesR
 		completedSets := workoutExercise.WorkoutsExercise.SetsCompleted
 		completedReps, _ := json.Marshal(workoutExercise.WorkoutsExercise.RepsPerSetCompleted)
 		completedWeights, _ := json.Marshal(workoutExercise.WorkoutsExercise.WeightsCompletedLbs)
-
-		plannedRepsStr := ""
-		for index, setReps := range workoutExercise.WorkoutsExercise.RepsPerSetPlanned {
-			if index+1 == len(workoutExercise.WorkoutsExercise.RepsPerSetPlanned) {
-				plannedRepsStr += fmt.Sprintf("%v", setReps)
-			} else {
-				plannedRepsStr += fmt.Sprintf("%v / ", setReps)
-			}
-		}
-		plannedWeightsStr := ""
-		for index, setWeights := range workoutExercise.WorkoutsExercise.WeightsPlannedLbs {
-			if index+1 == len(workoutExercise.WorkoutsExercise.WeightsPlannedLbs) {
-				plannedWeightsStr += fmt.Sprintf("%v", setWeights)
-			} else {
-				plannedWeightsStr += fmt.Sprintf("%v / ", setWeights)
-			}
-		}
-		repsCompletedStr := ""
-		for index, setReps := range workoutExercise.WorkoutsExercise.RepsPerSetCompleted {
-			if index+1 == len(workoutExercise.WorkoutsExercise.RepsPerSetCompleted) {
-				repsCompletedStr += fmt.Sprintf("%v", setReps)
-			} else {
-				repsCompletedStr += fmt.Sprintf("%v / ", setReps)
-			}
-		}
-		weightsCompletedStr := ""
-		for index, setWeights := range workoutExercise.WorkoutsExercise.WeightsCompletedLbs {
-			if index+1 == len(workoutExercise.WorkoutsExercise.WeightsCompletedLbs) {
-				weightsCompletedStr += fmt.Sprintf("%v", setWeights)
-			} else {
-				weightsCompletedStr += fmt.Sprintf("%v / ", setWeights)
-			}
-		}
 	}}
-	<tr
+	<div
 		id={ fmt.Sprintf("workout-exercise-%v", workoutExercise.WorkoutsExercise.ID) }
-		x-sort:item={ fmt.Sprintf("%v",
-  workoutExercise.WorkoutsExercise.SortOrder) }
+		class="card bg-base-100 border border-base-content/10 p-4"
+		x-sort:item={ fmt.Sprintf("%v", workoutExercise.WorkoutsExercise.SortOrder) }
 		x-data={ fmt.Sprintf("workoutExerciseRow(%v, %v, %v, %v, %v, %v)",
-  plannedSets, string(plannedReps), string(plannedWeights), completedSets, string(completedReps),
-  string(completedWeights), ) }
+			plannedSets, string(plannedReps), string(plannedWeights),
+			completedSets, string(completedReps), string(completedWeights)) }
 		x-init="updateArrays('plannedSets', plannedSets)"
 	>
-		<td x-sort:handle class="hover:cursor-grab active:cursor-grabbing">
-			<div class="flex justify-end items-center h-full">
-				<input
-					class="exercise-order hidden"
-					name="sort-order[]"
-					value={ fmt.Sprintf("%v",
-        workoutExercise.WorkoutsExercise.ID) }
-				/>
-				<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-					<circle cx="9" cy="6" r="1.5"></circle>
-					<circle cx="9" cy="12" r="1.5"></circle>
-					<circle cx="9" cy="18" r="1.5"></circle>
-					<circle cx="15" cy="6" r="1.5"></circle>
-					<circle cx="15" cy="12" r="1.5"></circle>
-					<circle cx="15" cy="18" r="1.5"></circle>
-				</svg>
+		<!-- Header: drag handle + name + badge + actions -->
+		<div class="flex items-center justify-between mb-2">
+			<div class="flex items-center gap-2">
+				<span x-sort:handle class="hover:cursor-grab active:cursor-grabbing">
+					<input class="exercise-order hidden" name="sort-order[]" value={ fmt.Sprintf("%v", workoutExercise.WorkoutsExercise.ID) }/>
+					<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+						<circle cx="9" cy="6" r="1.5"></circle>
+						<circle cx="9" cy="12" r="1.5"></circle>
+						<circle cx="9" cy="18" r="1.5"></circle>
+						<circle cx="15" cy="6" r="1.5"></circle>
+						<circle cx="15" cy="12" r="1.5"></circle>
+						<circle cx="15" cy="18" r="1.5"></circle>
+					</svg>
+				</span>
+				<span class="font-medium">{ utils.TitleString(workoutExercise.Exercise.Name) }</span>
+				if workoutExercise.Exercise.PrimaryMuscleGroup.Valid {
+					<span class="badge badge-outline badge-sm">{ utils.TitleString(workoutExercise.Exercise.PrimaryMuscleGroup.String) }</span>
+				}
 			</div>
-		</td>
-		<td x-show="!editingExercise">{ utils.TitleString(workoutExercise.Exercise.Name) }</td>
-		<td x-show="!editingExercise">{ fmt.Sprintf("%v", workoutExercise.WorkoutsExercise.SetsPlanned) }</td>
-		<td x-show="!editingExercise">{ plannedRepsStr }</td>
-		<td x-show="!editingExercise">{ plannedWeightsStr }</td>
-		<td x-show="!editingExercise">{ fmt.Sprintf("%v", workoutExercise.WorkoutsExercise.SetsCompleted) }</td>
-		if len(workoutExercise.WorkoutsExercise.RepsPerSetCompleted) == 0 {
-			<td x-show="!editingExercise">0</td>
-		} else {
-			<td x-show="!editingExercise">{ repsCompletedStr }</td>
-		}
-		if len(workoutExercise.WorkoutsExercise.WeightsCompletedLbs) == 0 {
-			<td x-show="!editingExercise">0</td>
-		} else {
-			<td x-show="!editingExercise">{ weightsCompletedStr }</td>
-		}
-		<td x-show="!editingExercise">
-			<button class="btn btn-secondary m-1" @click="editingExercise = !editingExercise">Edit</button>
-			<button
-				class="btn btn-warning"
-				hx-delete={ templ.URL(fmt.Sprintf("/workouts/%v/%v",
-      workoutExercise.WorkoutsExercise.WorkoutID, workoutExercise.WorkoutsExercise.ID)) }
-				hx-target={ fmt.Sprintf("#workout-exercise-%v", workoutExercise.WorkoutsExercise.ID) }
-				hx-swap="delete"
-				hx-target-4*="body"
-				hx-target-5*="body"
-				@click="editingExercise = !editingExercise"
-			>Delete</button>
-		</td>
-		<td x-cloak x-show="editingExercise">
-			<input value={ fmt.Sprintf("%v", workoutExercise.Exercise.ID) } name="exercise" class="hidden"/>{ 
-    utils.TitleString(workoutExercise.Exercise.Name) }
-		</td>
-		<td x-cloak x-show="editingExercise">
+			<div x-show="!editingExercise" class="flex gap-1">
+				<button class="btn btn-secondary btn-xs" @click="editingExercise = true">Edit</button>
+				<button
+					class="btn btn-warning btn-xs"
+					hx-delete={ templ.URL(fmt.Sprintf("/workouts/%v/%v",
+						workoutExercise.WorkoutsExercise.WorkoutID,
+						workoutExercise.WorkoutsExercise.ID)) }
+					hx-target={ fmt.Sprintf("#workout-exercise-%v", workoutExercise.WorkoutsExercise.ID) }
+					hx-swap="delete"
+					hx-target-4*="body"
+					hx-target-5*="body"
+				>Delete</button>
+			</div>
+		</div>
+		<!-- View mode -->
+		<div x-show="!editingExercise">
+			@exerciseDataView(workoutExercise)
+		</div>
+		<!-- Edit mode -->
+		<div x-cloak x-show="editingExercise">
+			<input value={ fmt.Sprintf("%v", workoutExercise.Exercise.ID) } name="exercise" class="hidden"/>
+			@exerciseDataEdit()
+			<div class="flex justify-end gap-2 mt-3">
+				<button
+					class="btn btn-primary btn-sm"
+					hx-put={ templ.URL(fmt.Sprintf("/workouts/%v/%v",
+						workoutExercise.WorkoutsExercise.WorkoutID,
+						workoutExercise.WorkoutsExercise.ID)) }
+					hx-include={ fmt.Sprintf("#workout-exercise-%v", workoutExercise.WorkoutsExercise.ID) }
+					hx-target={ fmt.Sprintf("#workout-exercise-%v", workoutExercise.WorkoutsExercise.ID) }
+					hx-swap="outerHTML"
+					hx-target-4*="body"
+					hx-target-5*="body"
+					@click="editingExercise = false"
+				>Save</button>
+				<button class="btn btn-ghost btn-sm" @click="editingExercise = false">Cancel</button>
+			</div>
+		</div>
+	</div>
+}
+
+templ exerciseDataView(we database.WorkoutAndExercisesRow) {
+	<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+		<!-- Planned -->
+		<div>
+			<h4 class="text-xs font-semibold text-base-content/50 mb-1">
+				Planned ({ fmt.Sprintf("%d", we.WorkoutsExercise.SetsPlanned) } sets)
+			</h4>
+			<table class="table table-xs w-full">
+				<thead>
+					<tr class="text-xs text-base-content/50">
+						<th>Set</th>
+						<th>Reps</th>
+						<th>Weight (lbs)</th>
+					</tr>
+				</thead>
+				<tbody>
+					for i, reps := range we.WorkoutsExercise.RepsPerSetPlanned {
+						<tr>
+							<td class="font-mono text-xs">{ fmt.Sprintf("%d", i+1) }</td>
+							<td>{ fmt.Sprintf("%d", reps) }</td>
+							<td>
+								if i < len(we.WorkoutsExercise.WeightsPlannedLbs) {
+									{ fmt.Sprintf("%d", we.WorkoutsExercise.WeightsPlannedLbs[i]) }
+								} else {
+									0
+								}
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+		<!-- Completed -->
+		<div>
+			<h4 class="text-xs font-semibold text-base-content/50 mb-1">
+				Completed ({ fmt.Sprintf("%d", we.WorkoutsExercise.SetsCompleted) } sets)
+			</h4>
+			if we.WorkoutsExercise.SetsCompleted > 0 {
+				<table class="table table-xs w-full">
+					<thead>
+						<tr class="text-xs text-base-content/50">
+							<th>Set</th>
+							<th>Reps</th>
+							<th>Weight (lbs)</th>
+						</tr>
+					</thead>
+					<tbody>
+						for i, reps := range we.WorkoutsExercise.RepsPerSetCompleted {
+							<tr>
+								<td class="font-mono text-xs">{ fmt.Sprintf("%d", i+1) }</td>
+								<td>{ fmt.Sprintf("%d", reps) }</td>
+								<td>
+									if i < len(we.WorkoutsExercise.WeightsCompletedLbs) {
+										{ fmt.Sprintf("%d", we.WorkoutsExercise.WeightsCompletedLbs[i]) }
+									} else {
+										0
+									}
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			} else {
+				<p class="text-xs text-base-content/40 italic">Not yet completed</p>
+			}
+		</div>
+	</div>
+}
+
+templ exerciseDataEdit() {
+	<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+		<!-- Planned edit -->
+		<div>
+			<label class="label py-0"><span class="label-text text-xs">Planned Sets</span></label>
 			<input
-				class="input validator w-28 text-center"
+				class="input input-bordered input-sm w-24"
 				type="number"
 				name="planned-sets"
-				placeholder="Number of Sets Planned"
 				min="1"
 				x-model.number="plannedSets"
 				@input="updateArrays('plannedSets', plannedSets)"
 				required
 			/>
-		</td>
-		<td x-cloak x-show="editingExercise">
-			<div class="flex flex-col gap-1 items-center">
-				<template x-for="(r, i) in plannedReps" :key="i">
-					<input
-						class="input validator w-28 text-center"
-						type="number"
-						name="planned-reps[]"
-						:placeholder="'Set ' + (i+1) + ' reps'"
-						min="1"
-						x-model="plannedReps[i]"
-						required
-					/>
-				</template>
-			</div>
-		</td>
-		<td x-cloak x-show="editingExercise">
-			<div class="flex flex-col gap-1 items-center">
-				<template x-for="(w, i) in plannedWeights" :key="i">
-					<input
-						class="input validator w-28 text-center"
-						type="number"
-						name="planned-weights[]"
-						:placeholder="'Set ' + (i+1) + ' weight'"
-						min="0"
-						x-model="plannedWeights[i]"
-						required
-					/>
-				</template>
-			</div>
-		</td>
-		<td x-cloak x-show="editingExercise">
+			<table class="table table-xs w-full mt-2">
+				<thead>
+					<tr class="text-xs text-base-content/50">
+						<th>Set</th>
+						<th>Reps</th>
+						<th>Weight (lbs)</th>
+					</tr>
+				</thead>
+				<tbody>
+					<template x-for="(r, i) in plannedReps" :key="i">
+						<tr>
+							<td class="font-mono text-xs" x-text="i+1"></td>
+							<td>
+								<input
+									class="input input-bordered input-xs w-20"
+									type="number"
+									name="planned-reps[]"
+									min="1"
+									x-model="plannedReps[i]"
+									required
+								/>
+							</td>
+							<td>
+								<input
+									class="input input-bordered input-xs w-20"
+									type="number"
+									name="planned-weights[]"
+									min="0"
+									x-model="plannedWeights[i]"
+									required
+								/>
+							</td>
+						</tr>
+					</template>
+				</tbody>
+			</table>
+		</div>
+		<!-- Completed edit -->
+		<div>
+			<label class="label py-0"><span class="label-text text-xs">Completed Sets</span></label>
 			<input
-				class="input validator w-28 text-center"
+				class="input input-bordered input-sm w-24"
 				type="number"
 				name="completed-sets"
-				placeholder="Number of Sets Completed"
 				min="0"
 				x-model.number="completedSets"
 				@input="updateArrays('completedSets', completedSets)"
 				required
 			/>
-		</td>
-		<td x-cloak x-show="editingExercise">
-			<div class="flex flex-col gap-1 items-center">
-				<template x-for="(r, i) in completedReps" :key="i">
-					<input
-						class="input validator w-28 text-center"
-						type="number"
-						name="completed-reps[]"
-						:placeholder="'Set ' + (i+1) + ' reps'"
-						min="0"
-						x-model="completedReps[i]"
-						required
-					/>
-				</template>
-			</div>
-		</td>
-		<td x-cloak x-show="editingExercise">
-			<div class="flex flex-col gap-1 items-center">
-				<template x-for="(w, i) in completedWeights" :key="i">
-					<input
-						class="input validator w-28 text-center"
-						type="number"
-						name="completed-weights[]"
-						:placeholder="'Set ' + (i+1) + ' weight'"
-						min="0"
-						x-model="completedWeights[i]"
-						required
-					/>
-				</template>
-			</div>
-		</td>
-		<td x-cloak x-show="editingExercise">
-			<button
-				hx-put={ templ.URL(fmt.Sprintf("/workouts/%v/%v", workoutExercise.WorkoutsExercise.WorkoutID,
-      workoutExercise.WorkoutsExercise.ID)) }
-				hx-include={ fmt.Sprintf("#workout-exercise-%v",
-      workoutExercise.WorkoutsExercise.ID) }
-				hx-target={ fmt.Sprintf("#workout-exercise-%v",
-      workoutExercise.WorkoutsExercise.ID) }
-				hx-swap="outerHTML"
-				hx-target-4*="body"
-				hx-target-5*="body"
-				class="btn btn-secondary"
-				@click="editingExercise = !editingExercise"
-			>Submit</button>
-			<button class="btn btn-warning" @click="editingExercise = !editingExercise">Cancel</button>
-		</td>
-	</tr>
+			<table class="table table-xs w-full mt-2">
+				<thead>
+					<tr class="text-xs text-base-content/50">
+						<th>Set</th>
+						<th>Reps</th>
+						<th>Weight (lbs)</th>
+					</tr>
+				</thead>
+				<tbody>
+					<template x-for="(r, i) in completedReps" :key="i">
+						<tr>
+							<td class="font-mono text-xs" x-text="i+1"></td>
+							<td>
+								<input
+									class="input input-bordered input-xs w-20"
+									type="number"
+									name="completed-reps[]"
+									min="0"
+									x-model="completedReps[i]"
+									required
+								/>
+							</td>
+							<td>
+								<input
+									class="input input-bordered input-xs w-20"
+									type="number"
+									name="completed-weights[]"
+									min="0"
+									x-model="completedWeights[i]"
+									required
+								/>
+							</td>
+						</tr>
+					</template>
+				</tbody>
+			</table>
+		</div>
+	</div>
 }
 
-templ WorkoutExercisesTableFooter(workout database.Workout) {
-	<tfoot id="add-exercise-row" x-data="workoutExerciseFooter()" x-init="updateArrays(plannedSets)">
-		<tr x-show="!open">
-			<td></td>
-			<td></td>
-			<td></td>
-			<td></td>
-			<td></td>
-			<td></td>
-			<td></td>
-			<td></td>
-			<td>
-				<button class="btn btn-outline btn-primary btn-ghost" @click="open = ! open">Add Exercise</button>
-			</td>
-		</tr>
-		<tr x-cloak x-show="open">
-			<td></td>
-			<td>
-				<input
-					class="input input-ghost text-center border-secondary"
-					type="text"
-					name="exercise-name"
-					placeholder="Exercise Name"
-					required
-				/>
-			</td>
-			<td>
-				<input
-					class="input validator w-28 text-center"
-					type="number"
-					name="planned-sets"
-					placeholder="Number of Sets Planned"
-					min="1"
-					x-model.number="plannedSets"
-					@input="updateArrays(plannedSets)"
-					required
-				/>
-			</td>
-			<td>
-				<div class="flex flex-col gap-1 items-center">
+templ WorkoutExerciseAddCard(workout database.Workout) {
+	<div id="add-exercise-card" class="mt-3" x-data="workoutExerciseFooter()" x-init="updateArrays(plannedSets)">
+		<button x-show="!open" class="btn btn-primary btn-outline w-full" @click="open = true">+ Add Exercise</button>
+		<div x-cloak x-show="open" class="card bg-base-100 border border-base-content/10 p-4">
+			<h4 class="font-medium mb-2">Add Exercise</h4>
+			<input class="input input-bordered w-full mb-2" type="text" name="exercise-name" placeholder="Exercise Name" required/>
+			<label class="label py-0"><span class="label-text text-xs">Planned Sets</span></label>
+			<input
+				class="input input-bordered input-sm w-24 mb-2"
+				type="number"
+				name="planned-sets"
+				min="1"
+				x-model.number="plannedSets"
+				@input="updateArrays(plannedSets)"
+				required
+			/>
+			<table class="table table-xs w-full">
+				<thead>
+					<tr class="text-xs text-base-content/50">
+						<th>Set</th>
+						<th>Reps</th>
+						<th>Weight (lbs)</th>
+					</tr>
+				</thead>
+				<tbody>
 					<template x-for="(r, i) in plannedReps" :key="i">
-						<input
-							class="input validator w-28 text-center"
-							type="number"
-							name="planned-reps[]"
-							:placeholder="'Set ' + (i+1) + ' reps'"
-							min="1"
-							x-model="plannedReps[i]"
-							required
-						/>
+						<tr>
+							<td class="font-mono text-xs" x-text="i+1"></td>
+							<td>
+								<input
+									class="input input-bordered input-xs w-20"
+									type="number"
+									name="planned-reps[]"
+									min="1"
+									x-model="plannedReps[i]"
+									required
+								/>
+							</td>
+							<td>
+								<input
+									class="input input-bordered input-xs w-20"
+									type="number"
+									name="planned-weights[]"
+									min="0"
+									x-model="plannedWeights[i]"
+									required
+								/>
+							</td>
+						</tr>
 					</template>
-				</div>
-			</td>
-			<td>
-				<div class="flex flex-col gap-1 items-center">
-					<template x-for="(w, i) in plannedWeights" :key="i">
-						<input
-							class="input validator w-28 text-center"
-							type="number"
-							name="planned-weights[]"
-							:placeholder="'Set ' + (i+1) + ' weight'"
-							min="0"
-							x-model="plannedWeights[i]"
-							required
-						/>
-					</template>
-				</div>
-			</td>
-			<td>N/A</td>
-			<td>N/A</td>
-			<td>N/A</td>
-			<td>
+				</tbody>
+			</table>
+			<div class="flex justify-end gap-2 mt-3">
 				<button
+					class="btn btn-primary btn-sm"
 					hx-post={ templ.URL(fmt.Sprintf("/workouts/%v", workout.ID)) }
-					hx-include="#add-exercise-row"
+					hx-include="#add-exercise-card"
 					hx-target="#workout-exercises"
 					hx-swap="beforeend"
-					class="btn btn-outline btn-primary btn-ghost"
-					@click="open = ! open"
-				>Add Exercise</button>
+					@click="open = false"
+				>Add</button>
 				<button
-					class="btn btn-warning"
-					@click="
-          open = ! open;
-          plannedSets = 1; 
-          plannedReps = [1];
-          plannedWeights = [0];
-          updateArrays(plannedSets)"
+					class="btn btn-ghost btn-sm"
+					@click="open = false; plannedSets = 1; plannedReps = [1]; plannedWeights = [0]; updateArrays(plannedSets)"
 				>Cancel</button>
-			</td>
-		</tr>
-	</tfoot>
+			</div>
+		</div>
+	</div>
 }
 
 templ ExerciseQuickSearchResults(exercises []database.Exercise, workout uuid.UUID) {
@@ -690,23 +693,4 @@ templ ExerciseQuickSearchResults(exercises []database.Exercise, workout uuid.UUI
 			</details>
 		}
 	</div>
-}
-
-templ UserWorkoutsHTML(workouts []database.Workout) {
-	for _, workout := range workouts {
-		<div class="carousel-item">
-			<div class="card bg-base-100 md:w-96 w-48 shadow-sm">
-				<div class="card-body">
-					<h2 class="card-title">{ utils.TitleString(workout.Title) }</h2>
-					<p>{ workout.Description.String }</p>
-					<div class="card-actions justify-end">
-						// TODO: Figure out how I want to add exercises to workouts
-						// Make it where it doesn't redirect but instead returns
-						// a spinner that turns to check after successful add to workout?
-						<button class="btn btn-primary">Add to Workout</button>
-					</div>
-				</div>
-			</div>
-		</div>
-	}
 }
