@@ -61,6 +61,9 @@ func (s *Server) registerExerciseRoutes(mux *http.ServeMux) {
 
 func (s *Server) registerTemplateRoutes(mux *http.ServeMux) {
 	mux.Handle("GET /templates", s.mw.Auth(http.HandlerFunc(s.handler.GetAllWorkoutTemplates)))
+	mux.Handle("GET /templates/reroll", s.mw.Auth(http.HandlerFunc(s.handler.RerollExercise)))
+	mux.Handle("GET /templates/{id}/preview", s.mw.Auth(http.HandlerFunc(s.handler.GetTemplatePreview)))
+	mux.Handle("POST /templates/{id}/apply", s.mw.Auth(http.HandlerFunc(s.handler.ApplyTemplate)))
 }
 
 func (s *Server) registerMetricRoutes(mux *http.ServeMux) {

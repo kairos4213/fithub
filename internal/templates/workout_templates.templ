@@ -1,11 +1,231 @@
 package templates
 
-import "github.com/kairos4213/fithub/internal/database"
+import (
+	"fmt"
+	"strconv"
 
-templ WorkoutTemplatesPage(templates []database.GetAllWorkoutTemplatesRow) {
-	<section>
-		for _, template := range templates {
-			<h2>{ template.TemplateName }</h2>
-		}
+	"github.com/google/uuid"
+	"github.com/kairos4213/fithub/internal/utils"
+)
+
+// PreviewExercise is one resolved exercise for the template preview form.
+type PreviewExercise struct {
+	ExerciseID  uuid.UUID
+	Name        string
+	MuscleGroup string
+	Sets        int32
+	RepsPerSet  int32
+	Weight      int32
+}
+
+// TemplatePreviewData holds all data for the preview page.
+type TemplatePreviewData struct {
+	TemplateID  uuid.UUID
+	Title       string
+	Description string
+	Duration    int32
+	Exercises   []PreviewExercise
+}
+
+// TemplateCardData matches handlers.TemplateCard for the list page.
+type TemplateCardData struct {
+	ID              uuid.UUID
+	Name            string
+	Description     string
+	DurationMinutes int32
+	MuscleGroups    []string
+	ExerciseCount   int
+}
+
+templ WorkoutTemplatesPage(cards []TemplateCardData) {
+	<section class="max-w-5xl mx-auto px-4 py-6">
+		<h2 class="text-3xl font-bold mb-6">Workout Templates</h2>
+		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+			for _, card := range cards {
+				@templateCard(card)
+			}
+		</div>
 	</section>
+}
+
+templ TemplatePreviewPage(data TemplatePreviewData) {
+	<section class="max-w-3xl mx-auto px-4 py-6">
+		<div class="mb-4">
+			<a href="/templates" class="link link-primary text-sm">&larr; Back to Templates</a>
+		</div>
+		<h2 class="text-3xl font-bold mb-6">Customize Workout</h2>
+		<form
+			hx-post={ fmt.Sprintf("/templates/%s/apply", data.TemplateID.String()) }
+			hx-target="body"
+		>
+			<!-- Workout metadata -->
+			<div class="space-y-4 mb-6">
+				<div class="form-control">
+					<label class="label" for="title">
+						<span class="label-text">Title</span>
+					</label>
+					<input
+						id="title"
+						type="text"
+						name="title"
+						value={ data.Title }
+						class="input input-bordered w-full"
+						maxlength="100"
+						required
+					/>
+				</div>
+				<div class="form-control">
+					<label class="label" for="description">
+						<span class="label-text">Description</span>
+					</label>
+					<textarea
+						id="description"
+						name="description"
+						class="textarea textarea-bordered w-full"
+						maxlength="500"
+						rows="2"
+					>{ data.Description }</textarea>
+				</div>
+				<div class="grid grid-cols-2 gap-4">
+					<div class="form-control">
+						<label class="label" for="duration">
+							<span class="label-text">Duration (min)</span>
+						</label>
+						<input
+							id="duration"
+							type="number"
+							name="duration"
+							value={ fmt.Sprintf("%d", data.Duration) }
+							class="input input-bordered w-full"
+							min="1"
+							required
+						/>
+					</div>
+					<div class="form-control">
+						<label class="label" for="planned-date">
+							<span class="label-text">Planned Date</span>
+						</label>
+						<input
+							id="planned-date"
+							type="date"
+							name="planned-date"
+							class="input input-bordered w-full"
+							required
+						/>
+					</div>
+				</div>
+			</div>
+			<!-- Exercise list -->
+			<h3 class="text-xl font-semibold mb-3">Exercises</h3>
+			<div id="exercise-list" class="space-y-3 mb-6">
+				for i, ex := range data.Exercises {
+					@TemplateExerciseRow(ex, i)
+				}
+			</div>
+			<input type="hidden" name="exercise_count" value={ strconv.Itoa(len(data.Exercises)) }/>
+			<button type="submit" class="btn btn-primary w-full">Create Workout</button>
+		</form>
+	</section>
+}
+
+templ TemplateExerciseRow(ex PreviewExercise, index int) {
+	<div
+		id={ fmt.Sprintf("exercise-row-%d", index) }
+		class="card bg-base-100 border border-base-content/10 p-4"
+		x-data={ fmt.Sprintf("{ setCount: %d, defaultReps: %d }", ex.Sets, ex.RepsPerSet) }
+	>
+		<div class="flex items-center justify-between mb-2">
+			<div class="flex items-center gap-2">
+				<span class="font-medium">{ ex.Name }</span>
+				<span class="badge badge-outline badge-sm">{ utils.TitleString(ex.MuscleGroup) }</span>
+			</div>
+			<button
+				type="button"
+				class="btn btn-ghost btn-xs"
+				hx-get={ fmt.Sprintf("/templates/reroll?muscle_group=%s&index=%d&exclude=%s&sets=%d&reps=%d",
+					ex.MuscleGroup, index, ex.ExerciseID.String(), ex.Sets, ex.RepsPerSet) }
+				hx-target={ fmt.Sprintf("#exercise-row-%d", index) }
+				hx-swap="outerHTML"
+			>Re-roll</button>
+		</div>
+		<!-- Sets control -->
+		<div class="mb-3 max-w-32">
+			<label class="label py-0">
+				<span class="label-text text-xs">Sets</span>
+			</label>
+			<input
+				type="number"
+				name={ fmt.Sprintf("sets_%d", index) }
+				x-model.number="setCount"
+				class="input input-bordered input-sm w-full"
+				min="1"
+				max="20"
+				required
+			/>
+		</div>
+		<!-- Per-set reps and weights -->
+		<div class="overflow-x-auto">
+			<table class="table table-xs w-full">
+				<thead>
+					<tr class="text-xs text-base-content/50">
+						<th>Set</th>
+						<th>Reps</th>
+						<th>Weight (lbs)</th>
+					</tr>
+				</thead>
+				<tbody>
+					<template x-for="s in setCount" :key="s">
+						<tr>
+							<td class="font-mono text-xs align-middle" x-text="s"></td>
+							<td>
+								<input
+									type="number"
+									x-bind:name={ fmt.Sprintf("'reps_%d[]'", index) }
+									x-bind:value="defaultReps"
+									class="input input-bordered input-xs w-20"
+									min="1"
+									required
+								/>
+							</td>
+							<td>
+								<input
+									type="number"
+									x-bind:name={ fmt.Sprintf("'weight_%d[]'", index) }
+									value="0"
+									class="input input-bordered input-xs w-20"
+									min="0"
+								/>
+							</td>
+						</tr>
+					</template>
+				</tbody>
+			</table>
+		</div>
+		<input type="hidden" name={ fmt.Sprintf("exercise_id_%d", index) } value={ ex.ExerciseID.String() }/>
+		<input type="hidden" name={ fmt.Sprintf("muscle_group_%d", index) } value={ ex.MuscleGroup }/>
+	</div>
+}
+
+templ templateCard(card TemplateCardData) {
+	<div class="card bg-base-100 border border-base-content/10 shadow-sm">
+		<div class="card-body p-4">
+			<h3 class="card-title text-base">{ card.Name }</h3>
+			<p class="text-sm text-base-content/60 line-clamp-2">{ card.Description }</p>
+			<div class="flex flex-wrap gap-1.5 mt-2">
+				for _, group := range card.MuscleGroups {
+					<span class="badge badge-outline badge-sm">{ utils.TitleString(group) }</span>
+				}
+			</div>
+			<div class="flex items-center gap-4 mt-2 text-xs text-base-content/50">
+				<span>{ strconv.Itoa(card.ExerciseCount) } exercises</span>
+				<span>~{ fmt.Sprintf("%d", card.DurationMinutes) } min</span>
+			</div>
+			<div class="card-actions justify-end mt-3">
+				<a
+					href={ templ.URL(fmt.Sprintf("/templates/%s/preview", card.ID.String())) }
+					class="btn btn-primary btn-sm"
+				>Use Template</a>
+			</div>
+		</div>
+	</div>
 }
