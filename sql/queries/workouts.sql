@@ -23,6 +23,16 @@ INSERT INTO workouts (
 SELECT * FROM workouts
 WHERE user_id = $1;
 
+-- name: GetUpcomingUserWorkouts :many
+SELECT * FROM workouts
+WHERE user_id = $1 AND date_completed IS NULL
+ORDER BY planned_date ASC;
+
+-- name: GetCompletedUserWorkouts :many
+SELECT * FROM workouts
+WHERE user_id = $1 AND date_completed IS NOT NULL
+ORDER BY date_completed DESC;
+
 -- name: GetWorkoutByID :one
 SELECT * FROM workouts
 WHERE id = $1 AND user_id = $2;

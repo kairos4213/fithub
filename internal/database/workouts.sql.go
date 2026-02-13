@@ -129,6 +129,84 @@ func (q *Queries) GetAllUserWorkouts(ctx context.Context, userID uuid.UUID) ([]W
 	return items, nil
 }
 
+const getCompletedUserWorkouts = `-- name: GetCompletedUserWorkouts :many
+SELECT id, user_id, title, description, duration_minutes, planned_date, date_completed, created_at, updated_at FROM workouts
+WHERE user_id = $1 AND date_completed IS NOT NULL
+ORDER BY date_completed DESC
+`
+
+func (q *Queries) GetCompletedUserWorkouts(ctx context.Context, userID uuid.UUID) ([]Workout, error) {
+	rows, err := q.db.QueryContext(ctx, getCompletedUserWorkouts, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Workout
+	for rows.Next() {
+		var i Workout
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Title,
+			&i.Description,
+			&i.DurationMinutes,
+			&i.PlannedDate,
+			&i.DateCompleted,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getUpcomingUserWorkouts = `-- name: GetUpcomingUserWorkouts :many
+SELECT id, user_id, title, description, duration_minutes, planned_date, date_completed, created_at, updated_at FROM workouts
+WHERE user_id = $1 AND date_completed IS NULL
+ORDER BY planned_date ASC
+`
+
+func (q *Queries) GetUpcomingUserWorkouts(ctx context.Context, userID uuid.UUID) ([]Workout, error) {
+	rows, err := q.db.QueryContext(ctx, getUpcomingUserWorkouts, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Workout
+	for rows.Next() {
+		var i Workout
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Title,
+			&i.Description,
+			&i.DurationMinutes,
+			&i.PlannedDate,
+			&i.DateCompleted,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getWorkoutByID = `-- name: GetWorkoutByID :one
 SELECT id, user_id, title, description, duration_minutes, planned_date, date_completed, created_at, updated_at FROM workouts
 WHERE id = $1 AND user_id = $2
