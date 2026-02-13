@@ -33,7 +33,7 @@ func (s *Server) Start() {
 
 	srv := &http.Server{
 		Addr:         ":" + s.port,
-		Handler:      s.mw.Log(mux),
+		Handler:      s.mw.Log(s.mw.Cop(mux)),
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}

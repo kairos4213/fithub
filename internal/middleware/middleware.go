@@ -1,3 +1,4 @@
+// Package middleware is for adding logging, auth, cross-origin protection, etc.
 package middleware
 
 import (

@@ -13,6 +13,7 @@ func (s *Server) registerRoutes(mux *http.ServeMux) {
 
 	// Public pages
 	mux.HandleFunc("GET /", s.handler.Index)
+	// FIX: /login & /register not showing up in browser network dev tool
 	mux.HandleFunc("GET /login", s.handler.Login)
 	mux.HandleFunc("POST /login", s.handler.Login)
 	mux.HandleFunc("POST /logout", s.handler.Logout)
