@@ -131,11 +131,16 @@ func (q *Queries) GetAllUserWorkouts(ctx context.Context, userID uuid.UUID) ([]W
 
 const getWorkoutByID = `-- name: GetWorkoutByID :one
 SELECT id, user_id, title, description, duration_minutes, planned_date, date_completed, created_at, updated_at FROM workouts
-WHERE id = $1
+WHERE id = $1 AND user_id = $2
 `
 
-func (q *Queries) GetWorkoutByID(ctx context.Context, id uuid.UUID) (Workout, error) {
-	row := q.db.QueryRowContext(ctx, getWorkoutByID, id)
+type GetWorkoutByIDParams struct {
+	ID     uuid.UUID
+	UserID uuid.UUID
+}
+
+func (q *Queries) GetWorkoutByID(ctx context.Context, arg GetWorkoutByIDParams) (Workout, error) {
+	row := q.db.QueryRowContext(ctx, getWorkoutByID, arg.ID, arg.UserID)
 	var i Workout
 	err := row.Scan(
 		&i.ID,

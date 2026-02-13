@@ -37,7 +37,9 @@ SELECT
 FROM workouts_exercises AS we
 JOIN exercises AS e
     ON we.exercise_id = e.id
-WHERE we.workout_id = $1
+JOIN workouts AS w
+    ON we.workout_id = w.id
+WHERE we.workout_id = $1 AND w.user_id = $2
 ORDER BY we.sort_order;
 
 -- name: UpdateWorkoutExercise :one
@@ -50,7 +52,9 @@ SET
     reps_per_set_completed = $4,
     weights_planned_lbs = $5,
     weights_completed_lbs = $6
-WHERE id = $7 AND workout_id = $8
+WHERE workouts_exercises.id = $7
+    AND workouts_exercises.workout_id = $8
+    AND EXISTS (SELECT 1 FROM workouts WHERE workouts.id = $8 AND workouts.user_id = $9)
 RETURNING *;
 
 -- name: UpdateWorkoutExercisesSortOrder :exec
@@ -58,8 +62,12 @@ UPDATE workouts_exercises
 SET
     updated_at = now(),
     sort_order = $1
-WHERE id = $2 AND workout_id = $3;
+WHERE workouts_exercises.id = $2
+    AND workouts_exercises.workout_id = $3
+    AND EXISTS (SELECT 1 FROM workouts WHERE workouts.id = $3 AND workouts.user_id = $4);
 
 -- name: DeleteExerciseFromWorkout :exec
 DELETE FROM workouts_exercises
-WHERE id = $1;
+WHERE workouts_exercises.id = $1
+    AND workouts_exercises.workout_id = $2
+    AND EXISTS (SELECT 1 FROM workouts WHERE workouts.id = $2 AND workouts.user_id = $3);

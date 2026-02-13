@@ -88,11 +88,19 @@ func (q *Queries) AddExerciseToWorkout(ctx context.Context, arg AddExerciseToWor
 
 const deleteExerciseFromWorkout = `-- name: DeleteExerciseFromWorkout :exec
 DELETE FROM workouts_exercises
-WHERE id = $1
+WHERE workouts_exercises.id = $1
+    AND workouts_exercises.workout_id = $2
+    AND EXISTS (SELECT 1 FROM workouts WHERE workouts.id = $2 AND workouts.user_id = $3)
 `
 
-func (q *Queries) DeleteExerciseFromWorkout(ctx context.Context, id uuid.UUID) error {
-	_, err := q.db.ExecContext(ctx, deleteExerciseFromWorkout, id)
+type DeleteExerciseFromWorkoutParams struct {
+	ID        uuid.UUID
+	WorkoutID uuid.UUID
+	UserID    uuid.UUID
+}
+
+func (q *Queries) DeleteExerciseFromWorkout(ctx context.Context, arg DeleteExerciseFromWorkoutParams) error {
+	_, err := q.db.ExecContext(ctx, deleteExerciseFromWorkout, arg.ID, arg.WorkoutID, arg.UserID)
 	return err
 }
 
@@ -106,7 +114,9 @@ SET
     reps_per_set_completed = $4,
     weights_planned_lbs = $5,
     weights_completed_lbs = $6
-WHERE id = $7 AND workout_id = $8
+WHERE workouts_exercises.id = $7
+    AND workouts_exercises.workout_id = $8
+    AND EXISTS (SELECT 1 FROM workouts WHERE workouts.id = $8 AND workouts.user_id = $9)
 RETURNING id, workout_id, exercise_id, sets_planned, reps_per_set_planned, sets_completed, reps_per_set_completed, weights_planned_lbs, weights_completed_lbs, date_completed, updated_at, created_at, sort_order
 `
 
@@ -119,6 +129,7 @@ type UpdateWorkoutExerciseParams struct {
 	WeightsCompletedLbs []int32
 	ID                  uuid.UUID
 	WorkoutID           uuid.UUID
+	UserID              uuid.UUID
 }
 
 func (q *Queries) UpdateWorkoutExercise(ctx context.Context, arg UpdateWorkoutExerciseParams) (WorkoutsExercise, error) {
@@ -131,6 +142,7 @@ func (q *Queries) UpdateWorkoutExercise(ctx context.Context, arg UpdateWorkoutEx
 		pq.Array(arg.WeightsCompletedLbs),
 		arg.ID,
 		arg.WorkoutID,
+		arg.UserID,
 	)
 	var i WorkoutsExercise
 	err := row.Scan(
@@ -156,17 +168,25 @@ UPDATE workouts_exercises
 SET
     updated_at = now(),
     sort_order = $1
-WHERE id = $2 AND workout_id = $3
+WHERE workouts_exercises.id = $2
+    AND workouts_exercises.workout_id = $3
+    AND EXISTS (SELECT 1 FROM workouts WHERE workouts.id = $3 AND workouts.user_id = $4)
 `
 
 type UpdateWorkoutExercisesSortOrderParams struct {
 	SortOrder int32
 	ID        uuid.UUID
 	WorkoutID uuid.UUID
+	UserID    uuid.UUID
 }
 
 func (q *Queries) UpdateWorkoutExercisesSortOrder(ctx context.Context, arg UpdateWorkoutExercisesSortOrderParams) error {
-	_, err := q.db.ExecContext(ctx, updateWorkoutExercisesSortOrder, arg.SortOrder, arg.ID, arg.WorkoutID)
+	_, err := q.db.ExecContext(ctx, updateWorkoutExercisesSortOrder,
+		arg.SortOrder,
+		arg.ID,
+		arg.WorkoutID,
+		arg.UserID,
+	)
 	return err
 }
 
@@ -177,17 +197,24 @@ SELECT
 FROM workouts_exercises AS we
 JOIN exercises AS e
     ON we.exercise_id = e.id
-WHERE we.workout_id = $1
+JOIN workouts AS w
+    ON we.workout_id = w.id
+WHERE we.workout_id = $1 AND w.user_id = $2
 ORDER BY we.sort_order
 `
+
+type WorkoutAndExercisesParams struct {
+	WorkoutID uuid.UUID
+	UserID    uuid.UUID
+}
 
 type WorkoutAndExercisesRow struct {
 	WorkoutsExercise WorkoutsExercise
 	Exercise         Exercise
 }
 
-func (q *Queries) WorkoutAndExercises(ctx context.Context, workoutID uuid.UUID) ([]WorkoutAndExercisesRow, error) {
-	rows, err := q.db.QueryContext(ctx, workoutAndExercises, workoutID)
+func (q *Queries) WorkoutAndExercises(ctx context.Context, arg WorkoutAndExercisesParams) ([]WorkoutAndExercisesRow, error) {
+	rows, err := q.db.QueryContext(ctx, workoutAndExercises, arg.WorkoutID, arg.UserID)
 	if err != nil {
 		return nil, err
 	}

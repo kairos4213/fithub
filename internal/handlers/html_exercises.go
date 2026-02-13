@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
+	"github.com/kairos4213/fithub/internal/cntx"
 	"github.com/kairos4213/fithub/internal/database"
 	"github.com/kairos4213/fithub/internal/templates"
 	"github.com/kairos4213/fithub/internal/validate"
@@ -51,10 +52,22 @@ func (h *Handler) GetExerciseByKeyword(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) AddExerciseToWorkout(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 	workoutID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		HandleInternalServerError(w, r)
 		h.cfg.Logger.Error("failed to parse workout id", slog.String("error", err.Error()))
+		return
+	}
+
+	// Verify the user owns this workout before adding an exercise
+	_, err = h.cfg.DB.GetWorkoutByID(r.Context(), database.GetWorkoutByIDParams{
+		ID:     workoutID,
+		UserID: userID,
+	})
+	if err != nil {
+		HandleInternalServerError(w, r)
+		h.cfg.Logger.Error("failed to verify workout ownership", slog.String("error", err.Error()))
 		return
 	}
 
@@ -139,6 +152,7 @@ func (h *Handler) AddExerciseToWorkout(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) UpdateWorkoutExercise(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 	workoutID, err := uuid.Parse(r.PathValue("workoutID"))
 	if err != nil {
 		HandleInternalServerError(w, r)
@@ -249,6 +263,7 @@ func (h *Handler) UpdateWorkoutExercise(w http.ResponseWriter, r *http.Request) 
 		WeightsCompletedLbs: completedWeights,
 		ID:                  workoutExerciseID,
 		WorkoutID:           workoutID,
+		UserID:              userID,
 	})
 	if err != nil {
 		HandleInternalServerError(w, r)
@@ -270,6 +285,7 @@ func (h *Handler) UpdateWorkoutExercise(w http.ResponseWriter, r *http.Request) 
 }
 
 func (h *Handler) UpdateWorkoutExercisesSortOrder(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 	workoutID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		HandleInternalServerError(w, r)
@@ -295,6 +311,7 @@ func (h *Handler) UpdateWorkoutExercisesSortOrder(w http.ResponseWriter, r *http
 			SortOrder: int32(index),
 			ID:        id,
 			WorkoutID: workoutID,
+			UserID:    userID,
 		})
 		if err != nil {
 			HandleInternalServerError(w, r)
@@ -307,6 +324,13 @@ func (h *Handler) UpdateWorkoutExercisesSortOrder(w http.ResponseWriter, r *http
 }
 
 func (h *Handler) DeleteExerciseFromWorkout(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
+	workoutID, err := uuid.Parse(r.PathValue("workoutID"))
+	if err != nil {
+		HandleInternalServerError(w, r)
+		h.cfg.Logger.Error("failed to parse workout id", slog.String("error", err.Error()))
+		return
+	}
 	workoutExerciseID, err := uuid.Parse(r.PathValue("workoutExerciseID"))
 	if err != nil {
 		HandleInternalServerError(w, r)
@@ -314,7 +338,11 @@ func (h *Handler) DeleteExerciseFromWorkout(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	err = h.cfg.DB.DeleteExerciseFromWorkout(r.Context(), workoutExerciseID)
+	err = h.cfg.DB.DeleteExerciseFromWorkout(r.Context(), database.DeleteExerciseFromWorkoutParams{
+		ID:        workoutExerciseID,
+		WorkoutID: workoutID,
+		UserID:    userID,
+	})
 	if err != nil {
 		HandleInternalServerError(w, r)
 		h.cfg.Logger.Error("failed to delete exercise from workout", slog.String("error", err.Error()))

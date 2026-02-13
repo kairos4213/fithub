@@ -239,6 +239,7 @@ func (h *Handler) DeleteUserWorkout(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetUserWorkoutExercises(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value(cntx.UserIDKey).(uuid.UUID)
 	workoutID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		HandleInternalServerError(w, r)
@@ -246,14 +247,20 @@ func (h *Handler) GetUserWorkoutExercises(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	workout, err := h.cfg.DB.GetWorkoutByID(r.Context(), workoutID)
+	workout, err := h.cfg.DB.GetWorkoutByID(r.Context(), database.GetWorkoutByIDParams{
+		ID:     workoutID,
+		UserID: userID,
+	})
 	if err != nil {
 		HandleInternalServerError(w, r)
 		h.cfg.Logger.Error("failed to fetch workout", slog.String("error", err.Error()))
 		return
 	}
 
-	workoutExercises, err := h.cfg.DB.WorkoutAndExercises(r.Context(), workoutID)
+	workoutExercises, err := h.cfg.DB.WorkoutAndExercises(r.Context(), database.WorkoutAndExercisesParams{
+		WorkoutID: workoutID,
+		UserID:    userID,
+	})
 	if err != nil {
 		HandleInternalServerError(w, r)
 		h.cfg.Logger.Error("failed to get workout exercises", slog.String("error", err.Error()))

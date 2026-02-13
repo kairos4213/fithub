@@ -25,7 +25,7 @@ WHERE user_id = $1;
 
 -- name: GetWorkoutByID :one
 SELECT * FROM workouts
-WHERE id = $1;
+WHERE id = $1 AND user_id = $2;
 
 -- name: UpdateWorkout :one
 UPDATE workouts
