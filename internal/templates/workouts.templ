@@ -210,7 +210,7 @@ templ WorkoutPage(
 				name="exercise-search"
 				placeholder="Begin Typing To Find Exercises..."
 				hx-post={ templ.URL("/exercises") }
-				hx-vals={ fmt.Sprintf(`{"workoutID": "%v" }`, workout.ID) }
+				hx-vals={ jsonVals(map[string]any{"workoutID": workout.ID.String()}) }
 				hx-trigger="input changed delay:500ms, keyup[key=='Enter']"
 				hx-indicator=".htmx-indicator"
 				hx-target="#exercise-search-results"
@@ -676,9 +676,12 @@ templ ExerciseQuickSearchResults(exercises []database.Exercise, workout uuid.UUI
 					</div>
 					<button
 						hx-post={ templ.URL(fmt.Sprintf("/workouts/%v", workout)) }
-						hx-vals={ fmt.Sprintf(`{ "exercise-name"
-        : "%v" , "planned-sets" : "%v" , "planned-reps[]" : ["%v"], "planned-weights[]" : ["%v"] }`, exercise.Name, 1,
-        1, 0) }
+						hx-vals={ jsonVals(map[string]any{
+						"exercise-name":     exercise.Name,
+						"planned-sets":      "1",
+						"planned-reps[]":    []string{"1"},
+						"planned-weights[]": []string{"0"},
+					}) }
 						hx-target="#workout-exercises"
 						hx-swap="beforeend"
 						class="btn btn-outline btn-primary btn-ghost self-end"
