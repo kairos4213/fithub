@@ -52,7 +52,7 @@ func main() {
 
 	dbQueries := database.New(db)
 	logger := slog.Default()
-	cfg := config.New(dbQueries, logger, tokenSecret)
+	cfg := config.New(dbQueries, db, logger, tokenSecret)
 
 	srv := server.New(port, filePathRoot, cfg)
 	srv.Start()
