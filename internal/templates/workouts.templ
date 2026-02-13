@@ -65,22 +65,26 @@ templ WorkoutsCreateCard() {
 }
 
 templ WorkoutsTabs(activeTab string) {
-	<div class="tabs tabs-border mb-4">
+	<div class="tabs tabs-border mb-4" x-data={ fmt.Sprintf("{ tab: '%s' }", activeTab) }>
 		<a
-			class={ "tab", templ.KV("tab-active", activeTab == "upcoming") }
+			class="tab"
+			:class="tab === 'upcoming' && 'tab-active'"
 			hx-get="/workouts?tab=upcoming"
 			hx-target="#workouts-content"
 			hx-swap="innerHTML"
 			hx-push-url="/workouts?tab=upcoming"
 			hx-target-4*="body"
+			@click="tab = 'upcoming'"
 		>Upcoming</a>
 		<a
-			class={ "tab", templ.KV("tab-active", activeTab == "completed") }
+			class="tab"
+			:class="tab === 'completed' && 'tab-active'"
 			hx-get="/workouts?tab=completed"
 			hx-target="#workouts-content"
 			hx-swap="innerHTML"
 			hx-push-url="/workouts?tab=completed"
 			hx-target-4*="body"
+			@click="tab = 'completed'"
 		>Completed</a>
 	</div>
 }
@@ -183,56 +187,66 @@ templ WorkoutPage(
 	workoutExercises []database.WorkoutAndExercisesRow,
 	exercises []database.Exercise,
 ) {
-	<section class="max-w-5xl mx-auto px-4 py-6">
+	<section class="max-w-5xl mx-auto px-4 py-6" x-data="{ editingWorkout: false }">
 		<div class="mb-4">
 			<a href="/workouts" class="link link-primary text-sm">&larr; Back to Workouts</a>
 		</div>
-		<div class="card bg-base-200 shadow-md mb-6">
-			<div class="card-body" x-data="{ editingWorkout: false }">
-				@WorkoutInfo(workout)
-				@EditWorkoutInfoForm(workout)
-			</div>
-		</div>
-		<h3 class="text-xl font-semibold mb-3">Exercises</h3>
-		@WorkoutExercisesList(workout, workoutExercises)
-		<div class="card bg-base-200 shadow-md mt-6">
-			<div class="card-body">
-				<h3 class="text-lg font-semibold">Quick Search<span class="htmx-indicator loading loading-ring loading-sm ml-2"></span></h3>
+		<!-- Workout header + metadata -->
+		@WorkoutInfo(workout)
+		@EditWorkoutInfoForm(workout)
+		<!-- Quick search for adding exercises -->
+		<div class="mb-6" x-data="{ searching: false }">
+			<button
+				x-show="!searching"
+				class="btn btn-outline btn-sm"
+				@click="searching = true"
+			>Search For Exercises</button>
+			<div x-cloak x-show="searching" class="card bg-base-100 border border-base-content/10 shadow-sm p-4">
+				<div class="flex items-center justify-between mb-2">
+					<h4 class="text-sm font-semibold">Add Exercise<span class="htmx-indicator loading loading-ring loading-sm ml-2"></span></h4>
+					<button class="btn btn-ghost btn-xs" @click="searching = false">Close</button>
+				</div>
 				<input
-					class="input input-bordered w-full"
+					class="input input-bordered input-sm w-full"
 					type="search"
 					name="exercise-search"
-					placeholder="Begin Typing To Find Exercises..."
+					placeholder="Search by name..."
 					hx-post={ templ.URL("/exercises") }
 					hx-vals={ jsonVals(map[string]any{"workoutID": workout.ID.String()}) }
 					hx-trigger="input changed delay:500ms, keyup[key=='Enter']"
 					hx-indicator=".htmx-indicator"
 					hx-target="#exercise-search-results"
-					required
 				/>
-				<div class="divider divider-accent"></div>
 				@ExerciseQuickSearchResults(exercises, workout.ID)
 			</div>
 		</div>
+		<!-- Exercise list -->
+		<h3 class="text-xl font-semibold mb-3">Exercises ({ fmt.Sprintf("%d", len(workoutExercises)) })</h3>
+		@WorkoutExercisesList(workout, workoutExercises)
 	</section>
 }
 
 templ WorkoutInfo(workout database.Workout) {
-	<div id="workout-info" x-show="!editingWorkout">
-		<h2 class="card-title">{ utils.TitleString(workout.Title) }</h2>
-		if workout.Description.Valid {
-			<p class="italic">{ workout.Description.String }</p>
-		} else {
-			<p class="italic">No Description</p>
-		}
-		<p><span class="font-bold">Est. Duration: </span>{ workout.DurationMinutes }min</p>
-		<p><span class="font-bold">Planned Date: </span>{ workout.PlannedDate.Format("Mon, Jan 02 2006") }</p>
-		if workout.DateCompleted.Valid {
-			<p><span class="font-bold">Date Completed: </span>{ workout.DateCompleted.Time.Format("Mon, Jan 02 2006") }</p>
-		}
-		<div class="justify-end card-actions">
-			<button class="btn btn-secondary" @click="editingWorkout = !editingWorkout">Edit</button>
-			<button hx-delete={ templ.URL(fmt.Sprintf("/workouts/%v", workout.ID)) } class="btn btn-warning">Delete</button>
+	<div id="workout-info" x-show="!editingWorkout" class="mb-6">
+		<div class="flex items-start justify-between">
+			<div>
+				<h2 class="text-3xl font-bold">{ utils.TitleString(workout.Title) }</h2>
+				if workout.Description.Valid {
+					<p class="text-base-content/60 mt-1">{ workout.Description.String }</p>
+				}
+			</div>
+			<div class="flex gap-2">
+				<button class="btn btn-secondary btn-sm" @click="editingWorkout = !editingWorkout">Edit</button>
+				<button class="btn btn-warning btn-sm" hx-delete={ templ.URL(fmt.Sprintf("/workouts/%v", workout.ID)) }>Delete</button>
+			</div>
+		</div>
+		<div class="flex flex-wrap items-center gap-3 mt-3 text-sm text-base-content/60">
+			<span>~{ fmt.Sprintf("%d", workout.DurationMinutes) } min</span>
+			<span class="text-base-content/20">|</span>
+			<span>{ workout.PlannedDate.Format("Mon, Jan 02 2006") }</span>
+			if workout.DateCompleted.Valid {
+				<span class="badge badge-success badge-sm">Completed { workout.DateCompleted.Time.Format("Jan 02 2006") }</span>
+			}
 		</div>
 	</div>
 }
@@ -591,7 +605,7 @@ templ WorkoutExerciseAddCard(workout database.Workout) {
 				@input="updateArrays(plannedSets)"
 				required
 			/>
-			<table class="table table-xs w-full">
+			<table class="table table-md w-full">
 				<thead>
 					<tr class="text-xs text-base-content/50">
 						<th>Set</th>
@@ -653,14 +667,14 @@ templ ExerciseQuickSearchResults(exercises []database.Exercise, workout uuid.UUI
 				<div class="flex flex-col collapse-content space-y-2">
 					<div class="join join-vertical md:join-horizontal">
 						<span
-							class="badge badge-lg badge-primary join-item
+							class="badge badge-sm badge-primary join-item
             md:rounded-l-full w-52"
 						>
 							Primary: { 
           utils.TitleString(exercise.PrimaryMuscleGroup.String) }
 						</span>
 						<span
-							class="badge badge-lg badge-secondary join-item
+							class="badge badge-sm badge-secondary join-item
             md:rounded-r-full w-52"
 						>
 							Secondary: { 
