@@ -4,6 +4,7 @@ templ LoginPage() {
 	<section class="container mx-auto p-10 h-screen">
 		<form
 			hx-post={ templ.URL("/login") }
+			hx-target-400="#form-error"
 			hx-target-422="#login-failure"
 			hx-target-500="body"
 			hx-swap="outerHTML"
@@ -13,8 +14,11 @@ templ LoginPage() {
 			<fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4">
 				<legend class="fieldset-legend text-lg">Login</legend>
 				<input class="input" type="email" name="email" placeholder="Email" required/>
+				<div id="err-email" class="hidden"></div>
 				<input class="input" type="password" name="password" placeholder="Password" required/>
+				<div id="err-password" class="hidden"></div>
 				<div id="login-failure" class="hidden"></div>
+				<div id="form-error" class="hidden"></div>
 				<button class="btn btn-primary mt-4" type="submit">Login</button>
 			</fieldset>
 			<p class="text-lg px-6 mt-4 justify-self-center">
@@ -28,7 +32,7 @@ templ LoginPage() {
 templ LoginFailure(err HtmlErr) {
 	if err.Msg != "" {
 		<div id="login-failure">
-			<span role="alert" class="alert alert-warning alert-outline">{ err.Msg }</span>
+			<span role="alert" class="alert alert-warning alert-vertical alert-outline mt-3">{ err.Msg }</span>
 		</div>
 	} else {
 		<div id="login-failure" class="hidden"></div>

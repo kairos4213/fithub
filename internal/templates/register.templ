@@ -4,15 +4,19 @@ templ RegisterPage() {
 	<section class="container mx-auto p-10 h-screen">
 		<form
 			hx-post={ templ.URL("/register") }
-			hx-target-500="body"
+			hx-swap="outerHTML"
+			hx-target-400="#form-error"
 			hx-target-409="#email-alert"
+			hx-target-500="body"
 			class="justify-self-center"
 		>
 			<h1 class="text-5xl">FitHub</h1>
 			<fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4">
 				<legend class="fieldset-legend text-lg">Register</legend>
 				<input class="input" type="text" name="first_name" placeholder="First Name" required/>
+				<div id="err-first-name" class="hidden"></div>
 				<input class="input" type="text" name="last_name" placeholder="Last Name" required/>
+				<div id="err-last-name" class="hidden"></div>
 				<input
 					class="input"
 					type="email"
@@ -25,7 +29,10 @@ templ RegisterPage() {
 					required
 				/>
 				<div id="email-alert" class="hidden"></div>
+				<div id="err-email" class="hidden"></div>
 				<input class="input" type="password" name="password" placeholder="Password" required/>
+				<div id="err-password" class="hidden"></div>
+				<div id="form-error" class="hidden"></div>
 				<button class="btn btn-secondary mt-4" type="submit">Register</button>
 			</fieldset>
 			<p class="text-lg px-6 mt-4 justify-self-center">
@@ -38,7 +45,7 @@ templ RegisterPage() {
 templ RegPageEmailAlert(err HtmlErr) {
 	if err.Msg != "" {
 		<div id="email-alert">
-			<span role="alert" class="alert alert-warning alert-outline">{ err.Msg }</span>
+			<span role="alert" class="alert alert-warning alert-vertical alert-outline">{ err.Msg }</span>
 		</div>
 	} else {
 		<div id="email-alert" class="hidden"></div>

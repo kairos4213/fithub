@@ -1,5 +1,7 @@
 package templates
 
+import "fmt"
+
 type HtmlErr struct {
 	Code int
 	Msg  string
@@ -39,4 +41,28 @@ templ serverIssue(err HtmlErr) {
 	<h2 class="text-3xl">{ err.Code }</h2>
 	<p class="text-2xl mb-5">{ err.Msg }</p>
 	<a href={ templ.URL("/") } class="btn btn-secondary btn-outline">Return Home</a>
+}
+
+templ FormError(err HtmlErr) {
+	if err.Msg != "" {
+		<div id="form-error">
+			<span role="alert" class="alert alert-warning alert-vertical alert-outline">{ err.Msg }</span>
+		</div>
+	} else {
+		<div id="form-error" class="hidden"></div>
+	}
+}
+
+templ FieldErrors(errors map[string]string, allFields []string) {
+	<div id="form-error" class="hidden"></div>
+	for _, field := range allFields {
+		{{ msg := errors[field] }}
+		if msg != "" {
+			<div id={ fmt.Sprintf("err-%s", field) } class="mt-1" hx-swap-oob="outerHTML">
+				<span class="alert alert-warning alert-vertical alert-outline">{ msg }</span>
+			</div>
+		} else {
+			<div id={ fmt.Sprintf("err-%s", field) } class="hidden" hx-swap-oob="outerHTML"></div>
+		}
+	}
 }

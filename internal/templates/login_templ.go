@@ -42,14 +42,14 @@ func LoginPage() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" hx-target-422=\"#login-failure\" hx-target-500=\"body\" hx-swap=\"outerHTML\" class=\"justify-self-center\"><h1 class=\"text-5xl\">FitHub</h1><fieldset class=\"fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4\"><legend class=\"fieldset-legend text-lg\">Login</legend> <input class=\"input\" type=\"email\" name=\"email\" placeholder=\"Email\" required> <input class=\"input\" type=\"password\" name=\"password\" placeholder=\"Password\" required><div id=\"login-failure\" class=\"hidden\"></div><button class=\"btn btn-primary mt-4\" type=\"submit\">Login</button></fieldset><p class=\"text-lg px-6 mt-4 justify-self-center\">Not signed up? <a href=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" hx-target-400=\"#form-error\" hx-target-422=\"#login-failure\" hx-target-500=\"body\" hx-swap=\"outerHTML\" class=\"justify-self-center\"><h1 class=\"text-5xl\">FitHub</h1><fieldset class=\"fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4\"><legend class=\"fieldset-legend text-lg\">Login</legend> <input class=\"input\" type=\"email\" name=\"email\" placeholder=\"Email\" required><div id=\"err-email\" class=\"hidden\"></div><input class=\"input\" type=\"password\" name=\"password\" placeholder=\"Password\" required><div id=\"err-password\" class=\"hidden\"></div><div id=\"login-failure\" class=\"hidden\"></div><div id=\"form-error\" class=\"hidden\"></div><button class=\"btn btn-primary mt-4\" type=\"submit\">Login</button></fieldset><p class=\"text-lg px-6 mt-4 justify-self-center\">Not signed up? <a href=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var3 templ.SafeURL
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinURLErrs(templ.URL("/register"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/login.templ`, Line: 22, Col: 36}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/login.templ`, Line: 26, Col: 36}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
@@ -85,14 +85,14 @@ func LoginFailure(err HtmlErr) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		if err.Msg != "" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div id=\"login-failure\"><span role=\"alert\" class=\"alert alert-warning alert-outline\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div id=\"login-failure\"><span role=\"alert\" class=\"alert alert-warning alert-vertical alert-outline mt-3\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(err.Msg)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/login.templ`, Line: 31, Col: 73}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/login.templ`, Line: 35, Col: 93}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {

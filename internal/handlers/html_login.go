@@ -32,13 +32,13 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 			validate.Required(email, "email"),
 			validate.Required(password, "password"),
 		); errs != nil {
-			HandleBadRequest(w, r, errs[0].Error())
+			HandleFieldErrors(w, r, h.cfg.Logger, errs, []string{"email", "password"})
 			return
 		}
 
 		user, err := h.cfg.DB.GetUser(r.Context(), email)
 		if err != nil {
-			HandleInternalServerError(w, r)
+			HandleLoginFailure(w, r)
 			h.cfg.Logger.Error("failed to fetch user", slog.String("error", err.Error()))
 			return
 		}

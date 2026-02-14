@@ -1,9 +1,12 @@
 package handlers
 
 import (
+	"log/slog"
 	"net/http"
+	"strings"
 
 	"github.com/kairos4213/fithub/internal/templates"
+	"github.com/kairos4213/fithub/internal/validate"
 )
 
 const (
@@ -92,9 +95,27 @@ func HandleBadRequest(w http.ResponseWriter, r *http.Request, errMsg string) {
 	w.WriteHeader(http.StatusBadRequest)
 
 	htmlErr := templates.HtmlErr{Code: http.StatusBadRequest, Msg: errMsg}
-	err := templates.RegPageEmailAlert(htmlErr).Render(r.Context(), w)
+	err := templates.FormError(htmlErr).Render(r.Context(), w)
 	if err != nil {
 		HandleInternalServerError(w, r)
 		return
+	}
+}
+
+func HandleFieldErrors(w http.ResponseWriter, r *http.Request, logger *slog.Logger, errs []validate.FieldError, fields []string) {
+	errMap := make(map[string]string)
+	for _, e := range errs {
+		slug := strings.ReplaceAll(e.Field, " ", "-")
+		if _, exists := errMap[slug]; !exists {
+			errMap[slug] = e.Message
+		}
+	}
+
+	w.Header().Set("Content-type", "text/html")
+	w.WriteHeader(http.StatusBadRequest)
+
+	err := templates.FieldErrors(errMap, fields).Render(r.Context(), w)
+	if err != nil {
+		logger.Error("failed to render field errors", slog.String("error", err.Error()))
 	}
 }
