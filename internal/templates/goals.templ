@@ -3,204 +3,182 @@ package templates
 import (
 	"fmt"
 	"github.com/kairos4213/fithub/internal/database"
-	"sort"
 )
 
-templ Goals(goals []database.Goal) {
-	{{ sort.Slice(goals, func(i, j int) bool { return goals[i].GoalDate.Before(goals[j].GoalDate) }) }}
-	<section id="goals">
-		<h2 class="text-3xl p-4">Upcoming Goals</h2>
-		<div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100 mx-2">
-			<table id="goals-table" class="table table-in-rows md:table-fixed table-auto text-md text-center">
-				<thead>
-					<tr>
-						<th>Goal Name</th>
-						<th>Status</th>
-						<th>Description</th>
-						<th>Goal Date</th>
-						<th>Notes</th>
-						<th>Completed</th>
-						<th></th>
-					</tr>
-				</thead>
-				<tbody>
-					for _, goal := range goals {
-						@GoalDataRow(goal)
-					}
-				</tbody>
-				<tfoot id="add-goal-row" x-data="{ open: false }">
-					<tr x-show="!open">
-						<th></th>
-						<th></th>
-						<th></th>
-						<th></th>
-						<th></th>
-						<th></th>
-						<th>
-							<button
-								class="btn btn-outline btn-primary btn-ghost"
-								@click="open = ! open"
-							>Add Goal</button>
-						</th>
-					</tr>
-					<tr x-cloak x-show="open">
-						<th>
-							<input
-								class="input input-ghost text-center border-secondary"
-								type="text"
-								name="goal-name"
-								placeholder="Enter Goal Name"
-								required
-							/>
-						</th>
-						<th>
-							In Progress
-						</th>
-						<th>
-							<textarea
-								class="textarea textarea-xs text-center border-secondary"
-								name="description"
-								placeholder="Enter Description"
-								required
-							></textarea>
-						</th>
-						<th>
-							<input
-								class="input input-ghost text-center border-secondary"
-								type="date"
-								name="goal-date"
-								required
-							/>
-						</th>
-						<th>
-							<textarea
-								class="textarea textarea-xs text-center border-secondary"
-								name="notes"
-								placeholder="Enter Optional Notes"
-							></textarea>
-						</th>
-						<th>N/A</th>
-						<th>
-							<button
-								hx-post={ string(templ.URL("/goals")) }
-								hx-include="#add-goal-row"
-								hx-target="#goals-table"
-								hx-swap="beforeend"
-								class="btn btn-outline btn-primary btn-ghost"
-								@click="open = ! open"
-							>Add Goal</button>
-							<button
-								class="btn btn-warning"
-								@click="open = ! open"
-							>Cancel</button>
-						</th>
-					</tr>
-				</tfoot>
-			</table>
+templ GoalsPage(goals []database.Goal, activeTab string) {
+	<section class="max-w-5xl mx-auto px-4 py-6">
+		<h2 class="text-3xl font-bold mb-6">My Goals</h2>
+		@GoalsCreateCard()
+		@GoalsTabs(activeTab)
+		<div id="goals-content">
+			@GoalsCardGrid(goals, activeTab)
 		</div>
 	</section>
 }
 
-templ GoalDataRow(goal database.Goal) {
-	<tr id={ fmt.Sprintf("goal-%v", goal.ID) } x-data="{ editing: false }">
-		<td x-show="!editing">
-			{ goal.GoalName }
-		</td>
-		<td x-cloak x-show="editing">
-			<input
-				class="input input-ghost text-center border-secondary"
-				type="text"
-				name="goal-name"
-				value={ fmt.Sprintf("%v", goal.GoalName) }
-				required
-			/>
-		</td>
-		if goal.Status == "in_progress" {
-			<td x-show="!editing">
-				In Progress
-			</td>
-		} else {
-			<td x-show="!editing">
-				Completed
-			</td>
+templ GoalsCreateCard() {
+	<div id="create-goal-card" class="mb-6" x-data="{ open: false }">
+		<button
+			x-show="!open"
+			class="btn btn-primary btn-outline w-full"
+			@click="open = true"
+		>+ Create Goal</button>
+		<div x-cloak x-show="open" class="card bg-base-100 border border-base-content/10 shadow-sm">
+			<div class="card-body p-4">
+				<h3 class="card-title text-base">New Goal</h3>
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+					<div>
+						<label class="label" for="new-goal-name"><span class="label-text">Goal Name</span></label>
+						<input id="new-goal-name" class="input input-bordered w-full" type="text" name="goal-name" placeholder="Goal Name" maxlength="100" required/>
+					</div>
+					<div>
+						<label class="label" for="new-goal-date"><span class="label-text">Goal Date</span></label>
+						<input id="new-goal-date" class="input input-bordered w-full" type="date" name="goal-date" required/>
+					</div>
+					<div class="md:col-span-2">
+						<label class="label" for="new-goal-description"><span class="label-text">Description</span></label>
+						<textarea id="new-goal-description" class="textarea textarea-bordered w-full" name="description" placeholder="Description" maxlength="500" rows="2" required></textarea>
+					</div>
+					<div class="md:col-span-2">
+						<label class="label" for="new-goal-notes"><span class="label-text">Notes (optional)</span></label>
+						<textarea id="new-goal-notes" class="textarea textarea-bordered w-full" name="notes" placeholder="Optional notes" maxlength="500" rows="2"></textarea>
+					</div>
+				</div>
+				<div class="card-actions justify-end mt-3">
+					<button
+						hx-post="/goals"
+						hx-include="#create-goal-card"
+						hx-target="#goals-content"
+						hx-swap="innerHTML"
+						hx-target-4*="body"
+						class="btn btn-primary btn-sm"
+						@click="open = false"
+					>Create</button>
+					<button class="btn btn-ghost btn-sm" @click="open = false">Cancel</button>
+				</div>
+			</div>
+		</div>
+	</div>
+}
+
+templ GoalsTabs(activeTab string) {
+	<div class="tabs tabs-border mb-4" x-data={ fmt.Sprintf("{ tab: '%s' }", activeTab) }>
+		<a
+			class="tab"
+			:class="tab === 'in_progress' && 'tab-active'"
+			hx-get="/goals?tab=in_progress"
+			hx-target="#goals-content"
+			hx-swap="innerHTML"
+			hx-push-url="/goals?tab=in_progress"
+			hx-target-4*="body"
+			@click="tab = 'in_progress'"
+		>In Progress</a>
+		<a
+			class="tab"
+			:class="tab === 'completed' && 'tab-active'"
+			hx-get="/goals?tab=completed"
+			hx-target="#goals-content"
+			hx-swap="innerHTML"
+			hx-push-url="/goals?tab=completed"
+			hx-target-4*="body"
+			@click="tab = 'completed'"
+		>Completed</a>
+	</div>
+}
+
+templ GoalsCardGrid(goals []database.Goal, activeTab string) {
+	<div id="goals-card-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+		if len(goals) == 0 {
+			<div class="md:col-span-2 lg:col-span-3 text-center py-12 text-base-content/50">
+				if activeTab == "in_progress" {
+					<p>No goals in progress. Create one above!</p>
+				} else {
+					<p>No completed goals yet.</p>
+				}
+			</div>
 		}
-		<td x-cloak x-show="editing">
-			<select name="status" class="select border-secondary">
-				<option value="in_progress">In Progress</option>
-				<option value="completed">Completed</option>
-			</select>
-		</td>
-		<td x-show="!editing">
-			{ goal.Description }
-		</td>
-		<td x-cloak x-show="editing">
-			<textarea
-				class="textarea textarea-xs text-center border-secondary"
-				name="description"
-				placeholder="Enter a description"
-				required
-			>{ goal.Description }</textarea>
-		</td>
-		<td x-show="!editing">
-			{ goal.GoalDate.Format("Mon, Jan 02 2006") }
-		</td>
-		<td x-cloak x-show="editing">
-			<input
-				class="input input-ghost text-center border-secondary"
-				type="date"
-				name="goal-date"
-				value={ goal.GoalDate.Format("2006-01-02") }
-				required
-			/>
-		</td>
-		if goal.Notes.Valid {
-			<td x-show="!editing">
-				{ goal.Notes.String }
-			</td>
-		} else {
-			<td x-show="!editing">No notes, yet!</td>
+		for _, goal := range goals {
+			@GoalCard(goal)
 		}
-		<td x-cloak x-show="editing">
-			<textarea
-				class="textarea textarea-xs text-center border-secondary"
-				name="notes"
-				placeholder="Enter Optional Notes Here"
-			>{ goal.Notes.String }</textarea>
-		</td>
-		if goal.CompletionDate.Valid {
-			<td x-show="!editing">
-				{ goal.CompletionDate.Time.Format("Mon, Jan 02 2006") }
-			</td>
-		} else {
-			<td x-show="!editing">
-				N/A
-			</td>
-		}
-		<td x-show="editing"></td>
-		<td>
-			<button
-				x-show="!editing"
-				class="btn btn-secondary m-1"
-				@click="editing = ! editing"
-			>Edit</button>
-			<button
-				x-show="!editing"
-				hx-delete={ string(templ.URL(fmt.Sprintf("/goals/%v", goal.ID))) }
-				hx-target={ fmt.Sprintf("#goal-%v", goal.ID) }
-				hx-swap="delete"
-				class="btn btn-warning"
-			>Delete</button>
-			<button
-				x-cloak
-				x-show="editing"
-				hx-put={ string(templ.URL(fmt.Sprintf("/goals/%v", goal.ID))) }
-				hx-include={ fmt.Sprintf("#goal-%v", goal.ID) }
-				hx-target={ fmt.Sprintf("#goal-%v", goal.ID) }
-				hx-swap="outerHTML"
-				class="btn btn-primary"
-				@click="editing = ! editing"
-			>Submit</button>
-			<button x-cloak x-show="editing" class="btn btn-warning" @click="editing = ! editing">Cancel</button>
-		</td>
-	</tr>
+	</div>
+}
+
+templ GoalCard(goal database.Goal) {
+	<div
+		id={ fmt.Sprintf("goal-%v", goal.ID) }
+		class="card bg-base-100 border border-base-content/10 shadow-sm"
+		x-data="{ editing: false }"
+	>
+		<!-- View mode -->
+		<div x-show="!editing" class="card-body p-4">
+			<h3 class="card-title text-base">{ goal.GoalName }</h3>
+			<p class="text-sm text-base-content/60 line-clamp-2">{ goal.Description }</p>
+			<div class="flex items-center gap-4 mt-2 text-xs text-base-content/50">
+				<span>{ goal.GoalDate.Format("Mon, Jan 02 2006") }</span>
+			</div>
+			if goal.Notes.Valid && goal.Notes.String != "" {
+				<p class="text-xs text-base-content/40 line-clamp-1 mt-1">{ goal.Notes.String }</p>
+			}
+			if goal.Status == "completed" && goal.CompletionDate.Valid {
+				<div class="badge badge-success badge-sm mt-2">
+					Completed { goal.CompletionDate.Time.Format("Jan 02 2006") }
+				</div>
+			}
+			<div class="card-actions justify-end mt-3">
+				<button class="btn btn-secondary btn-sm" @click="editing = true">Edit</button>
+				<button
+					class="btn btn-warning btn-sm"
+					hx-delete={ templ.URL(fmt.Sprintf("/goals/%v", goal.ID)) }
+					hx-target={ fmt.Sprintf("#goal-%v", goal.ID) }
+					hx-swap="delete"
+					hx-target-4*="body"
+				>Delete</button>
+			</div>
+		</div>
+		<!-- Edit mode -->
+		<div x-cloak x-show="editing" class="card-body p-4">
+			<div class="grid grid-cols-1 gap-3">
+				<div>
+					<label class="label"><span class="label-text">Goal Name</span></label>
+					<input class="input input-bordered w-full" type="text" name="goal-name" value={ goal.GoalName } maxlength="100" required/>
+				</div>
+				<div>
+					<label class="label"><span class="label-text">Description</span></label>
+					<textarea class="textarea textarea-bordered w-full" name="description" maxlength="500" rows="2" required>{ goal.Description }</textarea>
+				</div>
+				<div>
+					<label class="label"><span class="label-text">Goal Date</span></label>
+					<input class="input input-bordered w-full" type="date" name="goal-date" value={ goal.GoalDate.Format("2006-01-02") } required/>
+				</div>
+				<div>
+					<label class="label"><span class="label-text">Notes</span></label>
+					<textarea class="textarea textarea-bordered w-full" name="notes" maxlength="500" rows="2">{ goal.Notes.String }</textarea>
+				</div>
+				<div>
+					<label class="label"><span class="label-text">Status</span></label>
+					<select name="status" class="select select-bordered w-full">
+						if goal.Status == "in_progress" {
+							<option value="in_progress" selected>In Progress</option>
+							<option value="completed">Completed</option>
+						} else {
+							<option value="in_progress">In Progress</option>
+							<option value="completed" selected>Completed</option>
+						}
+					</select>
+				</div>
+			</div>
+			<div class="card-actions justify-end mt-3">
+				<button
+					class="btn btn-primary btn-sm"
+					hx-put={ templ.URL(fmt.Sprintf("/goals/%v", goal.ID)) }
+					hx-include={ fmt.Sprintf("#goal-%v", goal.ID) }
+					hx-target={ fmt.Sprintf("#goal-%v", goal.ID) }
+					hx-swap="outerHTML"
+					hx-target-4*="body"
+					@click="editing = false"
+				>Save</button>
+				<button class="btn btn-ghost btn-sm" @click="editing = false">Cancel</button>
+			</div>
+		</div>
+	</div>
 }

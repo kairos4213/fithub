@@ -35,3 +35,13 @@ WHERE id = $1 AND user_id = $2;
 -- name: DeleteAllUserGoals :exec
 DELETE FROM goals
 WHERE user_id = $1;
+
+-- name: GetInProgressGoals :many
+SELECT * FROM goals
+WHERE user_id = $1 AND status = 'in_progress'
+ORDER BY goal_date ASC;
+
+-- name: GetCompletedGoals :many
+SELECT * FROM goals
+WHERE user_id = $1 AND status = 'completed'
+ORDER BY completion_date DESC;

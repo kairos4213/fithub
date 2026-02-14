@@ -20,14 +20,40 @@ func (h *Handler) GetAllGoals(w http.ResponseWriter, r *http.Request) {
 		h.cfg.Logger.Error("missing user id in context")
 		return
 	}
-	goals, err := h.cfg.DB.GetAllUserGoals(r.Context(), userID)
+
+	// Tab-based filtering
+	tab := r.URL.Query().Get("tab")
+	if tab != "completed" {
+		tab = "in_progress"
+	}
+
+	var goals []database.Goal
+	var err error
+	if tab == "completed" {
+		goals, err = h.cfg.DB.GetCompletedGoals(r.Context(), userID)
+	} else {
+		goals, err = h.cfg.DB.GetInProgressGoals(r.Context(), userID)
+	}
 	if err != nil {
 		HandleInternalServerError(w, r)
 		h.cfg.Logger.Error("failed to get user goals", slog.String("error", err.Error()))
 		return
 	}
 
-	contents := templates.Goals(goals)
+	// HTMX tab switch — return just the card grid fragment
+	target := r.Header.Get("HX-Target")
+	if target == "goals-content" {
+		err = templates.GoalsCardGrid(goals, tab).Render(r.Context(), w)
+		if err != nil {
+			HandleInternalServerError(w, r)
+			h.cfg.Logger.Error("failed to render goals card grid", slog.String("error", err.Error()))
+			return
+		}
+		return
+	}
+
+	// Full page render
+	contents := templates.GoalsPage(goals, tab)
 	err = templates.Layout(contents, "Fithub | Goals", true).Render(r.Context(), w)
 	if err != nil {
 		HandleInternalServerError(w, r)
@@ -75,7 +101,7 @@ func (h *Handler) AddNewGoal(w http.ResponseWriter, r *http.Request) {
 		notes.Valid = true
 	}
 
-	newGoal, err := h.cfg.DB.CreateGoal(r.Context(), database.CreateGoalParams{
+	_, err = h.cfg.DB.CreateGoal(r.Context(), database.CreateGoalParams{
 		GoalName:    reqGoalName,
 		Description: reqDescription,
 		GoalDate:    goalDate,
@@ -88,10 +114,18 @@ func (h *Handler) AddNewGoal(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = templates.GoalDataRow(newGoal).Render(r.Context(), w)
+	goals, err := h.cfg.DB.GetInProgressGoals(r.Context(), userID)
 	if err != nil {
 		HandleInternalServerError(w, r)
-		h.cfg.Logger.Error("failed to render goal row", slog.String("error", err.Error()))
+		h.cfg.Logger.Error("failed to fetch in-progress goals", slog.String("error", err.Error()))
+		return
+	}
+
+	w.Header().Set("HX-Push-Url", "/goals?tab=in_progress")
+	err = templates.GoalsCardGrid(goals, "in_progress").Render(r.Context(), w)
+	if err != nil {
+		HandleInternalServerError(w, r)
+		h.cfg.Logger.Error("failed to render goals card grid", slog.String("error", err.Error()))
 		return
 	}
 }
@@ -165,10 +199,10 @@ func (h *Handler) EditGoal(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = templates.GoalDataRow(updatedGoal).Render(r.Context(), w)
+	err = templates.GoalCard(updatedGoal).Render(r.Context(), w)
 	if err != nil {
 		HandleInternalServerError(w, r)
-		h.cfg.Logger.Error("failed to render goal row", slog.String("error", err.Error()))
+		h.cfg.Logger.Error("failed to render goal card", slog.String("error", err.Error()))
 		return
 	}
 }

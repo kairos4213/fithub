@@ -123,6 +123,86 @@ func (q *Queries) GetAllUserGoals(ctx context.Context, userID uuid.UUID) ([]Goal
 	return items, nil
 }
 
+const getCompletedGoals = `-- name: GetCompletedGoals :many
+SELECT id, created_at, updated_at, goal_name, description, goal_date, completion_date, notes, status, user_id FROM goals
+WHERE user_id = $1 AND status = 'completed'
+ORDER BY completion_date DESC
+`
+
+func (q *Queries) GetCompletedGoals(ctx context.Context, userID uuid.UUID) ([]Goal, error) {
+	rows, err := q.db.QueryContext(ctx, getCompletedGoals, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Goal
+	for rows.Next() {
+		var i Goal
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.GoalName,
+			&i.Description,
+			&i.GoalDate,
+			&i.CompletionDate,
+			&i.Notes,
+			&i.Status,
+			&i.UserID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getInProgressGoals = `-- name: GetInProgressGoals :many
+SELECT id, created_at, updated_at, goal_name, description, goal_date, completion_date, notes, status, user_id FROM goals
+WHERE user_id = $1 AND status = 'in_progress'
+ORDER BY goal_date ASC
+`
+
+func (q *Queries) GetInProgressGoals(ctx context.Context, userID uuid.UUID) ([]Goal, error) {
+	rows, err := q.db.QueryContext(ctx, getInProgressGoals, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Goal
+	for rows.Next() {
+		var i Goal
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.GoalName,
+			&i.Description,
+			&i.GoalDate,
+			&i.CompletionDate,
+			&i.Notes,
+			&i.Status,
+			&i.UserID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateGoal = `-- name: UpdateGoal :one
 UPDATE goals
 SET
