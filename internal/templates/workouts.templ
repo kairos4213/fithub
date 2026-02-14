@@ -260,65 +260,51 @@ templ EditWorkoutInfoForm(workout database.Workout) {
 			dateCompleted = workout.DateCompleted.Time.Format("2006-01-02")
 		}
 	}}
-	<form x-cloak x-show="editingWorkout" x-data={ completed }>
-		<fieldset class="fieldset bg-base-100 border-base-300 rounded-box w-auto border p-4">
-			<legend class="fieldset-legend">Edit Workout Details</legend>
-			<label class="label">Workout Title</label>
-			<input
-				class="input input-ghost text-center border-secondary"
-				type="text"
-				name="title"
-				placeholder="Enter a workout title"
-				value={ fmt.Sprintf("%v", workout.Title) }
-				required
-			/>
-			<label class="label">Workout Description</label>
-			<textarea
-				class="textarea textarea-md text-center border-secondary"
-				name="workout-description"
-				placeholder="Enter a description"
-			>{ workout.Description.String }</textarea>
-			<label class="label">Workout Duration</label>
-			<input
-				class="input validator border-secondary"
-				type="number"
-				name="duration"
-				placeholder="Planned Duration in Minutes"
-				min="0"
-				value={ workout.DurationMinutes }
-				required
-			/>
-			<label class="label">Planned Date</label>
-			<input
-				class="input border-secondary"
-				type="date"
-				name="planned-date"
-				value={ workout.PlannedDate.Format("2006-01-02") }
-			/>
-			if workout.DateCompleted.Valid {
-				<label class="label">
-					Completed
-					<input type="checkbox" @click="completed = ! completed" checked="checked" class="checkbox checkbox-secondary"/>
-				</label>
-			} else {
-				<label class="label">
-					Completed
-					<input type="checkbox" @click="completed = ! completed" class="checkbox checkbox-secondary"/>
-				</label>
-			}
-			<template x-if="completed">
-				<input class="input border-secondary" type="date" name="date-completed" value={ dateCompleted }/>
-			</template>
-			<button
-				type="submit"
-				hx-put={ templ.URL(fmt.Sprintf("/workouts/%v", workout.ID)) }
-				hx-target="#workout-info"
-				class="btn btn-primary"
-				@click="editingWorkout = !editingWorkout"
-			>Submit</button>
-			<button class="btn btn-warning" @click="editingWorkout = !editingWorkout">Cancel</button>
-		</fieldset>
-	</form>
+	<div x-cloak x-show="editingWorkout" x-data={ completed } class="card bg-base-100 border border-base-content/10 shadow-sm mb-6">
+		<div class="card-body p-4">
+			<h3 class="card-title text-base">Edit Workout</h3>
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+				<div>
+					<label class="label"><span class="label-text">Title</span></label>
+					<input class="input input-bordered w-full" type="text" name="title" value={ workout.Title } maxlength="100" required/>
+				</div>
+				<div>
+					<label class="label"><span class="label-text">Duration (min)</span></label>
+					<input class="input input-bordered w-full" type="number" name="duration" min="1" value={ workout.DurationMinutes } required/>
+				</div>
+				<div class="md:col-span-2">
+					<label class="label"><span class="label-text">Description</span></label>
+					<textarea class="textarea textarea-bordered w-full" name="workout-description" maxlength="500" rows="2">{ workout.Description.String }</textarea>
+				</div>
+				<div>
+					<label class="label"><span class="label-text">Planned Date</span></label>
+					<input class="input input-bordered w-full" type="date" name="planned-date" value={ workout.PlannedDate.Format("2006-01-02") }/>
+				</div>
+				<div>
+					<label class="label"><span class="label-text">Completed</span></label>
+					<div class="flex items-center gap-3">
+						if workout.DateCompleted.Valid {
+							<input type="checkbox" @click="completed = ! completed" checked="checked" class="checkbox checkbox-primary"/>
+						} else {
+							<input type="checkbox" @click="completed = ! completed" class="checkbox checkbox-primary"/>
+						}
+						<template x-if="completed">
+							<input class="input input-bordered w-full" type="date" name="date-completed" value={ dateCompleted }/>
+						</template>
+					</div>
+				</div>
+			</div>
+			<div class="card-actions justify-end mt-3">
+				<button
+					class="btn btn-primary btn-sm"
+					hx-put={ templ.URL(fmt.Sprintf("/workouts/%v", workout.ID)) }
+					hx-target="#workout-info"
+					@click="editingWorkout = !editingWorkout"
+				>Save</button>
+				<button class="btn btn-ghost btn-sm" @click="editingWorkout = !editingWorkout">Cancel</button>
+			</div>
+		</div>
+	</div>
 }
 
 templ WorkoutExercisesList(workout database.Workout, workoutExercises []database.WorkoutAndExercisesRow) {
@@ -660,51 +646,30 @@ templ WorkoutExerciseAddCard(workout database.Workout) {
 }
 
 templ ExerciseQuickSearchResults(exercises []database.Exercise, workout uuid.UUID) {
-	<div id="exercise-search-results" class="overflow-x-auto">
+	<div id="exercise-search-results" class="space-y-2 mt-2 max-h-64 overflow-y-auto">
 		for _, exercise := range exercises {
-			<details class="collapse collapse-plus bg-base-100 border border-base-300">
-				<summary class="collapse-title font-semibold">{ exercise.Name }</summary>
-				<div class="flex flex-col collapse-content space-y-2">
-					<div class="join join-vertical md:join-horizontal">
-						<span
-							class="badge badge-sm badge-primary join-item
-            md:rounded-l-full w-52"
-						>
-							Primary: { 
-          utils.TitleString(exercise.PrimaryMuscleGroup.String) }
-						</span>
-						<span
-							class="badge badge-sm badge-secondary join-item
-            md:rounded-r-full w-52"
-						>
-							Secondary: { 
-          utils.TitleString(exercise.SecondaryMuscleGroup.String) }
-						</span>
-					</div>
-					<div class="flex flex-col justify-between bg-base-200 p-4 rounded-2xl">
-						<div class="overflow-y-auto">
-							<p class="text-sm mt-0 pt-0">Description:</p>
-							<p class="text-lg">{ exercise.Description.String }</p>
-						</div>
-						<a href={ templ.URL(fmt.Sprintf("/exercises/%v", exercise.ID)) } class="link link-primary text-sm self-end">
-							See
-							More
-						</a>
-					</div>
-					<button
-						hx-post={ templ.URL(fmt.Sprintf("/workouts/%v", workout)) }
-						hx-vals={ jsonVals(map[string]any{
+			<div class="flex items-center justify-between p-2 rounded-lg border border-base-content/5 hover:bg-base-200">
+				<div class="flex items-center gap-2">
+					<a href={ templ.URL(fmt.Sprintf("/exercises/%v", exercise.ID)) } class="font-medium text-sm link link-hover">
+						{ utils.TitleString(exercise.Name) }
+					</a>
+					if exercise.PrimaryMuscleGroup.Valid {
+						<span class="badge badge-outline badge-xs">{ utils.TitleString(exercise.PrimaryMuscleGroup.String) }</span>
+					}
+				</div>
+				<button
+					hx-post={ templ.URL(fmt.Sprintf("/workouts/%v", workout)) }
+					hx-vals={ jsonVals(map[string]any{
 						"exercise-name":     exercise.Name,
 						"planned-sets":      "1",
 						"planned-reps[]":    []string{"1"},
 						"planned-weights[]": []string{"0"},
 					}) }
-						hx-target="#workout-exercises"
-						hx-swap="beforeend"
-						class="btn btn-outline btn-primary btn-ghost self-end"
-					>Add Exercise</button>
-				</div>
-			</details>
+					hx-target="#workout-exercises"
+					hx-swap="beforeend"
+					class="btn btn-primary btn-xs"
+				>Add</button>
+			</div>
 		}
 	</div>
 }
