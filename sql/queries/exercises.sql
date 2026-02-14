@@ -70,6 +70,13 @@ WHERE primary_muscle_group = $1
 ORDER BY RANDOM()
 LIMIT 1;
 
+-- name: GetMuscleGroupsWithCount :many
+SELECT primary_muscle_group, COUNT(*)::int AS exercise_count
+FROM exercises
+WHERE primary_muscle_group IS NOT NULL
+GROUP BY primary_muscle_group
+ORDER BY primary_muscle_group;
+
 -- name: GetAllMuscleGroups :many
 SELECT DISTINCT muscle_group
 FROM (

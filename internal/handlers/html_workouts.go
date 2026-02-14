@@ -23,17 +23,17 @@ func (h *Handler) GetUserWorkouts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Exercises page carousel — keep existing behavior
 	currentURL := r.Header.Get("HX-Current-URL")
 	target := r.Header.Get("HX-Target")
 	if strings.Contains(currentURL, "/exercises/") && target == "user-workouts" {
-		workouts, err := h.cfg.DB.GetAllUserWorkouts(r.Context(), userID)
+		exerciseName := r.URL.Query().Get("exercise-name")
+		workouts, err := h.cfg.DB.GetUpcomingUserWorkouts(r.Context(), userID)
 		if err != nil {
 			HandleInternalServerError(w, r)
 			h.cfg.Logger.Error("failed to get user workouts", slog.String("error", err.Error()))
 			return
 		}
-		err = templates.UserWorkoutsHTML(workouts).Render(r.Context(), w)
+		err = templates.UserWorkoutsHTML(workouts, exerciseName).Render(r.Context(), w)
 		if err != nil {
 			HandleInternalServerError(w, r)
 			h.cfg.Logger.Error("failed to render user workouts html", slog.String("error", err.Error()))

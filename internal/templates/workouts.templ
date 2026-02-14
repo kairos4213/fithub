@@ -645,6 +645,33 @@ templ WorkoutExerciseAddCard(workout database.Workout) {
 	</div>
 }
 
+templ UserWorkoutsHTML(workouts []database.Workout, exerciseName string) {
+	if len(workouts) == 0 {
+		<p class="text-sm text-base-content/50 italic">No upcoming workouts. Create one first!</p>
+	}
+	for _, workout := range workouts {
+		<div class="flex items-center justify-between p-2 rounded-lg border border-base-content/5 hover:bg-base-200">
+			<div>
+				<a href={ templ.URL(fmt.Sprintf("/workouts/%v", workout.ID)) } class="font-medium text-sm link link-hover">
+					{ utils.TitleString(workout.Title) }
+				</a>
+				<span class="text-xs text-base-content/50 ml-2">{ workout.PlannedDate.Format("Jan 02") }</span>
+			</div>
+			<button
+				hx-post={ templ.URL(fmt.Sprintf("/workouts/%v", workout.ID)) }
+				hx-vals={ jsonVals(map[string]any{
+					"exercise-name":     exerciseName,
+					"planned-sets":      "1",
+					"planned-reps[]":    []string{"1"},
+					"planned-weights[]": []string{"0"},
+				}) }
+				hx-swap="none"
+				class="btn btn-primary btn-xs"
+			>Add</button>
+		</div>
+	}
+}
+
 templ ExerciseQuickSearchResults(exercises []database.Exercise, workout uuid.UUID) {
 	<div id="exercise-search-results" class="space-y-2 mt-2 max-h-64 overflow-y-auto">
 		for _, exercise := range exercises {
