@@ -650,7 +650,7 @@ templ UserWorkoutsHTML(workouts []database.Workout, exerciseName string) {
 		<p class="text-sm text-base-content/50 italic">No upcoming workouts. Create one first!</p>
 	}
 	for _, workout := range workouts {
-		<div class="flex items-center justify-between p-2 rounded-lg border border-base-content/5 hover:bg-base-200">
+		<div class="flex items-center justify-between p-2 rounded-lg border border-base-content/5 hover:bg-base-200" x-data="{ added: false }">
 			<div>
 				<a href={ templ.URL(fmt.Sprintf("/workouts/%v", workout.ID)) } class="font-medium text-sm link link-hover">
 					{ utils.TitleString(workout.Title) }
@@ -658,6 +658,7 @@ templ UserWorkoutsHTML(workouts []database.Workout, exerciseName string) {
 				<span class="text-xs text-base-content/50 ml-2">{ workout.PlannedDate.Format("Jan 02") }</span>
 			</div>
 			<button
+				x-show="!added"
 				hx-post={ templ.URL(fmt.Sprintf("/workouts/%v", workout.ID)) }
 				hx-vals={ jsonVals(map[string]any{
 					"exercise-name":     exerciseName,
@@ -666,8 +667,10 @@ templ UserWorkoutsHTML(workouts []database.Workout, exerciseName string) {
 					"planned-weights[]": []string{"0"},
 				}) }
 				hx-swap="none"
+				@click="added = true"
 				class="btn btn-primary btn-xs"
 			>Add</button>
+			<span x-cloak x-show="added" class="text-success text-xs font-medium">Added</span>
 		</div>
 	}
 }
@@ -675,7 +678,7 @@ templ UserWorkoutsHTML(workouts []database.Workout, exerciseName string) {
 templ ExerciseQuickSearchResults(exercises []database.Exercise, workout uuid.UUID) {
 	<div id="exercise-search-results" class="space-y-2 mt-2 max-h-64 overflow-y-auto">
 		for _, exercise := range exercises {
-			<div class="flex items-center justify-between p-2 rounded-lg border border-base-content/5 hover:bg-base-200">
+			<div class="flex items-center justify-between p-2 rounded-lg border border-base-content/5 hover:bg-base-200" x-data="{ added: false }">
 				<div class="flex items-center gap-2">
 					<a href={ templ.URL(fmt.Sprintf("/exercises/%v", exercise.ID)) } class="font-medium text-sm link link-hover">
 						{ utils.TitleString(exercise.Name) }
@@ -685,6 +688,7 @@ templ ExerciseQuickSearchResults(exercises []database.Exercise, workout uuid.UUI
 					}
 				</div>
 				<button
+					x-show="!added"
 					hx-post={ templ.URL(fmt.Sprintf("/workouts/%v", workout)) }
 					hx-vals={ jsonVals(map[string]any{
 						"exercise-name":     exercise.Name,
@@ -694,8 +698,10 @@ templ ExerciseQuickSearchResults(exercises []database.Exercise, workout uuid.UUI
 					}) }
 					hx-target="#workout-exercises"
 					hx-swap="beforeend"
+					@click="added = true"
 					class="btn btn-primary btn-xs"
 				>Add</button>
+				<span x-cloak x-show="added" class="text-success text-xs font-medium">Added</span>
 			</div>
 		}
 	</div>
