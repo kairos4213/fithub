@@ -19,27 +19,51 @@ func (h *Handler) GetAllMetrics(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	bodyweights, err := h.cfg.DB.GetAllBodyWeights(r.Context(), userID)
-	if err != nil {
-		HandleInternalServerError(w, r)
-		h.cfg.Logger.Error("failed to get body weights", slog.String("error", err.Error()))
-		return
+	tab := r.URL.Query().Get("tab")
+	if tab != "muscleMasses" && tab != "bfPercents" {
+		tab = "bodyweights"
 	}
-	muscleMasses, err := h.cfg.DB.GetAllMuscleMasses(r.Context(), userID)
+
+	var bodyweights []database.BodyWeight
+	var muscleMasses []database.MuscleMass
+	var bfPercents []database.BodyFatPercent
+	var err error
+
+	switch tab {
+	case "bodyweights":
+		bodyweights, err = h.cfg.DB.GetAllBodyWeights(r.Context(), userID)
+	case "muscleMasses":
+		muscleMasses, err = h.cfg.DB.GetAllMuscleMasses(r.Context(), userID)
+	case "bfPercents":
+		bfPercents, err = h.cfg.DB.GetAllBodyFatPercs(r.Context(), userID)
+	}
 	if err != nil {
 		HandleInternalServerError(w, r)
-		h.cfg.Logger.Error("failed to get muscle masses", slog.String("error", err.Error()))
+		h.cfg.Logger.Error("failed to get metrics", slog.String("error", err.Error()))
 		return
 	}
 
-	bfPercents, err := h.cfg.DB.GetAllBodyFatPercs(r.Context(), userID)
-	if err != nil {
-		HandleInternalServerError(w, r)
-		h.cfg.Logger.Error("failed to get body fats", slog.String("error", err.Error()))
+	// HTMX tab switch — return just the content fragment
+	target := r.Header.Get("HX-Target")
+	if target == "metrics-content" {
+		var renderErr error
+		switch tab {
+		case "bodyweights":
+			renderErr = templates.BodyweightsContent(bodyweights).Render(r.Context(), w)
+		case "muscleMasses":
+			renderErr = templates.MuscleMassesContent(muscleMasses).Render(r.Context(), w)
+		case "bfPercents":
+			renderErr = templates.BfPercentsContent(bfPercents).Render(r.Context(), w)
+		}
+		if renderErr != nil {
+			HandleInternalServerError(w, r)
+			h.cfg.Logger.Error("failed to render metrics content", slog.String("error", renderErr.Error()))
+		}
 		return
 	}
 
-	contents := templates.Metrics(bodyweights, muscleMasses, bfPercents)
+	// Full page render
+	contents := templates.MetricsPage(tab, bodyweights, muscleMasses, bfPercents)
 	err = templates.Layout(contents, "Fithub | Metrics", true).Render(r.Context(), w)
 	if err != nil {
 		HandleInternalServerError(w, r)
@@ -76,7 +100,7 @@ func (h *Handler) LogMetrics(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = templates.BWDataRow(bw).Render(r.Context(), w)
+		err = templates.BWRow(bw).Render(r.Context(), w)
 		if err != nil {
 			HandleInternalServerError(w, r)
 			h.cfg.Logger.Error("failed to render body weights", slog.String("error", err.Error()))
@@ -100,7 +124,7 @@ func (h *Handler) LogMetrics(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = templates.MMDataRow(mm).Render(r.Context(), w)
+		err = templates.MMRow(mm).Render(r.Context(), w)
 		if err != nil {
 			HandleInternalServerError(w, r)
 			h.cfg.Logger.Error("failed to render muscle masses", slog.String("error", err.Error()))
@@ -124,7 +148,7 @@ func (h *Handler) LogMetrics(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = templates.BFPercentDataRow(bf).Render(r.Context(), w)
+		err = templates.BFRow(bf).Render(r.Context(), w)
 		if err != nil {
 			HandleInternalServerError(w, r)
 			h.cfg.Logger.Error("failed to render body fats", slog.String("error", err.Error()))
@@ -167,7 +191,7 @@ func (h *Handler) EditMetrics(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = templates.BWDataRow(updatedBW).Render(r.Context(), w)
+		err = templates.BWRow(updatedBW).Render(r.Context(), w)
 		if err != nil {
 			HandleInternalServerError(w, r)
 			h.cfg.Logger.Error("failed to render body weight", slog.String("error", err.Error()))
@@ -191,7 +215,7 @@ func (h *Handler) EditMetrics(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = templates.MMDataRow(updatedMM).Render(r.Context(), w)
+		err = templates.MMRow(updatedMM).Render(r.Context(), w)
 		if err != nil {
 			HandleInternalServerError(w, r)
 			h.cfg.Logger.Error("failed to render muscle mass", slog.String("error", err.Error()))
@@ -215,7 +239,7 @@ func (h *Handler) EditMetrics(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = templates.BFPercentDataRow(updatedBF).Render(r.Context(), w)
+		err = templates.BFRow(updatedBF).Render(r.Context(), w)
 		if err != nil {
 			HandleInternalServerError(w, r)
 			h.cfg.Logger.Error("failed to render body fat", slog.String("error", err.Error()))
