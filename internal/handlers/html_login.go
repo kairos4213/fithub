@@ -14,6 +14,7 @@ import (
 
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
+		// TODO: Make this page inaccessible unless user is logged out
 		contents := templates.LoginPage()
 		err := templates.Layout(contents, "FitHub | Login", false).Render(r.Context(), w)
 		if err != nil {

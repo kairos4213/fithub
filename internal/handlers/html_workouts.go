@@ -95,6 +95,8 @@ func (h *Handler) CreateUserWorkout(w http.ResponseWriter, r *http.Request) {
 	reqDuration := r.FormValue("duration")
 	reqPlannedDate := r.FormValue("planned-date")
 
+	workoutFields := []string{"title", "duration", "description", "planned-date"}
+
 	if errs := validate.Fields(
 		validate.Required(reqTitle, "title"),
 		validate.Required(reqDuration, "duration"),
@@ -102,8 +104,7 @@ func (h *Handler) CreateUserWorkout(w http.ResponseWriter, r *http.Request) {
 		validate.MaxLen(reqTitle, 100, "title"),
 		validate.MaxLen(reqDescription, 500, "description"),
 	); errs != nil {
-		HandleBadRequest(w, r, errs[0].Error())
-		h.cfg.Logger.Info("invalid form field", slog.Any("fields", errs))
+		HandleFieldErrors(w, r, h.cfg.Logger, errs, workoutFields)
 		return
 	}
 
@@ -115,14 +116,14 @@ func (h *Handler) CreateUserWorkout(w http.ResponseWriter, r *http.Request) {
 
 	duration, err := strconv.ParseInt(reqDuration, 10, 32)
 	if err != nil {
-		HandleBadRequest(w, r, "duration must be a number")
+		HandleFieldErrors(w, r, h.cfg.Logger, []validate.FieldError{{Field: "duration", Message: "duration must be a number"}}, workoutFields)
 		h.cfg.Logger.Info("invalid duration input", slog.String("value", reqDuration), slog.String("error", err.Error()))
 		return
 	}
 
 	plannedDate, err := time.Parse(time.DateOnly, reqPlannedDate)
 	if err != nil {
-		HandleBadRequest(w, r, "planned date must be in YYYY-MM-DD format")
+		HandleFieldErrors(w, r, h.cfg.Logger, []validate.FieldError{{Field: "planned date", Message: "planned date must be in YYYY-MM-DD format"}}, workoutFields)
 		h.cfg.Logger.Info("invalid planned date input", slog.String("value", reqPlannedDate), slog.String("error", err.Error()))
 		return
 	}
@@ -144,6 +145,7 @@ func (h *Handler) CreateUserWorkout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("HX-Push-Url", "/workouts?tab=upcoming")
+	w.Header().Set("HX-Trigger", "close-create-card")
 	err = templates.WorkoutsCardGrid(workouts, "upcoming").Render(r.Context(), w)
 	if err != nil {
 		HandleInternalServerError(w, r)
