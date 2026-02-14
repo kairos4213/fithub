@@ -30,7 +30,7 @@ INSERT INTO exercises (
     $2,
     $3,
     $4
-) RETURNING id, name, description, primary_muscle_group, secondary_muscle_group, created_at, updated_at
+) RETURNING id, name, description, primary_muscle_group, secondary_muscle_group, created_at, updated_at, video_url
 `
 
 type CreateExerciseParams struct {
@@ -56,6 +56,7 @@ func (q *Queries) CreateExercise(ctx context.Context, arg CreateExerciseParams) 
 		&i.SecondaryMuscleGroup,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.VideoUrl,
 	)
 	return i, err
 }
@@ -71,7 +72,7 @@ func (q *Queries) DeleteExercise(ctx context.Context, id uuid.UUID) error {
 }
 
 const getAllExercises = `-- name: GetAllExercises :many
-SELECT id, name, description, primary_muscle_group, secondary_muscle_group, created_at, updated_at FROM exercises
+SELECT id, name, description, primary_muscle_group, secondary_muscle_group, created_at, updated_at, video_url FROM exercises
 `
 
 func (q *Queries) GetAllExercises(ctx context.Context) ([]Exercise, error) {
@@ -91,6 +92,7 @@ func (q *Queries) GetAllExercises(ctx context.Context) ([]Exercise, error) {
 			&i.SecondaryMuscleGroup,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.VideoUrl,
 		); err != nil {
 			return nil, err
 		}
@@ -140,7 +142,7 @@ func (q *Queries) GetAllMuscleGroups(ctx context.Context) ([]sql.NullString, err
 }
 
 const getExerciseByID = `-- name: GetExerciseByID :one
-SELECT id, name, description, primary_muscle_group, secondary_muscle_group, created_at, updated_at FROM exercises
+SELECT id, name, description, primary_muscle_group, secondary_muscle_group, created_at, updated_at, video_url FROM exercises
 WHERE id = $1
 `
 
@@ -155,12 +157,13 @@ func (q *Queries) GetExerciseByID(ctx context.Context, id uuid.UUID) (Exercise, 
 		&i.SecondaryMuscleGroup,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.VideoUrl,
 	)
 	return i, err
 }
 
 const getExerciseByKeyword = `-- name: GetExerciseByKeyword :many
-SELECT id, name, description, primary_muscle_group, secondary_muscle_group, created_at, updated_at FROM exercises
+SELECT id, name, description, primary_muscle_group, secondary_muscle_group, created_at, updated_at, video_url FROM exercises
 WHERE
     concat(name, ' ', primary_muscle_group, ' ', secondary_muscle_group)
     ILIKE '%' || $1::text || '%'
@@ -183,6 +186,7 @@ func (q *Queries) GetExerciseByKeyword(ctx context.Context, word string) ([]Exer
 			&i.SecondaryMuscleGroup,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.VideoUrl,
 		); err != nil {
 			return nil, err
 		}
@@ -198,7 +202,7 @@ func (q *Queries) GetExerciseByKeyword(ctx context.Context, word string) ([]Exer
 }
 
 const getExerciseByName = `-- name: GetExerciseByName :one
-SELECT id, name, description, primary_muscle_group, secondary_muscle_group, created_at, updated_at FROM exercises
+SELECT id, name, description, primary_muscle_group, secondary_muscle_group, created_at, updated_at, video_url FROM exercises
 WHERE name = $1
 `
 
@@ -213,12 +217,13 @@ func (q *Queries) GetExerciseByName(ctx context.Context, name string) (Exercise,
 		&i.SecondaryMuscleGroup,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.VideoUrl,
 	)
 	return i, err
 }
 
 const getExercisesByPrimaryMG = `-- name: GetExercisesByPrimaryMG :many
-SELECT id, name, description, primary_muscle_group, secondary_muscle_group, created_at, updated_at FROM exercises
+SELECT id, name, description, primary_muscle_group, secondary_muscle_group, created_at, updated_at, video_url FROM exercises
 WHERE primary_muscle_group = $1
 `
 
@@ -239,6 +244,7 @@ func (q *Queries) GetExercisesByPrimaryMG(ctx context.Context, primaryMuscleGrou
 			&i.SecondaryMuscleGroup,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.VideoUrl,
 		); err != nil {
 			return nil, err
 		}
@@ -254,7 +260,7 @@ func (q *Queries) GetExercisesByPrimaryMG(ctx context.Context, primaryMuscleGrou
 }
 
 const getExercisesBySecondaryMG = `-- name: GetExercisesBySecondaryMG :many
-SELECT id, name, description, primary_muscle_group, secondary_muscle_group, created_at, updated_at FROM exercises
+SELECT id, name, description, primary_muscle_group, secondary_muscle_group, created_at, updated_at, video_url FROM exercises
 WHERE secondary_muscle_group = $1
 `
 
@@ -275,6 +281,7 @@ func (q *Queries) GetExercisesBySecondaryMG(ctx context.Context, secondaryMuscle
 			&i.SecondaryMuscleGroup,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.VideoUrl,
 		); err != nil {
 			return nil, err
 		}
@@ -289,8 +296,44 @@ func (q *Queries) GetExercisesBySecondaryMG(ctx context.Context, secondaryMuscle
 	return items, nil
 }
 
+const getMuscleGroupsWithCount = `-- name: GetMuscleGroupsWithCount :many
+SELECT primary_muscle_group, COUNT(*)::int AS exercise_count
+FROM exercises
+WHERE primary_muscle_group IS NOT NULL
+GROUP BY primary_muscle_group
+ORDER BY primary_muscle_group
+`
+
+type GetMuscleGroupsWithCountRow struct {
+	PrimaryMuscleGroup sql.NullString
+	ExerciseCount      int32
+}
+
+func (q *Queries) GetMuscleGroupsWithCount(ctx context.Context) ([]GetMuscleGroupsWithCountRow, error) {
+	rows, err := q.db.QueryContext(ctx, getMuscleGroupsWithCount)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetMuscleGroupsWithCountRow
+	for rows.Next() {
+		var i GetMuscleGroupsWithCountRow
+		if err := rows.Scan(&i.PrimaryMuscleGroup, &i.ExerciseCount); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getRandomExerciseExcluding = `-- name: GetRandomExerciseExcluding :one
-SELECT id, name, description, primary_muscle_group, secondary_muscle_group, created_at, updated_at FROM exercises
+SELECT id, name, description, primary_muscle_group, secondary_muscle_group, created_at, updated_at, video_url FROM exercises
 WHERE primary_muscle_group = $1
   AND id != ALL($2::uuid[])
 ORDER BY RANDOM()
@@ -313,12 +356,13 @@ func (q *Queries) GetRandomExerciseExcluding(ctx context.Context, arg GetRandomE
 		&i.SecondaryMuscleGroup,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.VideoUrl,
 	)
 	return i, err
 }
 
 const getRandomExercisesByMuscleGroup = `-- name: GetRandomExercisesByMuscleGroup :many
-SELECT id, name, description, primary_muscle_group, secondary_muscle_group, created_at, updated_at FROM exercises
+SELECT id, name, description, primary_muscle_group, secondary_muscle_group, created_at, updated_at, video_url FROM exercises
 WHERE primary_muscle_group = $1
 ORDER BY RANDOM()
 LIMIT $2
@@ -346,6 +390,7 @@ func (q *Queries) GetRandomExercisesByMuscleGroup(ctx context.Context, arg GetRa
 			&i.SecondaryMuscleGroup,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.VideoUrl,
 		); err != nil {
 			return nil, err
 		}
@@ -369,7 +414,7 @@ SET
     primary_muscle_group = $3,
     secondary_muscle_group = $4
 WHERE id = $5
-RETURNING id, name, description, primary_muscle_group, secondary_muscle_group, created_at, updated_at
+RETURNING id, name, description, primary_muscle_group, secondary_muscle_group, created_at, updated_at, video_url
 `
 
 type UpdateExerciseParams struct {
@@ -397,6 +442,7 @@ func (q *Queries) UpdateExercise(ctx context.Context, arg UpdateExerciseParams) 
 		&i.SecondaryMuscleGroup,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.VideoUrl,
 	)
 	return i, err
 }

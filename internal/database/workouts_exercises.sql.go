@@ -193,7 +193,7 @@ func (q *Queries) UpdateWorkoutExercisesSortOrder(ctx context.Context, arg Updat
 const workoutAndExercises = `-- name: WorkoutAndExercises :many
 SELECT
     we.id, we.workout_id, we.exercise_id, we.sets_planned, we.reps_per_set_planned, we.sets_completed, we.reps_per_set_completed, we.weights_planned_lbs, we.weights_completed_lbs, we.date_completed, we.updated_at, we.created_at, we.sort_order,
-    e.id, e.name, e.description, e.primary_muscle_group, e.secondary_muscle_group, e.created_at, e.updated_at
+    e.id, e.name, e.description, e.primary_muscle_group, e.secondary_muscle_group, e.created_at, e.updated_at, e.video_url
 FROM workouts_exercises AS we
 JOIN exercises AS e
     ON we.exercise_id = e.id
@@ -243,6 +243,7 @@ func (q *Queries) WorkoutAndExercises(ctx context.Context, arg WorkoutAndExercis
 			&i.Exercise.SecondaryMuscleGroup,
 			&i.Exercise.CreatedAt,
 			&i.Exercise.UpdatedAt,
+			&i.Exercise.VideoUrl,
 		); err != nil {
 			return nil, err
 		}

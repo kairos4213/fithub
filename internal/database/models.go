@@ -37,6 +37,7 @@ type Exercise struct {
 	SecondaryMuscleGroup sql.NullString
 	CreatedAt            time.Time
 	UpdatedAt            time.Time
+	VideoUrl             sql.NullString
 }
 
 type Goal struct {
