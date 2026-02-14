@@ -8,7 +8,7 @@ templ Layout(contents templ.Component, title string, isLoggedIn bool) {
 		@head(title)
 		<body class="flex flex-col h-screen" hx-boost="true">
 			@header(isLoggedIn)
-			<main class="flex-grow">
+			<main class="grow">
 				@contents
 			</main>
 			@footer()
@@ -28,6 +28,7 @@ templ head(title string) {
 		<script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/sort@3.14.9/dist/cdn.min.js"></script>
 		<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.9/dist/cdn.min.js"></script>
 		<script src="/static/js/workoutExercises.js"></script>
+		<script src="/static/js/themePersist.js"></script>
 	</head>
 }
 
@@ -69,7 +70,7 @@ templ header(isLoggedIn bool) {
 				</ul>
 			</div>
 			<div class="navbar-end">
-				<label class="swap swap-rotate mr-4">
+				<label id="theme-toggle" hx-preserve="true" class="swap swap-rotate mr-4" style="visibility:hidden">
 					<!-- this hidden checkbox controls the state -->
 					<input type="checkbox" class="theme-controller" value="fithub-light"/>
 					<!-- sun icon -->
