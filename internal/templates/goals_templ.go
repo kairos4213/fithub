@@ -83,7 +83,7 @@ func GoalsCreateCard() templ.Component {
 			templ_7745c5c3_Var2 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div id=\"create-goal-card\" class=\"mb-6\" x-data=\"{ open: false }\"><button x-show=\"!open\" class=\"btn btn-primary btn-outline w-full\" @click=\"open = true\">+ Create Goal</button><div x-cloak x-show=\"open\" class=\"card bg-base-100 border border-base-content/10 shadow-sm\"><div class=\"card-body p-4\"><h3 class=\"card-title text-base\">New Goal</h3><div class=\"grid grid-cols-1 md:grid-cols-2 gap-3\"><div><label class=\"label\" for=\"new-goal-name\"><span class=\"label-text\">Goal Name</span></label> <input id=\"new-goal-name\" class=\"input input-bordered w-full\" type=\"text\" name=\"goal-name\" placeholder=\"Goal Name\" maxlength=\"100\" required></div><div><label class=\"label\" for=\"new-goal-date\"><span class=\"label-text\">Goal Date</span></label> <input id=\"new-goal-date\" class=\"input input-bordered w-full\" type=\"date\" name=\"goal-date\" required></div><div class=\"md:col-span-2\"><label class=\"label\" for=\"new-goal-description\"><span class=\"label-text\">Description</span></label> <textarea id=\"new-goal-description\" class=\"textarea textarea-bordered w-full\" name=\"description\" placeholder=\"Description\" maxlength=\"500\" rows=\"2\" required></textarea></div><div class=\"md:col-span-2\"><label class=\"label\" for=\"new-goal-notes\"><span class=\"label-text\">Notes (optional)</span></label> <textarea id=\"new-goal-notes\" class=\"textarea textarea-bordered w-full\" name=\"notes\" placeholder=\"Optional notes\" maxlength=\"500\" rows=\"2\"></textarea></div></div><div class=\"card-actions justify-end mt-3\"><button hx-post=\"/goals\" hx-include=\"#create-goal-card\" hx-target=\"#goals-content\" hx-swap=\"innerHTML\" hx-target-4*=\"body\" class=\"btn btn-primary btn-sm\" @click=\"open = false\">Create</button> <button class=\"btn btn-ghost btn-sm\" @click=\"open = false\">Cancel</button></div></div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div id=\"create-goal-card\" class=\"mb-6\" x-data=\"{ open: false }\"><button x-show=\"!open\" class=\"btn btn-primary btn-outline w-full\" @click=\"open = true\">+ Create Goal</button><div x-cloak x-show=\"open\" class=\"card bg-base-100 card-border shadow-sm\"><div class=\"card-body p-4\"><h3 class=\"card-title text-base\">New Goal</h3><div class=\"grid grid-cols-1 md:grid-cols-2 gap-3\"><div><label class=\"label\" for=\"new-goal-name\"><span class=\"label-text\">Goal Name</span></label> <input id=\"new-goal-name\" class=\"input w-full\" type=\"text\" name=\"goal-name\" placeholder=\"Goal Name\" maxlength=\"100\" required></div><div><label class=\"label\" for=\"new-goal-date\"><span class=\"label-text\">Goal Date</span></label> <input id=\"new-goal-date\" class=\"input w-full\" type=\"date\" name=\"goal-date\" required></div><div class=\"md:col-span-2\"><label class=\"label\" for=\"new-goal-description\"><span class=\"label-text\">Description</span></label> <textarea id=\"new-goal-description\" class=\"textarea w-full\" name=\"description\" placeholder=\"Description\" maxlength=\"500\" rows=\"2\" required></textarea></div><div class=\"md:col-span-2\"><label class=\"label\" for=\"new-goal-notes\"><span class=\"label-text\">Notes (optional)</span></label> <textarea id=\"new-goal-notes\" class=\"textarea w-full\" name=\"notes\" placeholder=\"Optional notes\" maxlength=\"500\" rows=\"2\"></textarea></div></div><div class=\"card-actions justify-end mt-3\"><button hx-post=\"/goals\" hx-include=\"#create-goal-card\" hx-target=\"#goals-content\" hx-swap=\"innerHTML\" hx-target-4*=\"body\" class=\"btn btn-primary btn-sm\" @click=\"open = false\">Create</button> <button class=\"btn btn-ghost btn-sm\" @click=\"open = false\">Cancel</button></div></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -227,7 +227,7 @@ func GoalCard(goal database.Goal) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\" class=\"card bg-base-100 border border-base-content/10 shadow-sm\" x-data=\"{ editing: false }\"><!-- View mode --><div x-show=\"!editing\" class=\"card-body p-4\"><h3 class=\"card-title text-base\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\" class=\"card bg-base-100 card-border shadow-sm\" x-data=\"{ editing: false }\"><!-- View mode --><div x-show=\"!editing\" class=\"card-body p-4\"><h3 class=\"card-title text-base\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -334,59 +334,59 @@ func GoalCard(goal database.Goal) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\" hx-swap=\"delete\" hx-target-4*=\"body\">Delete</button></div></div><!-- Edit mode --><div x-cloak x-show=\"editing\" class=\"card-body p-4\"><div class=\"grid grid-cols-1 gap-3\"><div><label class=\"label\"><span class=\"label-text\">Goal Name</span></label> <input class=\"input input-bordered w-full\" type=\"text\" name=\"goal-name\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\" hx-swap=\"delete\" hx-target-4*=\"body\">Delete</button></div></div><!-- Edit mode --><div x-cloak x-show=\"editing\" class=\"card-body p-4\"><div class=\"grid grid-cols-1 gap-3\"><div><label class=\"label\"><span class=\"label-text\">Goal Name</span></label> <input class=\"input w-full\" type=\"text\" name=\"goal-name\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var15 string
 		templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(goal.GoalName)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 143, Col: 98}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 143, Col: 83}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "\" maxlength=\"100\" required></div><div><label class=\"label\"><span class=\"label-text\">Description</span></label> <textarea class=\"textarea textarea-bordered w-full\" name=\"description\" maxlength=\"500\" rows=\"2\" required>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "\" maxlength=\"100\" required></div><div><label class=\"label\"><span class=\"label-text\">Description</span></label> <textarea class=\"textarea w-full\" name=\"description\" maxlength=\"500\" rows=\"2\" required>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var16 string
 		templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(goal.Description)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 147, Col: 128}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 147, Col: 110}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</textarea></div><div><label class=\"label\"><span class=\"label-text\">Goal Date</span></label> <input class=\"input input-bordered w-full\" type=\"date\" name=\"goal-date\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</textarea></div><div><label class=\"label\"><span class=\"label-text\">Goal Date</span></label> <input class=\"input w-full\" type=\"date\" name=\"goal-date\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var17 string
 		templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(goal.GoalDate.Format("2006-01-02"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 151, Col: 119}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 151, Col: 104}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "\" required></div><div><label class=\"label\"><span class=\"label-text\">Notes</span></label> <textarea class=\"textarea textarea-bordered w-full\" name=\"notes\" maxlength=\"500\" rows=\"2\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "\" required></div><div><label class=\"label\"><span class=\"label-text\">Notes</span></label> <textarea class=\"textarea w-full\" name=\"notes\" maxlength=\"500\" rows=\"2\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var18 string
 		templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(goal.Notes.String)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 155, Col: 114}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 155, Col: 96}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</textarea></div><div><label class=\"label\"><span class=\"label-text\">Status</span></label> <select name=\"status\" class=\"select select-bordered w-full\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</textarea></div><div><label class=\"label\"><span class=\"label-text\">Status</span></label> <select name=\"status\" class=\"select w-full\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -118,7 +118,7 @@ func TemplatePreviewPage(data TemplatePreviewData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\" hx-target=\"body\"><!-- Workout metadata --><div class=\"space-y-4 mb-6\"><div class=\"form-control\"><label class=\"label\" for=\"title\"><span class=\"label-text\">Title</span></label> <input id=\"title\" type=\"text\" name=\"title\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\" hx-target=\"body\"><!-- Workout metadata --><div class=\"space-y-4 mb-6\"><div><label class=\"label\" for=\"title\"><span class=\"label-text\">Title</span></label> <input id=\"title\" type=\"text\" name=\"title\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -131,7 +131,7 @@ func TemplatePreviewPage(data TemplatePreviewData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\" class=\"input input-bordered w-full\" maxlength=\"100\" required></div><div class=\"form-control\"><label class=\"label\" for=\"description\"><span class=\"label-text\">Description</span></label> <textarea id=\"description\" name=\"description\" class=\"textarea textarea-bordered w-full\" maxlength=\"500\" rows=\"2\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\" class=\"input w-full\" maxlength=\"100\" required></div><div><label class=\"label\" for=\"description\"><span class=\"label-text\">Description</span></label> <textarea id=\"description\" name=\"description\" class=\"textarea w-full\" maxlength=\"500\" rows=\"2\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -144,7 +144,7 @@ func TemplatePreviewPage(data TemplatePreviewData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</textarea></div><div class=\"grid grid-cols-2 gap-4\"><div class=\"form-control\"><label class=\"label\" for=\"duration\"><span class=\"label-text\">Duration (min)</span></label> <input id=\"duration\" type=\"number\" name=\"duration\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</textarea></div><div class=\"grid grid-cols-2 gap-4\"><div><label class=\"label\" for=\"duration\"><span class=\"label-text\">Duration (min)</span></label> <input id=\"duration\" type=\"number\" name=\"duration\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -157,7 +157,7 @@ func TemplatePreviewPage(data TemplatePreviewData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\" class=\"input input-bordered w-full\" min=\"1\" required></div><div class=\"form-control\"><label class=\"label\" for=\"planned-date\"><span class=\"label-text\">Planned Date</span></label> <input id=\"planned-date\" type=\"date\" name=\"planned-date\" class=\"input input-bordered w-full\" required></div></div></div><!-- Exercise list --><h3 class=\"text-xl font-semibold mb-3\">Exercises</h3><div id=\"exercise-list\" class=\"space-y-3 mb-6\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\" class=\"input w-full\" min=\"1\" required></div><div><label class=\"label\" for=\"planned-date\"><span class=\"label-text\">Planned Date</span></label> <input id=\"planned-date\" type=\"date\" name=\"planned-date\" class=\"input w-full\" required></div></div></div><!-- Exercise list --><h3 class=\"text-xl font-semibold mb-3\">Exercises</h3><div id=\"exercise-list\" class=\"space-y-3 mb-6\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -222,7 +222,7 @@ func TemplateExerciseRow(ex PreviewExercise, index int) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\" class=\"card bg-base-100 border border-base-content/10 p-4\" x-data=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\" class=\"card bg-base-100 card-border p-4\" x-data=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -301,7 +301,7 @@ func TemplateExerciseRow(ex PreviewExercise, index int) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\" x-model.number=\"setCount\" class=\"input input-bordered input-sm w-full\" min=\"1\" max=\"20\" required></div><!-- Per-set reps and weights --><div class=\"overflow-x-auto\"><table class=\"table table-xs w-full\"><thead><tr class=\"text-xs text-base-content/50\"><th>Set</th><th>Reps</th><th>Weight (lbs)</th></tr></thead> <tbody><template x-for=\"s in setCount\" :key=\"s\"><tr><td class=\"font-mono text-xs align-middle\" x-text=\"s\"></td><td><input type=\"number\" x-bind:name=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\" x-model.number=\"setCount\" class=\"input input-sm w-full\" min=\"1\" max=\"20\" required></div><!-- Per-set reps and weights --><div class=\"overflow-x-auto\"><table class=\"table table-xs w-full\"><thead><tr class=\"text-xs text-base-content/50\"><th>Set</th><th>Reps</th><th>Weight (lbs)</th></tr></thead> <tbody><template x-for=\"s in setCount\" :key=\"s\"><tr><td class=\"font-mono text-xs align-middle\" x-text=\"s\"></td><td><input type=\"number\" x-bind:name=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -314,7 +314,7 @@ func TemplateExerciseRow(ex PreviewExercise, index int) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\" x-bind:value=\"defaultReps\" class=\"input input-bordered input-xs w-20\" min=\"1\" required></td><td><input type=\"number\" x-bind:name=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\" x-bind:value=\"defaultReps\" class=\"input input-xs w-20\" min=\"1\" required></td><td><input type=\"number\" x-bind:name=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -327,7 +327,7 @@ func TemplateExerciseRow(ex PreviewExercise, index int) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\" value=\"0\" class=\"input input-bordered input-xs w-20\" min=\"0\"></td></tr></template></tbody></table></div><input type=\"hidden\" name=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\" value=\"0\" class=\"input input-xs w-20\" min=\"0\"></td></tr></template></tbody></table></div><input type=\"hidden\" name=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -408,7 +408,7 @@ func templateCard(card TemplateCardData) templ.Component {
 			templ_7745c5c3_Var22 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<div class=\"card bg-base-100 border border-base-content/10 shadow-sm\"><div class=\"card-body p-4\"><h3 class=\"card-title text-base\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<div class=\"card bg-base-100 card-border shadow-sm\"><div class=\"card-body p-4\"><h3 class=\"card-title text-base\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

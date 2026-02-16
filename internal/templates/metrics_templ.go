@@ -142,7 +142,7 @@ func BodyweightsContent(bodyweights []database.BodyWeight) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		sort.Slice(bodyweights, func(i, j int) bool { return bodyweights[i].CreatedAt.Before(bodyweights[j].CreatedAt) })
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div id=\"log-bw-card\" class=\"mb-4\" x-data=\"{ open: false }\"><button x-show=\"!open\" class=\"btn btn-primary btn-outline w-full\" @click=\"open = true\">+ Log Body Weight</button><div x-cloak x-show=\"open\" class=\"card bg-base-100 border border-base-content/10 shadow-sm\"><div class=\"card-body p-4\"><h3 class=\"card-title text-base\">Log Body Weight</h3><div><label class=\"label\"><span class=\"label-text\">Weight (lbs)</span></label> <input class=\"input input-bordered w-full\" type=\"text\" name=\"bodyweight\" placeholder=\"e.g. 185.50\" required></div><div class=\"card-actions justify-end mt-3\"><button hx-post=\"/metrics/bodyweights\" hx-include=\"#log-bw-card\" hx-target=\"#metrics-list\" hx-swap=\"beforeend\" hx-target-4*=\"body\" class=\"btn btn-primary btn-sm\" @click=\"open = false\">Log</button> <button class=\"btn btn-ghost btn-sm\" @click=\"open = false\">Cancel</button></div></div></div></div><div id=\"metrics-list\" class=\"space-y-2\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div id=\"log-bw-card\" class=\"mb-4\" x-data=\"{ open: false }\"><button x-show=\"!open\" class=\"btn btn-primary btn-outline w-full\" @click=\"open = true\">+ Log Body Weight</button><div x-cloak x-show=\"open\" class=\"card bg-base-100 card-border shadow-sm\"><div class=\"card-body p-4\"><h3 class=\"card-title text-base\">Log Body Weight</h3><div><label class=\"label\"><span class=\"label-text\">Weight (lbs)</span></label> <input class=\"input w-full\" type=\"text\" name=\"bodyweight\" placeholder=\"e.g. 185.50\" required></div><div class=\"card-actions justify-end mt-3\"><button hx-post=\"/metrics/bodyweights\" hx-include=\"#log-bw-card\" hx-target=\"#metrics-list\" hx-swap=\"beforeend\" hx-target-4*=\"body\" class=\"btn btn-primary btn-sm\" @click=\"open = false\">Log</button> <button class=\"btn btn-ghost btn-sm\" @click=\"open = false\">Cancel</button></div></div></div></div><div id=\"metrics-list\" class=\"space-y-2\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -252,7 +252,7 @@ func BWRow(bw database.BodyWeight) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\" hx-swap=\"delete\" hx-target-4*=\"body\">Delete</button></div><!-- Edit mode --><div x-cloak x-show=\"editing\" class=\"flex items-center gap-2 flex-1\"><input class=\"input input-bordered input-sm w-32\" type=\"text\" name=\"bodyweight\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\" hx-swap=\"delete\" hx-target-4*=\"body\">Delete</button></div><!-- Edit mode --><div x-cloak x-show=\"editing\" class=\"flex items-center gap-2 flex-1\"><input class=\"input input-sm w-32\" type=\"text\" name=\"bodyweight\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -335,7 +335,7 @@ func MuscleMassesContent(muscleMasses []database.MuscleMass) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		sort.Slice(muscleMasses, func(i, j int) bool { return muscleMasses[i].CreatedAt.Before(muscleMasses[j].CreatedAt) })
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<div id=\"log-mm-card\" class=\"mb-4\" x-data=\"{ open: false }\"><button x-show=\"!open\" class=\"btn btn-primary btn-outline w-full\" @click=\"open = true\">+ Log Muscle Mass</button><div x-cloak x-show=\"open\" class=\"card bg-base-100 border border-base-content/10 shadow-sm\"><div class=\"card-body p-4\"><h3 class=\"card-title text-base\">Log Muscle Mass</h3><div><label class=\"label\"><span class=\"label-text\">Muscle Mass (lbs)</span></label> <input class=\"input input-bordered w-full\" type=\"text\" name=\"muscle-mass\" placeholder=\"e.g. 150.00\" required></div><div class=\"card-actions justify-end mt-3\"><button hx-post=\"/metrics/muscleMasses\" hx-include=\"#log-mm-card\" hx-target=\"#metrics-list\" hx-swap=\"beforeend\" hx-target-4*=\"body\" class=\"btn btn-primary btn-sm\" @click=\"open = false\">Log</button> <button class=\"btn btn-ghost btn-sm\" @click=\"open = false\">Cancel</button></div></div></div></div><div id=\"metrics-list\" class=\"space-y-2\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<div id=\"log-mm-card\" class=\"mb-4\" x-data=\"{ open: false }\"><button x-show=\"!open\" class=\"btn btn-primary btn-outline w-full\" @click=\"open = true\">+ Log Muscle Mass</button><div x-cloak x-show=\"open\" class=\"card bg-base-100 card-border shadow-sm\"><div class=\"card-body p-4\"><h3 class=\"card-title text-base\">Log Muscle Mass</h3><div><label class=\"label\"><span class=\"label-text\">Muscle Mass (lbs)</span></label> <input class=\"input w-full\" type=\"text\" name=\"muscle-mass\" placeholder=\"e.g. 150.00\" required></div><div class=\"card-actions justify-end mt-3\"><button hx-post=\"/metrics/muscleMasses\" hx-include=\"#log-mm-card\" hx-target=\"#metrics-list\" hx-swap=\"beforeend\" hx-target-4*=\"body\" class=\"btn btn-primary btn-sm\" @click=\"open = false\">Log</button> <button class=\"btn btn-ghost btn-sm\" @click=\"open = false\">Cancel</button></div></div></div></div><div id=\"metrics-list\" class=\"space-y-2\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -445,7 +445,7 @@ func MMRow(mm database.MuscleMass) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "\" hx-swap=\"delete\" hx-target-4*=\"body\">Delete</button></div><!-- Edit mode --><div x-cloak x-show=\"editing\" class=\"flex items-center gap-2 flex-1\"><input class=\"input input-bordered input-sm w-32\" type=\"text\" name=\"muscle-mass\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "\" hx-swap=\"delete\" hx-target-4*=\"body\">Delete</button></div><!-- Edit mode --><div x-cloak x-show=\"editing\" class=\"flex items-center gap-2 flex-1\"><input class=\"input input-sm w-32\" type=\"text\" name=\"muscle-mass\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -528,7 +528,7 @@ func BfPercentsContent(bfPercents []database.BodyFatPercent) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		sort.Slice(bfPercents, func(i, j int) bool { return bfPercents[i].CreatedAt.Before(bfPercents[j].CreatedAt) })
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<div id=\"log-bf-card\" class=\"mb-4\" x-data=\"{ open: false }\"><button x-show=\"!open\" class=\"btn btn-primary btn-outline w-full\" @click=\"open = true\">+ Log Body Fat %</button><div x-cloak x-show=\"open\" class=\"card bg-base-100 border border-base-content/10 shadow-sm\"><div class=\"card-body p-4\"><h3 class=\"card-title text-base\">Log Body Fat %</h3><div><label class=\"label\"><span class=\"label-text\">Body Fat (%)</span></label> <input class=\"input input-bordered w-full\" type=\"text\" name=\"bf-percent\" placeholder=\"e.g. 15.50\" required></div><div class=\"card-actions justify-end mt-3\"><button hx-post=\"/metrics/bfPercents\" hx-include=\"#log-bf-card\" hx-target=\"#metrics-list\" hx-swap=\"beforeend\" hx-target-4*=\"body\" class=\"btn btn-primary btn-sm\" @click=\"open = false\">Log</button> <button class=\"btn btn-ghost btn-sm\" @click=\"open = false\">Cancel</button></div></div></div></div><div id=\"metrics-list\" class=\"space-y-2\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<div id=\"log-bf-card\" class=\"mb-4\" x-data=\"{ open: false }\"><button x-show=\"!open\" class=\"btn btn-primary btn-outline w-full\" @click=\"open = true\">+ Log Body Fat %</button><div x-cloak x-show=\"open\" class=\"card bg-base-100 card-border shadow-sm\"><div class=\"card-body p-4\"><h3 class=\"card-title text-base\">Log Body Fat %</h3><div><label class=\"label\"><span class=\"label-text\">Body Fat (%)</span></label> <input class=\"input w-full\" type=\"text\" name=\"bf-percent\" placeholder=\"e.g. 15.50\" required></div><div class=\"card-actions justify-end mt-3\"><button hx-post=\"/metrics/bfPercents\" hx-include=\"#log-bf-card\" hx-target=\"#metrics-list\" hx-swap=\"beforeend\" hx-target-4*=\"body\" class=\"btn btn-primary btn-sm\" @click=\"open = false\">Log</button> <button class=\"btn btn-ghost btn-sm\" @click=\"open = false\">Cancel</button></div></div></div></div><div id=\"metrics-list\" class=\"space-y-2\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -638,7 +638,7 @@ func BFRow(bf database.BodyFatPercent) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "\" hx-swap=\"delete\" hx-target-4*=\"body\">Delete</button></div><!-- Edit mode --><div x-cloak x-show=\"editing\" class=\"flex items-center gap-2 flex-1\"><input class=\"input input-bordered input-sm w-32\" type=\"text\" name=\"bf-percent\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "\" hx-swap=\"delete\" hx-target-4*=\"body\">Delete</button></div><!-- Edit mode --><div x-cloak x-show=\"editing\" class=\"flex items-center gap-2 flex-1\"><input class=\"input input-sm w-32\" type=\"text\" name=\"bf-percent\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -14,7 +14,7 @@ templ ExercisesPage(muscleGroups []database.GetMuscleGroupsWithCountRow) {
 				if mg.PrimaryMuscleGroup.Valid {
 					<a
 						href={ templ.URL(fmt.Sprintf("/exercises/groups/%v", mg.PrimaryMuscleGroup.String)) }
-						class="card bg-base-100 border border-base-content/10 shadow-sm hover:shadow-md transition-shadow"
+						class="card bg-base-100 card-border shadow-sm hover:shadow-md transition-shadow"
 					>
 						<div class="card-body p-4">
 							<h3 class="card-title text-base">{ utils.TitleString(mg.PrimaryMuscleGroup.String) }</h3>
@@ -37,7 +37,7 @@ templ ExercisesByGroup(group string, exercises []database.Exercise) {
 			for _, exercise := range exercises {
 				<a
 					href={ templ.URL(fmt.Sprintf("/exercises/%v", exercise.ID)) }
-					class="card bg-base-100 border border-base-content/10 shadow-sm hover:shadow-md transition-shadow"
+					class="card bg-base-100 card-border shadow-sm hover:shadow-md transition-shadow"
 				>
 					<div class="card-body p-4">
 						<h3 class="card-title text-base">{ utils.TitleString(exercise.Name) }</h3>
@@ -91,7 +91,7 @@ templ ExercisePage(group string, exercise database.Exercise) {
 		}
 		<!-- Video -->
 		if exercise.VideoUrl.Valid && exercise.VideoUrl.String != "" {
-			<div class="card bg-base-100 border border-base-content/10 shadow-sm mb-6">
+			<div class="card bg-base-100 card-border shadow-sm mb-6">
 				<div class="card-body p-4">
 					<div class="aspect-video rounded-lg overflow-hidden">
 						<iframe

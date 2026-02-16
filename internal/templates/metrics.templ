@@ -72,12 +72,12 @@ templ BodyweightsContent(bodyweights []database.BodyWeight) {
 			class="btn btn-primary btn-outline w-full"
 			@click="open = true"
 		>+ Log Body Weight</button>
-		<div x-cloak x-show="open" class="card bg-base-100 border border-base-content/10 shadow-sm">
+		<div x-cloak x-show="open" class="card bg-base-100 card-border shadow-sm">
 			<div class="card-body p-4">
 				<h3 class="card-title text-base">Log Body Weight</h3>
 				<div>
 					<label class="label"><span class="label-text">Weight (lbs)</span></label>
-					<input class="input input-bordered w-full" type="text" name="bodyweight" placeholder="e.g. 185.50" required/>
+					<input class="input w-full" type="text" name="bodyweight" placeholder="e.g. 185.50" required/>
 				</div>
 				<div class="card-actions justify-end mt-3">
 					<button
@@ -128,7 +128,7 @@ templ BWRow(bw database.BodyWeight) {
 		<!-- Edit mode -->
 		<div x-cloak x-show="editing" class="flex items-center gap-2 flex-1">
 			<input
-				class="input input-bordered input-sm w-32"
+				class="input input-sm w-32"
 				type="text"
 				name="bodyweight"
 				value={ bw.Measurement }
@@ -160,12 +160,12 @@ templ MuscleMassesContent(muscleMasses []database.MuscleMass) {
 			class="btn btn-primary btn-outline w-full"
 			@click="open = true"
 		>+ Log Muscle Mass</button>
-		<div x-cloak x-show="open" class="card bg-base-100 border border-base-content/10 shadow-sm">
+		<div x-cloak x-show="open" class="card bg-base-100 card-border shadow-sm">
 			<div class="card-body p-4">
 				<h3 class="card-title text-base">Log Muscle Mass</h3>
 				<div>
 					<label class="label"><span class="label-text">Muscle Mass (lbs)</span></label>
-					<input class="input input-bordered w-full" type="text" name="muscle-mass" placeholder="e.g. 150.00" required/>
+					<input class="input w-full" type="text" name="muscle-mass" placeholder="e.g. 150.00" required/>
 				</div>
 				<div class="card-actions justify-end mt-3">
 					<button
@@ -216,7 +216,7 @@ templ MMRow(mm database.MuscleMass) {
 		<!-- Edit mode -->
 		<div x-cloak x-show="editing" class="flex items-center gap-2 flex-1">
 			<input
-				class="input input-bordered input-sm w-32"
+				class="input input-sm w-32"
 				type="text"
 				name="muscle-mass"
 				value={ mm.Measurement }
@@ -248,12 +248,12 @@ templ BfPercentsContent(bfPercents []database.BodyFatPercent) {
 			class="btn btn-primary btn-outline w-full"
 			@click="open = true"
 		>+ Log Body Fat %</button>
-		<div x-cloak x-show="open" class="card bg-base-100 border border-base-content/10 shadow-sm">
+		<div x-cloak x-show="open" class="card bg-base-100 card-border shadow-sm">
 			<div class="card-body p-4">
 				<h3 class="card-title text-base">Log Body Fat %</h3>
 				<div>
 					<label class="label"><span class="label-text">Body Fat (%)</span></label>
-					<input class="input input-bordered w-full" type="text" name="bf-percent" placeholder="e.g. 15.50" required/>
+					<input class="input w-full" type="text" name="bf-percent" placeholder="e.g. 15.50" required/>
 				</div>
 				<div class="card-actions justify-end mt-3">
 					<button
@@ -304,7 +304,7 @@ templ BFRow(bf database.BodyFatPercent) {
 		<!-- Edit mode -->
 		<div x-cloak x-show="editing" class="flex items-center gap-2 flex-1">
 			<input
-				class="input input-bordered input-sm w-32"
+				class="input input-sm w-32"
 				type="text"
 				name="bf-percent"
 				value={ bf.Measurement }

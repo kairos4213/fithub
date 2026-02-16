@@ -23,25 +23,25 @@ templ GoalsCreateCard() {
 			class="btn btn-primary btn-outline w-full"
 			@click="open = true"
 		>+ Create Goal</button>
-		<div x-cloak x-show="open" class="card bg-base-100 border border-base-content/10 shadow-sm">
+		<div x-cloak x-show="open" class="card bg-base-100 card-border shadow-sm">
 			<div class="card-body p-4">
 				<h3 class="card-title text-base">New Goal</h3>
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
 					<div>
 						<label class="label" for="new-goal-name"><span class="label-text">Goal Name</span></label>
-						<input id="new-goal-name" class="input input-bordered w-full" type="text" name="goal-name" placeholder="Goal Name" maxlength="100" required/>
+						<input id="new-goal-name" class="input w-full" type="text" name="goal-name" placeholder="Goal Name" maxlength="100" required/>
 					</div>
 					<div>
 						<label class="label" for="new-goal-date"><span class="label-text">Goal Date</span></label>
-						<input id="new-goal-date" class="input input-bordered w-full" type="date" name="goal-date" required/>
+						<input id="new-goal-date" class="input w-full" type="date" name="goal-date" required/>
 					</div>
 					<div class="md:col-span-2">
 						<label class="label" for="new-goal-description"><span class="label-text">Description</span></label>
-						<textarea id="new-goal-description" class="textarea textarea-bordered w-full" name="description" placeholder="Description" maxlength="500" rows="2" required></textarea>
+						<textarea id="new-goal-description" class="textarea w-full" name="description" placeholder="Description" maxlength="500" rows="2" required></textarea>
 					</div>
 					<div class="md:col-span-2">
 						<label class="label" for="new-goal-notes"><span class="label-text">Notes (optional)</span></label>
-						<textarea id="new-goal-notes" class="textarea textarea-bordered w-full" name="notes" placeholder="Optional notes" maxlength="500" rows="2"></textarea>
+						<textarea id="new-goal-notes" class="textarea w-full" name="notes" placeholder="Optional notes" maxlength="500" rows="2"></textarea>
 					</div>
 				</div>
 				<div class="card-actions justify-end mt-3">
@@ -106,7 +106,7 @@ templ GoalsCardGrid(goals []database.Goal, activeTab string) {
 templ GoalCard(goal database.Goal) {
 	<div
 		id={ fmt.Sprintf("goal-%v", goal.ID) }
-		class="card bg-base-100 border border-base-content/10 shadow-sm"
+		class="card bg-base-100 card-border shadow-sm"
 		x-data="{ editing: false }"
 	>
 		<!-- View mode -->
@@ -140,23 +140,23 @@ templ GoalCard(goal database.Goal) {
 			<div class="grid grid-cols-1 gap-3">
 				<div>
 					<label class="label"><span class="label-text">Goal Name</span></label>
-					<input class="input input-bordered w-full" type="text" name="goal-name" value={ goal.GoalName } maxlength="100" required/>
+					<input class="input w-full" type="text" name="goal-name" value={ goal.GoalName } maxlength="100" required/>
 				</div>
 				<div>
 					<label class="label"><span class="label-text">Description</span></label>
-					<textarea class="textarea textarea-bordered w-full" name="description" maxlength="500" rows="2" required>{ goal.Description }</textarea>
+					<textarea class="textarea w-full" name="description" maxlength="500" rows="2" required>{ goal.Description }</textarea>
 				</div>
 				<div>
 					<label class="label"><span class="label-text">Goal Date</span></label>
-					<input class="input input-bordered w-full" type="date" name="goal-date" value={ goal.GoalDate.Format("2006-01-02") } required/>
+					<input class="input w-full" type="date" name="goal-date" value={ goal.GoalDate.Format("2006-01-02") } required/>
 				</div>
 				<div>
 					<label class="label"><span class="label-text">Notes</span></label>
-					<textarea class="textarea textarea-bordered w-full" name="notes" maxlength="500" rows="2">{ goal.Notes.String }</textarea>
+					<textarea class="textarea w-full" name="notes" maxlength="500" rows="2">{ goal.Notes.String }</textarea>
 				</div>
 				<div>
 					<label class="label"><span class="label-text">Status</span></label>
-					<select name="status" class="select select-bordered w-full">
+					<select name="status" class="select w-full">
 						if goal.Status == "in_progress" {
 							<option value="in_progress" selected>In Progress</option>
 							<option value="completed">Completed</option>

@@ -54,7 +54,7 @@ func ExercisesPage(muscleGroups []database.GetMuscleGroupsWithCountRow) templ.Co
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\" class=\"card bg-base-100 border border-base-content/10 shadow-sm hover:shadow-md transition-shadow\"><div class=\"card-body p-4\"><h3 class=\"card-title text-base\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\" class=\"card bg-base-100 card-border shadow-sm hover:shadow-md transition-shadow\"><div class=\"card-body p-4\"><h3 class=\"card-title text-base\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -146,7 +146,7 @@ func ExercisesByGroup(group string, exercises []database.Exercise) templ.Compone
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "\" class=\"card bg-base-100 border border-base-content/10 shadow-sm hover:shadow-md transition-shadow\"><div class=\"card-body p-4\"><h3 class=\"card-title text-base\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "\" class=\"card bg-base-100 card-border shadow-sm hover:shadow-md transition-shadow\"><div class=\"card-body p-4\"><h3 class=\"card-title text-base\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -387,7 +387,7 @@ func ExercisePage(group string, exercise database.Exercise) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if exercise.VideoUrl.Valid && exercise.VideoUrl.String != "" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<div class=\"card bg-base-100 border border-base-content/10 shadow-sm mb-6\"><div class=\"card-body p-4\"><div class=\"aspect-video rounded-lg overflow-hidden\"><iframe class=\"w-full h-full\" src=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<div class=\"card bg-base-100 card-border shadow-sm mb-6\"><div class=\"card-body p-4\"><div class=\"aspect-video rounded-lg overflow-hidden\"><iframe class=\"w-full h-full\" src=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -60,7 +60,7 @@ templ TemplatePreviewPage(data TemplatePreviewData) {
 		>
 			<!-- Workout metadata -->
 			<div class="space-y-4 mb-6">
-				<div class="form-control">
+				<div>
 					<label class="label" for="title">
 						<span class="label-text">Title</span>
 					</label>
@@ -69,25 +69,25 @@ templ TemplatePreviewPage(data TemplatePreviewData) {
 						type="text"
 						name="title"
 						value={ data.Title }
-						class="input input-bordered w-full"
+						class="input w-full"
 						maxlength="100"
 						required
 					/>
 				</div>
-				<div class="form-control">
+				<div>
 					<label class="label" for="description">
 						<span class="label-text">Description</span>
 					</label>
 					<textarea
 						id="description"
 						name="description"
-						class="textarea textarea-bordered w-full"
+						class="textarea w-full"
 						maxlength="500"
 						rows="2"
 					>{ data.Description }</textarea>
 				</div>
 				<div class="grid grid-cols-2 gap-4">
-					<div class="form-control">
+					<div>
 						<label class="label" for="duration">
 							<span class="label-text">Duration (min)</span>
 						</label>
@@ -96,12 +96,12 @@ templ TemplatePreviewPage(data TemplatePreviewData) {
 							type="number"
 							name="duration"
 							value={ fmt.Sprintf("%d", data.Duration) }
-							class="input input-bordered w-full"
+							class="input w-full"
 							min="1"
 							required
 						/>
 					</div>
-					<div class="form-control">
+					<div>
 						<label class="label" for="planned-date">
 							<span class="label-text">Planned Date</span>
 						</label>
@@ -109,7 +109,7 @@ templ TemplatePreviewPage(data TemplatePreviewData) {
 							id="planned-date"
 							type="date"
 							name="planned-date"
-							class="input input-bordered w-full"
+							class="input w-full"
 							required
 						/>
 					</div>
@@ -131,7 +131,7 @@ templ TemplatePreviewPage(data TemplatePreviewData) {
 templ TemplateExerciseRow(ex PreviewExercise, index int) {
 	<div
 		id={ fmt.Sprintf("exercise-row-%d", index) }
-		class="card bg-base-100 border border-base-content/10 p-4"
+		class="card bg-base-100 card-border p-4"
 		x-data={ fmt.Sprintf("{ setCount: %d, defaultReps: %d }", ex.Sets, ex.RepsPerSet) }
 	>
 		<div class="flex items-center justify-between mb-2">
@@ -157,7 +157,7 @@ templ TemplateExerciseRow(ex PreviewExercise, index int) {
 				type="number"
 				name={ fmt.Sprintf("sets_%d", index) }
 				x-model.number="setCount"
-				class="input input-bordered input-sm w-full"
+				class="input input-sm w-full"
 				min="1"
 				max="20"
 				required
@@ -182,7 +182,7 @@ templ TemplateExerciseRow(ex PreviewExercise, index int) {
 									type="number"
 									x-bind:name={ fmt.Sprintf("'reps_%d[]'", index) }
 									x-bind:value="defaultReps"
-									class="input input-bordered input-xs w-20"
+									class="input input-xs w-20"
 									min="1"
 									required
 								/>
@@ -192,7 +192,7 @@ templ TemplateExerciseRow(ex PreviewExercise, index int) {
 									type="number"
 									x-bind:name={ fmt.Sprintf("'weight_%d[]'", index) }
 									value="0"
-									class="input input-bordered input-xs w-20"
+									class="input input-xs w-20"
 									min="0"
 								/>
 							</td>
@@ -207,7 +207,7 @@ templ TemplateExerciseRow(ex PreviewExercise, index int) {
 }
 
 templ templateCard(card TemplateCardData) {
-	<div class="card bg-base-100 border border-base-content/10 shadow-sm">
+	<div class="card bg-base-100 card-border shadow-sm">
 		<div class="card-body p-4">
 			<h3 class="card-title text-base">{ card.Name }</h3>
 			<p class="text-sm text-base-content/60 line-clamp-2">{ card.Description }</p>
