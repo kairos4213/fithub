@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"log/slog"
 	"net/http"
 
@@ -88,8 +89,7 @@ func (h *Handler) LogMetrics(w http.ResponseWriter, r *http.Request) {
 			validate.Required(entry, "bodyweight"),
 			validate.Numeric(entry, "bodyweight"),
 		); errs != nil {
-			HandleBadRequest(w, r, errs[0].Error())
-			h.cfg.Logger.Info("invalid bodyweight input", slog.String("value", entry))
+			HandleFieldErrors(w, r, h.cfg.Logger, errs, []string{"bodyweight"}, "")
 			return
 		}
 
@@ -100,6 +100,7 @@ func (h *Handler) LogMetrics(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		w.Header().Set("HX-Trigger", "close-log-bw-card")
 		err = templates.BWRow(bw).Render(r.Context(), w)
 		if err != nil {
 			HandleInternalServerError(w, r)
@@ -112,8 +113,7 @@ func (h *Handler) LogMetrics(w http.ResponseWriter, r *http.Request) {
 			validate.Required(entry, "muscle mass"),
 			validate.Numeric(entry, "muscle mass"),
 		); errs != nil {
-			HandleBadRequest(w, r, errs[0].Error())
-			h.cfg.Logger.Info("invalid muscle mass input", slog.String("value", entry))
+			HandleFieldErrors(w, r, h.cfg.Logger, errs, []string{"muscle-mass"}, "")
 			return
 		}
 
@@ -124,6 +124,7 @@ func (h *Handler) LogMetrics(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		w.Header().Set("HX-Trigger", "close-log-mm-card")
 		err = templates.MMRow(mm).Render(r.Context(), w)
 		if err != nil {
 			HandleInternalServerError(w, r)
@@ -136,8 +137,7 @@ func (h *Handler) LogMetrics(w http.ResponseWriter, r *http.Request) {
 			validate.Required(entry, "body fat percent"),
 			validate.Numeric(entry, "body fat percent"),
 		); errs != nil {
-			HandleBadRequest(w, r, errs[0].Error())
-			h.cfg.Logger.Info("invalid body fat percent input", slog.String("value", entry))
+			HandleFieldErrors(w, r, h.cfg.Logger, errs, []string{"body-fat-percent"}, "")
 			return
 		}
 
@@ -148,6 +148,7 @@ func (h *Handler) LogMetrics(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		w.Header().Set("HX-Trigger", "close-log-bf-card")
 		err = templates.BFRow(bf).Render(r.Context(), w)
 		if err != nil {
 			HandleInternalServerError(w, r)
@@ -172,6 +173,7 @@ func (h *Handler) EditMetrics(w http.ResponseWriter, r *http.Request) {
 		h.cfg.Logger.Error("failed to parse metric id", slog.String("error", err.Error()))
 		return
 	}
+	prefix := fmt.Sprintf("%v-", id)
 	switch metricType {
 	case "bodyweights":
 		entry := r.FormValue("bodyweight")
@@ -179,8 +181,9 @@ func (h *Handler) EditMetrics(w http.ResponseWriter, r *http.Request) {
 			validate.Required(entry, "bodyweight"),
 			validate.Numeric(entry, "bodyweight"),
 		); errs != nil {
-			HandleBadRequest(w, r, errs[0].Error())
-			h.cfg.Logger.Info("invalid bodyweight input", slog.String("value", entry))
+			w.Header().Set("HX-Retarget", fmt.Sprintf("#form-error-bw-%v", id))
+			w.Header().Set("HX-Reswap", "innerHTML")
+			HandleFieldErrors(w, r, h.cfg.Logger, errs, []string{prefix + "bodyweight"}, prefix)
 			return
 		}
 
@@ -203,8 +206,9 @@ func (h *Handler) EditMetrics(w http.ResponseWriter, r *http.Request) {
 			validate.Required(entry, "muscle mass"),
 			validate.Numeric(entry, "muscle mass"),
 		); errs != nil {
-			HandleBadRequest(w, r, errs[0].Error())
-			h.cfg.Logger.Info("invalid muscle mass input", slog.String("value", entry))
+			w.Header().Set("HX-Retarget", fmt.Sprintf("#form-error-mm-%v", id))
+			w.Header().Set("HX-Reswap", "innerHTML")
+			HandleFieldErrors(w, r, h.cfg.Logger, errs, []string{prefix + "muscle-mass"}, prefix)
 			return
 		}
 
@@ -227,8 +231,9 @@ func (h *Handler) EditMetrics(w http.ResponseWriter, r *http.Request) {
 			validate.Required(entry, "body fat percent"),
 			validate.Numeric(entry, "body fat percent"),
 		); errs != nil {
-			HandleBadRequest(w, r, errs[0].Error())
-			h.cfg.Logger.Info("invalid body fat percent input", slog.String("value", entry))
+			w.Header().Set("HX-Retarget", fmt.Sprintf("#form-error-bf-%v", id))
+			w.Header().Set("HX-Reswap", "innerHTML")
+			HandleFieldErrors(w, r, h.cfg.Logger, errs, []string{prefix + "body-fat-percent"}, prefix)
 			return
 		}
 

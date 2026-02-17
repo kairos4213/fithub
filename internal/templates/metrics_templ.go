@@ -142,7 +142,7 @@ func BodyweightsContent(bodyweights []database.BodyWeight) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		sort.Slice(bodyweights, func(i, j int) bool { return bodyweights[i].CreatedAt.Before(bodyweights[j].CreatedAt) })
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div id=\"log-bw-card\" class=\"mb-4\" x-data=\"{ open: false }\"><button x-show=\"!open\" class=\"btn btn-primary btn-outline w-full\" @click=\"open = true\">+ Log Body Weight</button><div x-cloak x-show=\"open\" class=\"card bg-base-100 card-border shadow-sm\"><div class=\"card-body p-4\"><h3 class=\"card-title text-base\">Log Body Weight</h3><div><label class=\"label\"><span class=\"label-text\">Weight (lbs)</span></label> <input class=\"input w-full\" type=\"text\" name=\"bodyweight\" placeholder=\"e.g. 185.50\" required></div><div class=\"card-actions justify-end mt-3\"><button hx-post=\"/metrics/bodyweights\" hx-include=\"#log-bw-card\" hx-target=\"#metrics-list\" hx-swap=\"beforeend\" hx-target-4*=\"body\" class=\"btn btn-primary btn-sm\" @click=\"open = false\">Log</button> <button class=\"btn btn-ghost btn-sm\" @click=\"open = false\">Cancel</button></div></div></div></div><div id=\"metrics-list\" class=\"space-y-2\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div id=\"log-bw-card\" class=\"mb-4\" x-data=\"{ open: false }\" @close-log-bw-card.window=\"resetForm('log-bw-form', ['err-bodyweight','form-error']); open = false\"><button x-show=\"!open\" class=\"btn btn-primary btn-outline w-full\" @click=\"open = true\">+ Log Body Weight</button><div x-cloak x-show=\"open\" class=\"card bg-base-100 card-border shadow-sm\"><div class=\"card-body p-4\"><h3 class=\"card-title text-base\">Log Body Weight</h3><form id=\"log-bw-form\" @submit.prevent><div><label class=\"label\"><span class=\"label-text\">Weight (lbs)</span></label> <input class=\"input w-full\" type=\"number\" step=\"0.01\" name=\"bodyweight\" placeholder=\"e.g. 185.50\" required><div id=\"err-bodyweight\" class=\"hidden\"></div></div><div id=\"form-error\" class=\"hidden\"></div><div class=\"card-actions justify-end mt-3\"><button hx-post=\"/metrics/bodyweights\" hx-include=\"#log-bw-form\" hx-target=\"#metrics-list\" hx-swap=\"beforeend\" hx-target-400=\"#form-error\" hx-target-4*=\"body\" class=\"btn btn-primary btn-sm\">Log</button> <button type=\"button\" class=\"btn btn-ghost btn-sm\" @click=\"resetForm('log-bw-form', ['err-bodyweight','form-error']); open = false\">Cancel</button></div></form></div></div></div><div id=\"metrics-list\" class=\"space-y-2\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -194,20 +194,20 @@ func BWRow(bw database.BodyWeight) templ.Component {
 		var templ_7745c5c3_Var6 string
 		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("bw-%v", bw.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 109, Col: 34}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 118, Col: 34}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "\" class=\"flex items-center justify-between p-3 rounded-lg border border-base-content/5\" x-data=\"{ editing: false }\"><!-- View mode --><div x-show=\"!editing\" class=\"flex items-center gap-4\"><span class=\"font-medium\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "\" class=\"flex flex-wrap items-center justify-between p-3 rounded-lg border border-base-content/5\" x-data=\"{ editing: false }\"><!-- View mode --><div x-show=\"!editing\" class=\"flex items-center gap-4\"><span class=\"font-medium\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(bw.Measurement)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 115, Col: 45}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 124, Col: 45}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
@@ -220,7 +220,7 @@ func BWRow(bw database.BodyWeight) templ.Component {
 		var templ_7745c5c3_Var8 string
 		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(bw.CreatedAt.Format("Mon, Jan 02 2006"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 116, Col: 87}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 125, Col: 87}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 		if templ_7745c5c3_Err != nil {
@@ -233,7 +233,7 @@ func BWRow(bw database.BodyWeight) templ.Component {
 		var templ_7745c5c3_Var9 string
 		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(templ.URL(fmt.Sprintf("/metrics/bodyweights/%v", bw.ID)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 122, Col: 72}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 131, Col: 72}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 		if templ_7745c5c3_Err != nil {
@@ -246,33 +246,33 @@ func BWRow(bw database.BodyWeight) templ.Component {
 		var templ_7745c5c3_Var10 string
 		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("#bw-%v", bw.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 123, Col: 44}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 132, Col: 44}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\" hx-swap=\"delete\" hx-target-4*=\"body\">Delete</button></div><!-- Edit mode --><div x-cloak x-show=\"editing\" class=\"flex items-center gap-2 flex-1\"><input class=\"input input-sm w-32\" type=\"text\" name=\"bodyweight\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\" hx-swap=\"delete\" hx-target-4*=\"body\">Delete</button></div><!-- Edit mode --><div x-cloak x-show=\"editing\" class=\"w-full space-y-2\"><div class=\"flex items-center justify-between\"><div class=\"flex items-center gap-2\"><input class=\"input input-sm w-32\" type=\"number\" step=\"0.01\" name=\"bodyweight\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var11 string
 		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(bw.Measurement)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 134, Col: 26}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 146, Col: 28}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\" required> <span class=\"text-sm text-base-content/50\">lbs</span></div><div x-cloak x-show=\"editing\" class=\"flex gap-1\"><button class=\"btn btn-primary btn-xs\" hx-put=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\" required> <span class=\"text-sm text-base-content/50\">lbs</span></div><div class=\"flex gap-1\"><button class=\"btn btn-primary btn-xs\" hx-put=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var12 string
 		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(templ.URL(fmt.Sprintf("/metrics/bodyweights/%v", bw.ID)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 142, Col: 69}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 154, Col: 71}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 		if templ_7745c5c3_Err != nil {
@@ -285,7 +285,7 @@ func BWRow(bw database.BodyWeight) templ.Component {
 		var templ_7745c5c3_Var13 string
 		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("#bw-%v", bw.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 143, Col: 45}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 155, Col: 47}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 		if templ_7745c5c3_Err != nil {
@@ -298,13 +298,52 @@ func BWRow(bw database.BodyWeight) templ.Component {
 		var templ_7745c5c3_Var14 string
 		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("#bw-%v", bw.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 144, Col: 44}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 156, Col: 46}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\" hx-swap=\"outerHTML\" hx-target-4*=\"body\" @click=\"editing = false\">Save</button> <button class=\"btn btn-ghost btn-xs\" @click=\"editing = false\">Cancel</button></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\" hx-swap=\"outerHTML\" hx-target-4*=\"body\">Save</button> <button class=\"btn btn-ghost btn-xs\" @click=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var15 string
+		templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("editing = false; document.getElementById('err-%v-bodyweight')?.classList.add('hidden'); document.getElementById('form-error-bw-%v')?.classList.add('hidden')", bw.ID, bw.ID))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 162, Col: 200}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\">Cancel</button></div></div><div id=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var16 string
+		templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("err-%v-bodyweight", bw.ID))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 166, Col: 52}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "\" class=\"hidden\"></div><div id=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var17 string
+		templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("form-error-bw-%v", bw.ID))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 167, Col: 51}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "\" class=\"hidden\"></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -329,18 +368,18 @@ func MuscleMassesContent(muscleMasses []database.MuscleMass) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var15 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var15 == nil {
-			templ_7745c5c3_Var15 = templ.NopComponent
+		templ_7745c5c3_Var18 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var18 == nil {
+			templ_7745c5c3_Var18 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		sort.Slice(muscleMasses, func(i, j int) bool { return muscleMasses[i].CreatedAt.Before(muscleMasses[j].CreatedAt) })
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<div id=\"log-mm-card\" class=\"mb-4\" x-data=\"{ open: false }\"><button x-show=\"!open\" class=\"btn btn-primary btn-outline w-full\" @click=\"open = true\">+ Log Muscle Mass</button><div x-cloak x-show=\"open\" class=\"card bg-base-100 card-border shadow-sm\"><div class=\"card-body p-4\"><h3 class=\"card-title text-base\">Log Muscle Mass</h3><div><label class=\"label\"><span class=\"label-text\">Muscle Mass (lbs)</span></label> <input class=\"input w-full\" type=\"text\" name=\"muscle-mass\" placeholder=\"e.g. 150.00\" required></div><div class=\"card-actions justify-end mt-3\"><button hx-post=\"/metrics/muscleMasses\" hx-include=\"#log-mm-card\" hx-target=\"#metrics-list\" hx-swap=\"beforeend\" hx-target-4*=\"body\" class=\"btn btn-primary btn-sm\" @click=\"open = false\">Log</button> <button class=\"btn btn-ghost btn-sm\" @click=\"open = false\">Cancel</button></div></div></div></div><div id=\"metrics-list\" class=\"space-y-2\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<div id=\"log-mm-card\" class=\"mb-4\" x-data=\"{ open: false }\" @close-log-mm-card.window=\"resetForm('log-mm-form', ['err-muscle-mass','form-error']); open = false\"><button x-show=\"!open\" class=\"btn btn-primary btn-outline w-full\" @click=\"open = true\">+ Log Muscle Mass</button><div x-cloak x-show=\"open\" class=\"card bg-base-100 card-border shadow-sm\"><div class=\"card-body p-4\"><h3 class=\"card-title text-base\">Log Muscle Mass</h3><form id=\"log-mm-form\" @submit.prevent><div><label class=\"label\"><span class=\"label-text\">Muscle Mass (lbs)</span></label> <input class=\"input w-full\" type=\"number\" step=\"0.01\" name=\"muscle-mass\" placeholder=\"e.g. 150.00\" required><div id=\"err-muscle-mass\" class=\"hidden\"></div></div><div id=\"form-error\" class=\"hidden\"></div><div class=\"card-actions justify-end mt-3\"><button hx-post=\"/metrics/muscleMasses\" hx-include=\"#log-mm-form\" hx-target=\"#metrics-list\" hx-swap=\"beforeend\" hx-target-400=\"#form-error\" hx-target-4*=\"body\" class=\"btn btn-primary btn-sm\">Log</button> <button type=\"button\" class=\"btn btn-ghost btn-sm\" @click=\"resetForm('log-mm-form', ['err-muscle-mass','form-error']); open = false\">Cancel</button></div></form></div></div></div><div id=\"metrics-list\" class=\"space-y-2\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if len(muscleMasses) == 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<p class=\"text-center py-8 text-base-content/50\">No muscle mass entries yet.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<p class=\"text-center py-8 text-base-content/50\">No muscle mass entries yet.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -351,7 +390,7 @@ func MuscleMassesContent(muscleMasses []database.MuscleMass) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -375,129 +414,168 @@ func MMRow(mm database.MuscleMass) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var16 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var16 == nil {
-			templ_7745c5c3_Var16 = templ.NopComponent
+		templ_7745c5c3_Var19 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var19 == nil {
+			templ_7745c5c3_Var19 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<div id=\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var17 string
-		templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("mm-%v", mm.ID))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 197, Col: 34}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "\" class=\"flex items-center justify-between p-3 rounded-lg border border-base-content/5\" x-data=\"{ editing: false }\"><!-- View mode --><div x-show=\"!editing\" class=\"flex items-center gap-4\"><span class=\"font-medium\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var18 string
-		templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(mm.Measurement)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 203, Col: 45}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, " lbs</span> <span class=\"text-sm text-base-content/50\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var19 string
-		templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(mm.CreatedAt.Format("Mon, Jan 02 2006"))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 204, Col: 87}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</span></div><div x-show=\"!editing\" class=\"flex gap-1\"><button class=\"btn btn-secondary btn-xs\" @click=\"editing = true\">Edit</button> <button class=\"btn btn-warning btn-xs\" hx-delete=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<div id=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var20 string
-		templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(templ.URL(fmt.Sprintf("/metrics/muscleMasses/%v", mm.ID)))
+		templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("mm-%v", mm.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 210, Col: 73}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 224, Col: 34}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "\" hx-target=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "\" class=\"flex flex-wrap items-center justify-between p-3 rounded-lg border border-base-content/5\" x-data=\"{ editing: false }\"><!-- View mode --><div x-show=\"!editing\" class=\"flex items-center gap-4\"><span class=\"font-medium\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var21 string
-		templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("#mm-%v", mm.ID))
+		templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(mm.Measurement)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 211, Col: 44}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 230, Col: 45}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "\" hx-swap=\"delete\" hx-target-4*=\"body\">Delete</button></div><!-- Edit mode --><div x-cloak x-show=\"editing\" class=\"flex items-center gap-2 flex-1\"><input class=\"input input-sm w-32\" type=\"text\" name=\"muscle-mass\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, " lbs</span> <span class=\"text-sm text-base-content/50\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var22 string
-		templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(mm.Measurement)
+		templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(mm.CreatedAt.Format("Mon, Jan 02 2006"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 222, Col: 26}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 231, Col: 87}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "\" required> <span class=\"text-sm text-base-content/50\">lbs</span></div><div x-cloak x-show=\"editing\" class=\"flex gap-1\"><button class=\"btn btn-primary btn-xs\" hx-put=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</span></div><div x-show=\"!editing\" class=\"flex gap-1\"><button class=\"btn btn-secondary btn-xs\" @click=\"editing = true\">Edit</button> <button class=\"btn btn-warning btn-xs\" hx-delete=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var23 string
 		templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(templ.URL(fmt.Sprintf("/metrics/muscleMasses/%v", mm.ID)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 230, Col: 70}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 237, Col: 73}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "\" hx-include=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "\" hx-target=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var24 string
 		templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("#mm-%v", mm.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 231, Col: 45}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 238, Col: 44}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "\" hx-target=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "\" hx-swap=\"delete\" hx-target-4*=\"body\">Delete</button></div><!-- Edit mode --><div x-cloak x-show=\"editing\" class=\"w-full space-y-2\"><div class=\"flex items-center justify-between\"><div class=\"flex items-center gap-2\"><input class=\"input input-sm w-32\" type=\"number\" step=\"0.01\" name=\"muscle-mass\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var25 string
-		templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("#mm-%v", mm.ID))
+		templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(mm.Measurement)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 232, Col: 44}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 252, Col: 28}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "\" hx-swap=\"outerHTML\" hx-target-4*=\"body\" @click=\"editing = false\">Save</button> <button class=\"btn btn-ghost btn-xs\" @click=\"editing = false\">Cancel</button></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "\" required> <span class=\"text-sm text-base-content/50\">lbs</span></div><div class=\"flex gap-1\"><button class=\"btn btn-primary btn-xs\" hx-put=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var26 string
+		templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(templ.URL(fmt.Sprintf("/metrics/muscleMasses/%v", mm.ID)))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 260, Col: 72}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "\" hx-include=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var27 string
+		templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("#mm-%v", mm.ID))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 261, Col: 47}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\" hx-target=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var28 string
+		templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("#mm-%v", mm.ID))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 262, Col: 46}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "\" hx-swap=\"outerHTML\" hx-target-4*=\"body\">Save</button> <button class=\"btn btn-ghost btn-xs\" @click=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var29 string
+		templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("editing = false; document.getElementById('err-%v-muscle-mass')?.classList.add('hidden'); document.getElementById('form-error-mm-%v')?.classList.add('hidden')", mm.ID, mm.ID))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 268, Col: 201}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "\">Cancel</button></div></div><div id=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var30 string
+		templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("err-%v-muscle-mass", mm.ID))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 272, Col: 53}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "\" class=\"hidden\"></div><div id=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var31 string
+		templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("form-error-mm-%v", mm.ID))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 273, Col: 51}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "\" class=\"hidden\"></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -522,18 +600,18 @@ func BfPercentsContent(bfPercents []database.BodyFatPercent) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var26 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var26 == nil {
-			templ_7745c5c3_Var26 = templ.NopComponent
+		templ_7745c5c3_Var32 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var32 == nil {
+			templ_7745c5c3_Var32 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		sort.Slice(bfPercents, func(i, j int) bool { return bfPercents[i].CreatedAt.Before(bfPercents[j].CreatedAt) })
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<div id=\"log-bf-card\" class=\"mb-4\" x-data=\"{ open: false }\"><button x-show=\"!open\" class=\"btn btn-primary btn-outline w-full\" @click=\"open = true\">+ Log Body Fat %</button><div x-cloak x-show=\"open\" class=\"card bg-base-100 card-border shadow-sm\"><div class=\"card-body p-4\"><h3 class=\"card-title text-base\">Log Body Fat %</h3><div><label class=\"label\"><span class=\"label-text\">Body Fat (%)</span></label> <input class=\"input w-full\" type=\"text\" name=\"bf-percent\" placeholder=\"e.g. 15.50\" required></div><div class=\"card-actions justify-end mt-3\"><button hx-post=\"/metrics/bfPercents\" hx-include=\"#log-bf-card\" hx-target=\"#metrics-list\" hx-swap=\"beforeend\" hx-target-4*=\"body\" class=\"btn btn-primary btn-sm\" @click=\"open = false\">Log</button> <button class=\"btn btn-ghost btn-sm\" @click=\"open = false\">Cancel</button></div></div></div></div><div id=\"metrics-list\" class=\"space-y-2\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<div id=\"log-bf-card\" class=\"mb-4\" x-data=\"{ open: false }\" @close-log-bf-card.window=\"resetForm('log-bf-form', ['err-body-fat-percent','form-error']); open = false\"><button x-show=\"!open\" class=\"btn btn-primary btn-outline w-full\" @click=\"open = true\">+ Log Body Fat %</button><div x-cloak x-show=\"open\" class=\"card bg-base-100 card-border shadow-sm\"><div class=\"card-body p-4\"><h3 class=\"card-title text-base\">Log Body Fat %</h3><form id=\"log-bf-form\" @submit.prevent><div><label class=\"label\"><span class=\"label-text\">Body Fat (%)</span></label> <input class=\"input w-full\" type=\"number\" step=\"0.01\" name=\"bf-percent\" placeholder=\"e.g. 15.50\" required><div id=\"err-body-fat-percent\" class=\"hidden\"></div></div><div id=\"form-error\" class=\"hidden\"></div><div class=\"card-actions justify-end mt-3\"><button hx-post=\"/metrics/bfPercents\" hx-include=\"#log-bf-form\" hx-target=\"#metrics-list\" hx-swap=\"beforeend\" hx-target-400=\"#form-error\" hx-target-4*=\"body\" class=\"btn btn-primary btn-sm\">Log</button> <button type=\"button\" class=\"btn btn-ghost btn-sm\" @click=\"resetForm('log-bf-form', ['err-body-fat-percent','form-error']); open = false\">Cancel</button></div></form></div></div></div><div id=\"metrics-list\" class=\"space-y-2\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if len(bfPercents) == 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<p class=\"text-center py-8 text-base-content/50\">No body fat entries yet.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "<p class=\"text-center py-8 text-base-content/50\">No body fat entries yet.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -544,7 +622,7 @@ func BfPercentsContent(bfPercents []database.BodyFatPercent) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -568,129 +646,168 @@ func BFRow(bf database.BodyFatPercent) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var27 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var27 == nil {
-			templ_7745c5c3_Var27 = templ.NopComponent
+		templ_7745c5c3_Var33 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var33 == nil {
+			templ_7745c5c3_Var33 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<div id=\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var28 string
-		templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("bf-%v", bf.ID))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 285, Col: 34}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "\" class=\"flex items-center justify-between p-3 rounded-lg border border-base-content/5\" x-data=\"{ editing: false }\"><!-- View mode --><div x-show=\"!editing\" class=\"flex items-center gap-4\"><span class=\"font-medium\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var29 string
-		templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(bf.Measurement)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 291, Col: 45}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "%</span> <span class=\"text-sm text-base-content/50\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var30 string
-		templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(bf.CreatedAt.Format("Mon, Jan 02 2006"))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 292, Col: 87}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</span></div><div x-show=\"!editing\" class=\"flex gap-1\"><button class=\"btn btn-secondary btn-xs\" @click=\"editing = true\">Edit</button> <button class=\"btn btn-warning btn-xs\" hx-delete=\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var31 string
-		templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(templ.URL(fmt.Sprintf("/metrics/bfPercents/%v", bf.ID)))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 298, Col: 71}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "\" hx-target=\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var32 string
-		templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("#bf-%v", bf.ID))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 299, Col: 44}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "\" hx-swap=\"delete\" hx-target-4*=\"body\">Delete</button></div><!-- Edit mode --><div x-cloak x-show=\"editing\" class=\"flex items-center gap-2 flex-1\"><input class=\"input input-sm w-32\" type=\"text\" name=\"bf-percent\" value=\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var33 string
-		templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(bf.Measurement)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 310, Col: 26}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "\" required> <span class=\"text-sm text-base-content/50\">%</span></div><div x-cloak x-show=\"editing\" class=\"flex gap-1\"><button class=\"btn btn-primary btn-xs\" hx-put=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<div id=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var34 string
-		templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(templ.URL(fmt.Sprintf("/metrics/bfPercents/%v", bf.ID)))
+		templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("bf-%v", bf.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 318, Col: 68}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 330, Col: 34}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "\" hx-include=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "\" class=\"flex flex-wrap items-center justify-between p-3 rounded-lg border border-base-content/5\" x-data=\"{ editing: false }\"><!-- View mode --><div x-show=\"!editing\" class=\"flex items-center gap-4\"><span class=\"font-medium\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var35 string
-		templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("#bf-%v", bf.ID))
+		templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(bf.Measurement)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 319, Col: 45}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 336, Col: 45}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "\" hx-target=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "%</span> <span class=\"text-sm text-base-content/50\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var36 string
-		templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("#bf-%v", bf.ID))
+		templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(bf.CreatedAt.Format("Mon, Jan 02 2006"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 320, Col: 44}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 337, Col: 87}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "\" hx-swap=\"outerHTML\" hx-target-4*=\"body\" @click=\"editing = false\">Save</button> <button class=\"btn btn-ghost btn-xs\" @click=\"editing = false\">Cancel</button></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "</span></div><div x-show=\"!editing\" class=\"flex gap-1\"><button class=\"btn btn-secondary btn-xs\" @click=\"editing = true\">Edit</button> <button class=\"btn btn-warning btn-xs\" hx-delete=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var37 string
+		templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinStringErrs(templ.URL(fmt.Sprintf("/metrics/bfPercents/%v", bf.ID)))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 343, Col: 71}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var37))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "\" hx-target=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var38 string
+		templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("#bf-%v", bf.ID))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 344, Col: 44}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var38))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "\" hx-swap=\"delete\" hx-target-4*=\"body\">Delete</button></div><!-- Edit mode --><div x-cloak x-show=\"editing\" class=\"w-full space-y-2\"><div class=\"flex items-center justify-between\"><div class=\"flex items-center gap-2\"><input class=\"input input-sm w-32\" type=\"number\" step=\"0.01\" name=\"bf-percent\" value=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var39 string
+		templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinStringErrs(bf.Measurement)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 358, Col: 28}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "\" required> <span class=\"text-sm text-base-content/50\">%</span></div><div class=\"flex gap-1\"><button class=\"btn btn-primary btn-xs\" hx-put=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var40 string
+		templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.JoinStringErrs(templ.URL(fmt.Sprintf("/metrics/bfPercents/%v", bf.ID)))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 366, Col: 70}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var40))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "\" hx-include=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var41 string
+		templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("#bf-%v", bf.ID))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 367, Col: 47}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var41))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "\" hx-target=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var42 string
+		templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("#bf-%v", bf.ID))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 368, Col: 46}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var42))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "\" hx-swap=\"outerHTML\" hx-target-4*=\"body\">Save</button> <button class=\"btn btn-ghost btn-xs\" @click=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var43 string
+		templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("editing = false; document.getElementById('err-%v-body-fat-percent')?.classList.add('hidden'); document.getElementById('form-error-bf-%v')?.classList.add('hidden')", bf.ID, bf.ID))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 374, Col: 206}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var43))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "\">Cancel</button></div></div><div id=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var44 string
+		templ_7745c5c3_Var44, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("err-%v-body-fat-percent", bf.ID))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 378, Col: 58}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var44))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "\" class=\"hidden\"></div><div id=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var45 string
+		templ_7745c5c3_Var45, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("form-error-bf-%v", bf.ID))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 379, Col: 51}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var45))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "\" class=\"hidden\"></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

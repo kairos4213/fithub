@@ -66,7 +66,12 @@ templ MetricsTabs(activeTab string) {
 // Body Weight
 templ BodyweightsContent(bodyweights []database.BodyWeight) {
 	{{ sort.Slice(bodyweights, func(i, j int) bool { return bodyweights[i].CreatedAt.Before(bodyweights[j].CreatedAt) }) }}
-	<div id="log-bw-card" class="mb-4" x-data="{ open: false }">
+	<div
+		id="log-bw-card"
+		class="mb-4"
+		x-data="{ open: false }"
+		@close-log-bw-card.window="resetForm('log-bw-form', ['err-bodyweight','form-error']); open = false"
+	>
 		<button
 			x-show="!open"
 			class="btn btn-primary btn-outline w-full"
@@ -75,22 +80,26 @@ templ BodyweightsContent(bodyweights []database.BodyWeight) {
 		<div x-cloak x-show="open" class="card bg-base-100 card-border shadow-sm">
 			<div class="card-body p-4">
 				<h3 class="card-title text-base">Log Body Weight</h3>
-				<div>
-					<label class="label"><span class="label-text">Weight (lbs)</span></label>
-					<input class="input w-full" type="text" name="bodyweight" placeholder="e.g. 185.50" required/>
-				</div>
-				<div class="card-actions justify-end mt-3">
-					<button
-						hx-post="/metrics/bodyweights"
-						hx-include="#log-bw-card"
-						hx-target="#metrics-list"
-						hx-swap="beforeend"
-						hx-target-4*="body"
-						class="btn btn-primary btn-sm"
-						@click="open = false"
-					>Log</button>
-					<button class="btn btn-ghost btn-sm" @click="open = false">Cancel</button>
-				</div>
+				<form id="log-bw-form" @submit.prevent>
+					<div>
+						<label class="label"><span class="label-text">Weight (lbs)</span></label>
+						<input class="input w-full" type="number" step="0.01" name="bodyweight" placeholder="e.g. 185.50" required/>
+						<div id="err-bodyweight" class="hidden"></div>
+					</div>
+					<div id="form-error" class="hidden"></div>
+					<div class="card-actions justify-end mt-3">
+						<button
+							hx-post="/metrics/bodyweights"
+							hx-include="#log-bw-form"
+							hx-target="#metrics-list"
+							hx-swap="beforeend"
+							hx-target-400="#form-error"
+							hx-target-4*="body"
+							class="btn btn-primary btn-sm"
+						>Log</button>
+						<button type="button" class="btn btn-ghost btn-sm" @click="resetForm('log-bw-form', ['err-bodyweight','form-error']); open = false">Cancel</button>
+					</div>
+				</form>
 			</div>
 		</div>
 	</div>
@@ -107,7 +116,7 @@ templ BodyweightsContent(bodyweights []database.BodyWeight) {
 templ BWRow(bw database.BodyWeight) {
 	<div
 		id={ fmt.Sprintf("bw-%v", bw.ID) }
-		class="flex items-center justify-between p-3 rounded-lg border border-base-content/5"
+		class="flex flex-wrap items-center justify-between p-3 rounded-lg border border-base-content/5"
 		x-data="{ editing: false }"
 	>
 		<!-- View mode -->
@@ -126,27 +135,36 @@ templ BWRow(bw database.BodyWeight) {
 			>Delete</button>
 		</div>
 		<!-- Edit mode -->
-		<div x-cloak x-show="editing" class="flex items-center gap-2 flex-1">
-			<input
-				class="input input-sm w-32"
-				type="text"
-				name="bodyweight"
-				value={ bw.Measurement }
-				required
-			/>
-			<span class="text-sm text-base-content/50">lbs</span>
-		</div>
-		<div x-cloak x-show="editing" class="flex gap-1">
-			<button
-				class="btn btn-primary btn-xs"
-				hx-put={ templ.URL(fmt.Sprintf("/metrics/bodyweights/%v", bw.ID)) }
-				hx-include={ fmt.Sprintf("#bw-%v", bw.ID) }
-				hx-target={ fmt.Sprintf("#bw-%v", bw.ID) }
-				hx-swap="outerHTML"
-				hx-target-4*="body"
-				@click="editing = false"
-			>Save</button>
-			<button class="btn btn-ghost btn-xs" @click="editing = false">Cancel</button>
+		<div x-cloak x-show="editing" class="w-full space-y-2">
+			<div class="flex items-center justify-between">
+				<div class="flex items-center gap-2">
+					<input
+						class="input input-sm w-32"
+						type="number"
+						step="0.01"
+						name="bodyweight"
+						value={ bw.Measurement }
+						required
+					/>
+					<span class="text-sm text-base-content/50">lbs</span>
+				</div>
+				<div class="flex gap-1">
+					<button
+						class="btn btn-primary btn-xs"
+						hx-put={ templ.URL(fmt.Sprintf("/metrics/bodyweights/%v", bw.ID)) }
+						hx-include={ fmt.Sprintf("#bw-%v", bw.ID) }
+						hx-target={ fmt.Sprintf("#bw-%v", bw.ID) }
+						hx-swap="outerHTML"
+						hx-target-4*="body"
+					>Save</button>
+					<button
+						class="btn btn-ghost btn-xs"
+						@click={ fmt.Sprintf("editing = false; document.getElementById('err-%v-bodyweight')?.classList.add('hidden'); document.getElementById('form-error-bw-%v')?.classList.add('hidden')", bw.ID, bw.ID) }
+					>Cancel</button>
+				</div>
+			</div>
+			<div id={ fmt.Sprintf("err-%v-bodyweight", bw.ID) } class="hidden"></div>
+			<div id={ fmt.Sprintf("form-error-bw-%v", bw.ID) } class="hidden"></div>
 		</div>
 	</div>
 }
@@ -154,7 +172,12 @@ templ BWRow(bw database.BodyWeight) {
 // Muscle Mass
 templ MuscleMassesContent(muscleMasses []database.MuscleMass) {
 	{{ sort.Slice(muscleMasses, func(i, j int) bool { return muscleMasses[i].CreatedAt.Before(muscleMasses[j].CreatedAt) }) }}
-	<div id="log-mm-card" class="mb-4" x-data="{ open: false }">
+	<div
+		id="log-mm-card"
+		class="mb-4"
+		x-data="{ open: false }"
+		@close-log-mm-card.window="resetForm('log-mm-form', ['err-muscle-mass','form-error']); open = false"
+	>
 		<button
 			x-show="!open"
 			class="btn btn-primary btn-outline w-full"
@@ -163,22 +186,26 @@ templ MuscleMassesContent(muscleMasses []database.MuscleMass) {
 		<div x-cloak x-show="open" class="card bg-base-100 card-border shadow-sm">
 			<div class="card-body p-4">
 				<h3 class="card-title text-base">Log Muscle Mass</h3>
-				<div>
-					<label class="label"><span class="label-text">Muscle Mass (lbs)</span></label>
-					<input class="input w-full" type="text" name="muscle-mass" placeholder="e.g. 150.00" required/>
-				</div>
-				<div class="card-actions justify-end mt-3">
-					<button
-						hx-post="/metrics/muscleMasses"
-						hx-include="#log-mm-card"
-						hx-target="#metrics-list"
-						hx-swap="beforeend"
-						hx-target-4*="body"
-						class="btn btn-primary btn-sm"
-						@click="open = false"
-					>Log</button>
-					<button class="btn btn-ghost btn-sm" @click="open = false">Cancel</button>
-				</div>
+				<form id="log-mm-form" @submit.prevent>
+					<div>
+						<label class="label"><span class="label-text">Muscle Mass (lbs)</span></label>
+						<input class="input w-full" type="number" step="0.01" name="muscle-mass" placeholder="e.g. 150.00" required/>
+						<div id="err-muscle-mass" class="hidden"></div>
+					</div>
+					<div id="form-error" class="hidden"></div>
+					<div class="card-actions justify-end mt-3">
+						<button
+							hx-post="/metrics/muscleMasses"
+							hx-include="#log-mm-form"
+							hx-target="#metrics-list"
+							hx-swap="beforeend"
+							hx-target-400="#form-error"
+							hx-target-4*="body"
+							class="btn btn-primary btn-sm"
+						>Log</button>
+						<button type="button" class="btn btn-ghost btn-sm" @click="resetForm('log-mm-form', ['err-muscle-mass','form-error']); open = false">Cancel</button>
+					</div>
+				</form>
 			</div>
 		</div>
 	</div>
@@ -195,7 +222,7 @@ templ MuscleMassesContent(muscleMasses []database.MuscleMass) {
 templ MMRow(mm database.MuscleMass) {
 	<div
 		id={ fmt.Sprintf("mm-%v", mm.ID) }
-		class="flex items-center justify-between p-3 rounded-lg border border-base-content/5"
+		class="flex flex-wrap items-center justify-between p-3 rounded-lg border border-base-content/5"
 		x-data="{ editing: false }"
 	>
 		<!-- View mode -->
@@ -214,27 +241,36 @@ templ MMRow(mm database.MuscleMass) {
 			>Delete</button>
 		</div>
 		<!-- Edit mode -->
-		<div x-cloak x-show="editing" class="flex items-center gap-2 flex-1">
-			<input
-				class="input input-sm w-32"
-				type="text"
-				name="muscle-mass"
-				value={ mm.Measurement }
-				required
-			/>
-			<span class="text-sm text-base-content/50">lbs</span>
-		</div>
-		<div x-cloak x-show="editing" class="flex gap-1">
-			<button
-				class="btn btn-primary btn-xs"
-				hx-put={ templ.URL(fmt.Sprintf("/metrics/muscleMasses/%v", mm.ID)) }
-				hx-include={ fmt.Sprintf("#mm-%v", mm.ID) }
-				hx-target={ fmt.Sprintf("#mm-%v", mm.ID) }
-				hx-swap="outerHTML"
-				hx-target-4*="body"
-				@click="editing = false"
-			>Save</button>
-			<button class="btn btn-ghost btn-xs" @click="editing = false">Cancel</button>
+		<div x-cloak x-show="editing" class="w-full space-y-2">
+			<div class="flex items-center justify-between">
+				<div class="flex items-center gap-2">
+					<input
+						class="input input-sm w-32"
+						type="number"
+						step="0.01"
+						name="muscle-mass"
+						value={ mm.Measurement }
+						required
+					/>
+					<span class="text-sm text-base-content/50">lbs</span>
+				</div>
+				<div class="flex gap-1">
+					<button
+						class="btn btn-primary btn-xs"
+						hx-put={ templ.URL(fmt.Sprintf("/metrics/muscleMasses/%v", mm.ID)) }
+						hx-include={ fmt.Sprintf("#mm-%v", mm.ID) }
+						hx-target={ fmt.Sprintf("#mm-%v", mm.ID) }
+						hx-swap="outerHTML"
+						hx-target-4*="body"
+					>Save</button>
+					<button
+						class="btn btn-ghost btn-xs"
+						@click={ fmt.Sprintf("editing = false; document.getElementById('err-%v-muscle-mass')?.classList.add('hidden'); document.getElementById('form-error-mm-%v')?.classList.add('hidden')", mm.ID, mm.ID) }
+					>Cancel</button>
+				</div>
+			</div>
+			<div id={ fmt.Sprintf("err-%v-muscle-mass", mm.ID) } class="hidden"></div>
+			<div id={ fmt.Sprintf("form-error-mm-%v", mm.ID) } class="hidden"></div>
 		</div>
 	</div>
 }
@@ -242,7 +278,12 @@ templ MMRow(mm database.MuscleMass) {
 // Body Fat Percent
 templ BfPercentsContent(bfPercents []database.BodyFatPercent) {
 	{{ sort.Slice(bfPercents, func(i, j int) bool { return bfPercents[i].CreatedAt.Before(bfPercents[j].CreatedAt) }) }}
-	<div id="log-bf-card" class="mb-4" x-data="{ open: false }">
+	<div
+		id="log-bf-card"
+		class="mb-4"
+		x-data="{ open: false }"
+		@close-log-bf-card.window="resetForm('log-bf-form', ['err-body-fat-percent','form-error']); open = false"
+	>
 		<button
 			x-show="!open"
 			class="btn btn-primary btn-outline w-full"
@@ -251,22 +292,26 @@ templ BfPercentsContent(bfPercents []database.BodyFatPercent) {
 		<div x-cloak x-show="open" class="card bg-base-100 card-border shadow-sm">
 			<div class="card-body p-4">
 				<h3 class="card-title text-base">Log Body Fat %</h3>
-				<div>
-					<label class="label"><span class="label-text">Body Fat (%)</span></label>
-					<input class="input w-full" type="text" name="bf-percent" placeholder="e.g. 15.50" required/>
-				</div>
-				<div class="card-actions justify-end mt-3">
-					<button
-						hx-post="/metrics/bfPercents"
-						hx-include="#log-bf-card"
-						hx-target="#metrics-list"
-						hx-swap="beforeend"
-						hx-target-4*="body"
-						class="btn btn-primary btn-sm"
-						@click="open = false"
-					>Log</button>
-					<button class="btn btn-ghost btn-sm" @click="open = false">Cancel</button>
-				</div>
+				<form id="log-bf-form" @submit.prevent>
+					<div>
+						<label class="label"><span class="label-text">Body Fat (%)</span></label>
+						<input class="input w-full" type="number" step="0.01" name="bf-percent" placeholder="e.g. 15.50" required/>
+						<div id="err-body-fat-percent" class="hidden"></div>
+					</div>
+					<div id="form-error" class="hidden"></div>
+					<div class="card-actions justify-end mt-3">
+						<button
+							hx-post="/metrics/bfPercents"
+							hx-include="#log-bf-form"
+							hx-target="#metrics-list"
+							hx-swap="beforeend"
+							hx-target-400="#form-error"
+							hx-target-4*="body"
+							class="btn btn-primary btn-sm"
+						>Log</button>
+						<button type="button" class="btn btn-ghost btn-sm" @click="resetForm('log-bf-form', ['err-body-fat-percent','form-error']); open = false">Cancel</button>
+					</div>
+				</form>
 			</div>
 		</div>
 	</div>
@@ -283,7 +328,7 @@ templ BfPercentsContent(bfPercents []database.BodyFatPercent) {
 templ BFRow(bf database.BodyFatPercent) {
 	<div
 		id={ fmt.Sprintf("bf-%v", bf.ID) }
-		class="flex items-center justify-between p-3 rounded-lg border border-base-content/5"
+		class="flex flex-wrap items-center justify-between p-3 rounded-lg border border-base-content/5"
 		x-data="{ editing: false }"
 	>
 		<!-- View mode -->
@@ -302,27 +347,36 @@ templ BFRow(bf database.BodyFatPercent) {
 			>Delete</button>
 		</div>
 		<!-- Edit mode -->
-		<div x-cloak x-show="editing" class="flex items-center gap-2 flex-1">
-			<input
-				class="input input-sm w-32"
-				type="text"
-				name="bf-percent"
-				value={ bf.Measurement }
-				required
-			/>
-			<span class="text-sm text-base-content/50">%</span>
-		</div>
-		<div x-cloak x-show="editing" class="flex gap-1">
-			<button
-				class="btn btn-primary btn-xs"
-				hx-put={ templ.URL(fmt.Sprintf("/metrics/bfPercents/%v", bf.ID)) }
-				hx-include={ fmt.Sprintf("#bf-%v", bf.ID) }
-				hx-target={ fmt.Sprintf("#bf-%v", bf.ID) }
-				hx-swap="outerHTML"
-				hx-target-4*="body"
-				@click="editing = false"
-			>Save</button>
-			<button class="btn btn-ghost btn-xs" @click="editing = false">Cancel</button>
+		<div x-cloak x-show="editing" class="w-full space-y-2">
+			<div class="flex items-center justify-between">
+				<div class="flex items-center gap-2">
+					<input
+						class="input input-sm w-32"
+						type="number"
+						step="0.01"
+						name="bf-percent"
+						value={ bf.Measurement }
+						required
+					/>
+					<span class="text-sm text-base-content/50">%</span>
+				</div>
+				<div class="flex gap-1">
+					<button
+						class="btn btn-primary btn-xs"
+						hx-put={ templ.URL(fmt.Sprintf("/metrics/bfPercents/%v", bf.ID)) }
+						hx-include={ fmt.Sprintf("#bf-%v", bf.ID) }
+						hx-target={ fmt.Sprintf("#bf-%v", bf.ID) }
+						hx-swap="outerHTML"
+						hx-target-4*="body"
+					>Save</button>
+					<button
+						class="btn btn-ghost btn-xs"
+						@click={ fmt.Sprintf("editing = false; document.getElementById('err-%v-body-fat-percent')?.classList.add('hidden'); document.getElementById('form-error-bf-%v')?.classList.add('hidden')", bf.ID, bf.ID) }
+					>Cancel</button>
+				</div>
+			</div>
+			<div id={ fmt.Sprintf("err-%v-body-fat-percent", bf.ID) } class="hidden"></div>
+			<div id={ fmt.Sprintf("form-error-bf-%v", bf.ID) } class="hidden"></div>
 		</div>
 	</div>
 }
