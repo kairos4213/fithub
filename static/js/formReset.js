@@ -5,7 +5,7 @@
  */
 function resetForm(formID, errorIDs) {
   const form = document.getElementById(formID);
-  if (form) {
+  if (form && typeof form.reset === "function") {
     form.reset();
   }
   for (const id of errorIDs) {

@@ -43,7 +43,7 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 			validate.MaxLen(lastName, 100, "last name"),
 			validate.MaxLen(email, 255, "email"),
 		); errs != nil {
-			HandleFieldErrors(w, r, h.cfg.Logger, errs, []string{"first-name", "last-name", "email", "password"})
+			HandleFieldErrors(w, r, h.cfg.Logger, errs, []string{"first-name", "last-name", "email", "password"}, "")
 			return
 		}
 

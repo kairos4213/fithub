@@ -9,9 +9,10 @@ FitHub is in active development 🏗 -- and will most likely change over time
 * Create and schedule workouts 🎽
 * Search and select exercises from database 🏋‍♂
 * Log actual reps, sets, and weights completed for exercises in workout 🥵
+* Workout templates to follow along with, or be a starting place for custom
+workouts!📘
 
 ## In The Works
 
-* Workout templates to follow along with 📘
 * Generate workouts automagically 🪄
 * Expanded exercise selection 📈

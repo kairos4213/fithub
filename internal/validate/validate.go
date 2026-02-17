@@ -70,3 +70,12 @@ func Numeric(value, field string) Check {
 		return nil
 	}
 }
+
+// TODO: BeforeToday()
+
+// BeforeToday checks if date is before today to prevent adding upcoming workouts w/past dates
+func BeforeToday(value, field string) Check {
+	return func() *FieldError {
+		return nil
+	}
+}

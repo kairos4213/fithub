@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"database/sql"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -104,7 +105,7 @@ func (h *Handler) CreateUserWorkout(w http.ResponseWriter, r *http.Request) {
 		validate.MaxLen(reqTitle, 100, "title"),
 		validate.MaxLen(reqDescription, 500, "description"),
 	); errs != nil {
-		HandleFieldErrors(w, r, h.cfg.Logger, errs, workoutFields)
+		HandleFieldErrors(w, r, h.cfg.Logger, errs, workoutFields, "")
 		return
 	}
 
@@ -116,14 +117,14 @@ func (h *Handler) CreateUserWorkout(w http.ResponseWriter, r *http.Request) {
 
 	duration, err := strconv.ParseInt(reqDuration, 10, 32)
 	if err != nil {
-		HandleFieldErrors(w, r, h.cfg.Logger, []validate.FieldError{{Field: "duration", Message: "duration must be a number"}}, workoutFields)
+		HandleFieldErrors(w, r, h.cfg.Logger, []validate.FieldError{{Field: "duration", Message: "duration must be a number"}}, workoutFields, "")
 		h.cfg.Logger.Info("invalid duration input", slog.String("value", reqDuration), slog.String("error", err.Error()))
 		return
 	}
 
 	plannedDate, err := time.Parse(time.DateOnly, reqPlannedDate)
 	if err != nil {
-		HandleFieldErrors(w, r, h.cfg.Logger, []validate.FieldError{{Field: "planned date", Message: "planned date must be in YYYY-MM-DD format"}}, workoutFields)
+		HandleFieldErrors(w, r, h.cfg.Logger, []validate.FieldError{{Field: "planned date", Message: "planned date must be in YYYY-MM-DD format"}}, workoutFields, "")
 		h.cfg.Logger.Info("invalid planned date input", slog.String("value", reqPlannedDate), slog.String("error", err.Error()))
 		return
 	}
@@ -174,6 +175,29 @@ func (h *Handler) EditUserWorkout(w http.ResponseWriter, r *http.Request) {
 	reqPlannedDate := r.FormValue("planned-date")
 	reqCompletionDate := r.FormValue("date-completed")
 
+	// Determine context for error targeting
+	currentURL := r.Header.Get("HX-Current-URL")
+	isDetailPage := strings.Contains(currentURL, "/workouts/"+workoutID.String())
+
+	prefix := ""
+	editFields := []string{"title", "duration", "description", "planned-date"}
+	if !isDetailPage {
+		prefix = workoutID.String() + "-"
+		editFields = make([]string, 4)
+		for i, f := range []string{"title", "duration", "description", "planned-date"} {
+			editFields[i] = prefix + f
+		}
+	}
+
+	// Helper to send field errors with card-scoped retarget when needed
+	sendFieldErrors := func(errs []validate.FieldError) {
+		if !isDetailPage {
+			w.Header().Set("HX-Retarget", fmt.Sprintf("#form-error-%v", workoutID))
+			w.Header().Set("HX-Reswap", "innerHTML")
+		}
+		HandleFieldErrors(w, r, h.cfg.Logger, errs, editFields, prefix)
+	}
+
 	if errs := validate.Fields(
 		validate.Required(reqTitle, "title"),
 		validate.Required(reqDuration, "duration"),
@@ -181,7 +205,7 @@ func (h *Handler) EditUserWorkout(w http.ResponseWriter, r *http.Request) {
 		validate.MaxLen(reqTitle, 100, "title"),
 		validate.MaxLen(reqDescription, 500, "description"),
 	); errs != nil {
-		HandleBadRequest(w, r, errs[0].Error())
+		sendFieldErrors(errs)
 		return
 	}
 
@@ -193,14 +217,14 @@ func (h *Handler) EditUserWorkout(w http.ResponseWriter, r *http.Request) {
 
 	duration, err := strconv.ParseInt(reqDuration, 10, 32)
 	if err != nil {
-		HandleBadRequest(w, r, "duration must be a number")
+		sendFieldErrors([]validate.FieldError{{Field: "duration", Message: "duration must be a number"}})
 		h.cfg.Logger.Info("invalid duration input", slog.String("value", reqDuration), slog.String("error", err.Error()))
 		return
 	}
 
 	plannedDate, err := time.Parse(time.DateOnly, reqPlannedDate)
 	if err != nil {
-		HandleBadRequest(w, r, "planned date must be in YYYY-MM-DD format")
+		sendFieldErrors([]validate.FieldError{{Field: "planned date", Message: "planned date must be in YYYY-MM-DD format"}})
 		h.cfg.Logger.Info("invalid planned date input", slog.String("value", reqPlannedDate), slog.String("error", err.Error()))
 		return
 	}
@@ -209,8 +233,8 @@ func (h *Handler) EditUserWorkout(w http.ResponseWriter, r *http.Request) {
 	if reqCompletionDate != "" {
 		date, err := time.Parse(time.DateOnly, reqCompletionDate)
 		if err != nil {
-			HandleInternalServerError(w, r)
-			h.cfg.Logger.Error("failed to parse date completed", slog.String("error", err.Error()))
+			sendFieldErrors([]validate.FieldError{{Field: "planned date", Message: "date completed must be in YYYY-MM-DD format"}})
+			h.cfg.Logger.Info("invalid date completed input", slog.String("value", reqCompletionDate), slog.String("error", err.Error()))
 			return
 		}
 		dateCompleted.Time = date
@@ -232,8 +256,8 @@ func (h *Handler) EditUserWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	currentURL := r.Header.Get("HX-Current-URL")
-	if strings.Contains(currentURL, "/workouts/"+workoutID.String()) {
+	w.Header().Set("HX-Trigger", "close-edit-card")
+	if isDetailPage {
 		err = templates.WorkoutInfo(updatedWorkout).Render(r.Context(), w)
 		if err != nil {
 			HandleInternalServerError(w, r)

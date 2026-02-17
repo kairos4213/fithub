@@ -102,10 +102,10 @@ func HandleBadRequest(w http.ResponseWriter, r *http.Request, errMsg string) {
 	}
 }
 
-func HandleFieldErrors(w http.ResponseWriter, r *http.Request, logger *slog.Logger, errs []validate.FieldError, fields []string) {
+func HandleFieldErrors(w http.ResponseWriter, r *http.Request, logger *slog.Logger, errs []validate.FieldError, fields []string, prefix string) {
 	errMap := make(map[string]string)
 	for _, e := range errs {
-		slug := strings.ReplaceAll(e.Field, " ", "-")
+		slug := prefix + strings.ReplaceAll(e.Field, " ", "-")
 		if _, exists := errMap[slug]; !exists {
 			errMap[slug] = e.Message
 		}

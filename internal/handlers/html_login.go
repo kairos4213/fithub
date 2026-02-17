@@ -33,7 +33,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 			validate.Required(email, "email"),
 			validate.Required(password, "password"),
 		); errs != nil {
-			HandleFieldErrors(w, r, h.cfg.Logger, errs, []string{"email", "password"})
+			HandleFieldErrors(w, r, h.cfg.Logger, errs, []string{"email", "password"}, "")
 			return
 		}
 
