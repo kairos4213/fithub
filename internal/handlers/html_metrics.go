@@ -181,9 +181,7 @@ func (h *Handler) EditMetrics(w http.ResponseWriter, r *http.Request) {
 			validate.Required(entry, "bodyweight"),
 			validate.Numeric(entry, "bodyweight"),
 		); errs != nil {
-			w.Header().Set("HX-Retarget", fmt.Sprintf("#form-error-bw-%v", id))
-			w.Header().Set("HX-Reswap", "innerHTML")
-			HandleFieldErrors(w, r, h.cfg.Logger, errs, []string{prefix + "bodyweight"}, prefix)
+			HandleScopedFieldErrors(w, r, h.cfg.Logger, errs, []string{prefix + "bodyweight"}, prefix, fmt.Sprintf("form-error-bw-%v", id))
 			return
 		}
 
@@ -206,9 +204,7 @@ func (h *Handler) EditMetrics(w http.ResponseWriter, r *http.Request) {
 			validate.Required(entry, "muscle mass"),
 			validate.Numeric(entry, "muscle mass"),
 		); errs != nil {
-			w.Header().Set("HX-Retarget", fmt.Sprintf("#form-error-mm-%v", id))
-			w.Header().Set("HX-Reswap", "innerHTML")
-			HandleFieldErrors(w, r, h.cfg.Logger, errs, []string{prefix + "muscle-mass"}, prefix)
+			HandleScopedFieldErrors(w, r, h.cfg.Logger, errs, []string{prefix + "muscle-mass"}, prefix, fmt.Sprintf("form-error-mm-%v", id))
 			return
 		}
 
@@ -231,9 +227,7 @@ func (h *Handler) EditMetrics(w http.ResponseWriter, r *http.Request) {
 			validate.Required(entry, "body fat percent"),
 			validate.Numeric(entry, "body fat percent"),
 		); errs != nil {
-			w.Header().Set("HX-Retarget", fmt.Sprintf("#form-error-bf-%v", id))
-			w.Header().Set("HX-Reswap", "innerHTML")
-			HandleFieldErrors(w, r, h.cfg.Logger, errs, []string{prefix + "body-fat-percent"}, prefix)
+			HandleScopedFieldErrors(w, r, h.cfg.Logger, errs, []string{prefix + "body-fat-percent"}, prefix, fmt.Sprintf("form-error-bf-%v", id))
 			return
 		}
 

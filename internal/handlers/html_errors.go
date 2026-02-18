@@ -20,13 +20,14 @@ const (
 
 func HandleInternalServerError(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-type", "text/html")
+	w.Header().Set("HX-Retarget", "body")
+	w.Header().Set("HX-Reswap", "outerHTML")
 	w.WriteHeader(http.StatusInternalServerError)
 
 	htmlErr := templates.HtmlErr{Code: http.StatusInternalServerError, Msg: ServerErrMsg}
 	err := templates.ErrorDisplay(htmlErr).Render(r.Context(), w)
 	if err != nil {
-		HandleInternalServerError(w, r)
-		return
+		http.Error(w, ServerErrMsg, http.StatusInternalServerError)
 	}
 }
 
@@ -100,6 +101,17 @@ func HandleBadRequest(w http.ResponseWriter, r *http.Request, errMsg string) {
 		HandleInternalServerError(w, r)
 		return
 	}
+}
+
+// HandleScopedFieldErrors renders field errors and retargets the response to a
+// specific form-error container. Pass an empty formErrorID to skip retargeting
+// (e.g. when the form already has a global #form-error target).
+func HandleScopedFieldErrors(w http.ResponseWriter, r *http.Request, logger *slog.Logger, errs []validate.FieldError, fields []string, prefix string, formErrorID string) {
+	if formErrorID != "" {
+		w.Header().Set("HX-Retarget", "#"+formErrorID)
+		w.Header().Set("HX-Reswap", "innerHTML")
+	}
+	HandleFieldErrors(w, r, logger, errs, fields, prefix)
 }
 
 func HandleFieldErrors(w http.ResponseWriter, r *http.Request, logger *slog.Logger, errs []validate.FieldError, fields []string, prefix string) {

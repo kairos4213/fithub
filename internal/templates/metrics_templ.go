@@ -309,9 +309,9 @@ func BWRow(bw database.BodyWeight) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var15 string
-		templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("editing = false; document.getElementById('err-%v-bodyweight')?.classList.add('hidden'); document.getElementById('form-error-bw-%v')?.classList.add('hidden')", bw.ID, bw.ID))
+		templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("editing = false; resetForm('bw-%v', ['err-%v-bodyweight','form-error-bw-%v'])", bw.ID, bw.ID, bw.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 162, Col: 200}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 162, Col: 128}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 		if templ_7745c5c3_Err != nil {
@@ -541,9 +541,9 @@ func MMRow(mm database.MuscleMass) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var29 string
-		templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("editing = false; document.getElementById('err-%v-muscle-mass')?.classList.add('hidden'); document.getElementById('form-error-mm-%v')?.classList.add('hidden')", mm.ID, mm.ID))
+		templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("editing = false; resetForm('mm-%v', ['err-%v-muscle-mass','form-error-mm-%v'])", mm.ID, mm.ID, mm.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 268, Col: 201}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 268, Col: 129}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 		if templ_7745c5c3_Err != nil {
@@ -773,9 +773,9 @@ func BFRow(bf database.BodyFatPercent) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var43 string
-		templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("editing = false; document.getElementById('err-%v-body-fat-percent')?.classList.add('hidden'); document.getElementById('form-error-bf-%v')?.classList.add('hidden')", bf.ID, bf.ID))
+		templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("editing = false; resetForm('bf-%v', ['err-%v-body-fat-percent','form-error-bf-%v'])", bf.ID, bf.ID, bf.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 374, Col: 206}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/metrics.templ`, Line: 374, Col: 134}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var43))
 		if templ_7745c5c3_Err != nil {

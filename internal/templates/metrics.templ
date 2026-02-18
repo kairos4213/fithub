@@ -159,7 +159,7 @@ templ BWRow(bw database.BodyWeight) {
 					>Save</button>
 					<button
 						class="btn btn-ghost btn-xs"
-						@click={ fmt.Sprintf("editing = false; document.getElementById('err-%v-bodyweight')?.classList.add('hidden'); document.getElementById('form-error-bw-%v')?.classList.add('hidden')", bw.ID, bw.ID) }
+						@click={ fmt.Sprintf("editing = false; resetForm('bw-%v', ['err-%v-bodyweight','form-error-bw-%v'])", bw.ID, bw.ID, bw.ID) }
 					>Cancel</button>
 				</div>
 			</div>
@@ -265,7 +265,7 @@ templ MMRow(mm database.MuscleMass) {
 					>Save</button>
 					<button
 						class="btn btn-ghost btn-xs"
-						@click={ fmt.Sprintf("editing = false; document.getElementById('err-%v-muscle-mass')?.classList.add('hidden'); document.getElementById('form-error-mm-%v')?.classList.add('hidden')", mm.ID, mm.ID) }
+						@click={ fmt.Sprintf("editing = false; resetForm('mm-%v', ['err-%v-muscle-mass','form-error-mm-%v'])", mm.ID, mm.ID, mm.ID) }
 					>Cancel</button>
 				</div>
 			</div>
@@ -371,7 +371,7 @@ templ BFRow(bf database.BodyFatPercent) {
 					>Save</button>
 					<button
 						class="btn btn-ghost btn-xs"
-						@click={ fmt.Sprintf("editing = false; document.getElementById('err-%v-body-fat-percent')?.classList.add('hidden'); document.getElementById('form-error-bf-%v')?.classList.add('hidden')", bf.ID, bf.ID) }
+						@click={ fmt.Sprintf("editing = false; resetForm('bf-%v', ['err-%v-body-fat-percent','form-error-bf-%v'])", bf.ID, bf.ID, bf.ID) }
 					>Cancel</button>
 				</div>
 			</div>
