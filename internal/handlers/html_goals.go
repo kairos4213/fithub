@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"log/slog"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -75,6 +76,7 @@ func (h *Handler) AddNewGoal(w http.ResponseWriter, r *http.Request) {
 	reqGoalDate := r.FormValue("goal-date")
 	reqNotes := r.FormValue("notes")
 
+	inputFields := []string{"goal-name", "description", "goal-date", "notes"}
 	if errs := validate.Fields(
 		validate.Required(reqGoalName, "goal name"),
 		validate.Required(reqDescription, "description"),
@@ -83,15 +85,13 @@ func (h *Handler) AddNewGoal(w http.ResponseWriter, r *http.Request) {
 		validate.MaxLen(reqDescription, 500, "description"),
 		validate.MaxLen(reqNotes, 500, "notes"),
 	); errs != nil {
-		HandleBadRequest(w, r, errs[0].Error())
-		h.cfg.Logger.Info("invalid form field", slog.Any("fields", errs))
+		HandleFieldErrors(w, r, h.cfg.Logger, errs, inputFields, "")
 		return
 	}
 
 	goalDate, err := time.Parse(time.DateOnly, reqGoalDate)
 	if err != nil {
-		HandleBadRequest(w, r, "goal date must be in YYYY-MM-DD format")
-		h.cfg.Logger.Info("invalid goal date input", slog.String("value", reqGoalDate), slog.String("error", err.Error()))
+		HandleFieldErrors(w, r, h.cfg.Logger, []validate.FieldError{{Field: "goal date", Message: "goal date must be in YYYY-MM-DD format"}}, inputFields, "")
 		return
 	}
 
@@ -109,6 +109,10 @@ func (h *Handler) AddNewGoal(w http.ResponseWriter, r *http.Request) {
 		UserID:      userID,
 	})
 	if err != nil {
+		if strings.Contains(err.Error(), "pq: duplicate key value violates unique constraint") {
+			HandleFieldErrors(w, r, h.cfg.Logger, []validate.FieldError{{Field: "goal name", Message: "goal already exists"}}, inputFields, "")
+			return
+		}
 		HandleInternalServerError(w, r)
 		h.cfg.Logger.Error("failed to create goal", slog.String("error", err.Error()))
 		return
@@ -121,6 +125,7 @@ func (h *Handler) AddNewGoal(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("HX-Trigger", "close-create-goal")
 	w.Header().Set("HX-Push-Url", "/goals?tab=in_progress")
 	err = templates.GoalsCardGrid(goals, "in_progress").Render(r.Context(), w)
 	if err != nil {
@@ -150,6 +155,9 @@ func (h *Handler) EditGoal(w http.ResponseWriter, r *http.Request) {
 	reqGoalDate := r.FormValue("goal-date")
 	reqNotes := r.FormValue("notes")
 
+	prefix := goalID.String() + "-"
+	editFields := []string{prefix + "goal-name", prefix + "description", prefix + "goal-date", prefix + "notes", prefix + "status"}
+
 	if errs := validate.Fields(
 		validate.Required(reqGoalName, "goal name"),
 		validate.Required(reqStatus, "status"),
@@ -159,15 +167,13 @@ func (h *Handler) EditGoal(w http.ResponseWriter, r *http.Request) {
 		validate.MaxLen(reqDescription, 500, "description"),
 		validate.MaxLen(reqNotes, 500, "notes"),
 	); errs != nil {
-		HandleBadRequest(w, r, errs[0].Error())
-		h.cfg.Logger.Info("invalid form field", slog.Any("fields", errs))
+		HandleFieldErrors(w, r, h.cfg.Logger, errs, editFields, prefix)
 		return
 	}
 
 	goalDate, err := time.Parse(time.DateOnly, reqGoalDate)
 	if err != nil {
-		HandleBadRequest(w, r, "goal date must be in YYYY-MM-DD format")
-		h.cfg.Logger.Info("invalid goal date input", slog.String("value", reqGoalDate), slog.String("error", err.Error()))
+		HandleFieldErrors(w, r, h.cfg.Logger, []validate.FieldError{{Field: "goal date", Message: "goal date must be in YYYY-MM-DD format"}}, editFields, prefix)
 		return
 	}
 
@@ -194,6 +200,10 @@ func (h *Handler) EditGoal(w http.ResponseWriter, r *http.Request) {
 		UserID:         userID,
 	})
 	if err != nil {
+		if strings.Contains(err.Error(), "pq: duplicate key value violates unique constraint") {
+			HandleFieldErrors(w, r, h.cfg.Logger, []validate.FieldError{{Field: "goal name", Message: "goal already exists"}}, editFields, prefix)
+			return
+		}
 		HandleInternalServerError(w, r)
 		h.cfg.Logger.Error("failed to update goal", slog.String("error", err.Error()))
 		return

@@ -83,7 +83,7 @@ func GoalsCreateCard() templ.Component {
 			templ_7745c5c3_Var2 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div id=\"create-goal-card\" class=\"mb-6\" x-data=\"{ open: false }\"><button x-show=\"!open\" class=\"btn btn-primary btn-outline w-full\" @click=\"open = true\">+ Create Goal</button><div x-cloak x-show=\"open\" class=\"card bg-base-100 card-border shadow-sm\"><div class=\"card-body p-4\"><h3 class=\"card-title text-base\">New Goal</h3><div class=\"grid grid-cols-1 md:grid-cols-2 gap-3\"><div><label class=\"label\" for=\"new-goal-name\"><span class=\"label-text\">Goal Name</span></label> <input id=\"new-goal-name\" class=\"input w-full\" type=\"text\" name=\"goal-name\" placeholder=\"Goal Name\" maxlength=\"100\" required></div><div><label class=\"label\" for=\"new-goal-date\"><span class=\"label-text\">Goal Date</span></label> <input id=\"new-goal-date\" class=\"input w-full\" type=\"date\" name=\"goal-date\" required></div><div class=\"md:col-span-2\"><label class=\"label\" for=\"new-goal-description\"><span class=\"label-text\">Description</span></label> <textarea id=\"new-goal-description\" class=\"textarea w-full\" name=\"description\" placeholder=\"Description\" maxlength=\"500\" rows=\"2\" required></textarea></div><div class=\"md:col-span-2\"><label class=\"label\" for=\"new-goal-notes\"><span class=\"label-text\">Notes (optional)</span></label> <textarea id=\"new-goal-notes\" class=\"textarea w-full\" name=\"notes\" placeholder=\"Optional notes\" maxlength=\"500\" rows=\"2\"></textarea></div></div><div class=\"card-actions justify-end mt-3\"><button hx-post=\"/goals\" hx-include=\"#create-goal-card\" hx-target=\"#goals-content\" hx-swap=\"innerHTML\" hx-target-4*=\"body\" class=\"btn btn-primary btn-sm\" @click=\"open = false\">Create</button> <button class=\"btn btn-ghost btn-sm\" @click=\"open = false\">Cancel</button></div></div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div id=\"create-goal-card\" class=\"mb-6\" x-data=\"{ open: false }\" @close-create-goal.window=\"resetForm('create-goal-form', ['err-goal-name','err-goal-date','err-description','err-notes','form-error']); open = false\"><button x-show=\"!open\" class=\"btn btn-primary btn-outline w-full\" @click=\"open = true\">+ Create Goal</button><div x-cloak x-show=\"open\" class=\"card bg-base-100 card-border shadow-sm\"><div class=\"card-body p-4\"><h3 class=\"card-title text-base\">New Goal</h3><form id=\"create-goal-form\" @submit.prevent><div class=\"grid grid-cols-1 md:grid-cols-2 gap-3\"><div><label class=\"label\" for=\"new-goal-name\"><span class=\"label-text\">Goal Name</span></label> <input id=\"new-goal-name\" class=\"input w-full\" type=\"text\" name=\"goal-name\" placeholder=\"Goal Name\" maxlength=\"100\" required><div id=\"err-goal-name\" class=\"hidden\"></div></div><div><label class=\"label\" for=\"new-goal-date\"><span class=\"label-text\">Goal Date</span></label> <input id=\"new-goal-date\" class=\"input w-full\" type=\"date\" name=\"goal-date\" required><div id=\"err-goal-date\" class=\"hidden\"></div></div><div class=\"md:col-span-2\"><label class=\"label\" for=\"new-goal-description\"><span class=\"label-text\">Description</span></label> <textarea id=\"new-goal-description\" class=\"textarea w-full\" name=\"description\" placeholder=\"Description\" maxlength=\"500\" rows=\"2\" required></textarea><div id=\"err-description\" class=\"hidden\"></div></div><div class=\"md:col-span-2\"><label class=\"label\" for=\"new-goal-notes\"><span class=\"label-text\">Notes (optional)</span></label> <textarea id=\"new-goal-notes\" class=\"textarea w-full\" name=\"notes\" placeholder=\"Optional notes\" maxlength=\"500\" rows=\"2\"></textarea><div id=\"err-notes\" class=\"hidden\"></div></div></div><div id=\"form-error\" class=\"hidden\"></div><div class=\"card-actions justify-end mt-3\"><button hx-post=\"/goals\" hx-include=\"#create-goal-form\" hx-target=\"#goals-content\" hx-swap=\"innerHTML\" hx-target-400=\"#form-error\" hx-target-4*=\"body\" class=\"btn btn-primary btn-sm\">Create</button> <button type=\"button\" class=\"btn btn-ghost btn-sm\" @click=\"resetForm('create-goal-form', ['err-goal-name','err-goal-date','err-description','err-notes','form-error']); open = false\">Cancel</button></div></form></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -119,7 +119,7 @@ func GoalsTabs(activeTab string) templ.Component {
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("{ tab: '%s' }", activeTab))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 65, Col: 84}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 77, Col: 84}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -221,7 +221,7 @@ func GoalCard(goal database.Goal) templ.Component {
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("goal-%v", goal.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 108, Col: 38}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 120, Col: 38}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
@@ -234,7 +234,7 @@ func GoalCard(goal database.Goal) templ.Component {
 		var templ_7745c5c3_Var8 string
 		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(goal.GoalName)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 114, Col: 51}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 126, Col: 51}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 		if templ_7745c5c3_Err != nil {
@@ -247,7 +247,7 @@ func GoalCard(goal database.Goal) templ.Component {
 		var templ_7745c5c3_Var9 string
 		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(goal.Description)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 115, Col: 74}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 127, Col: 74}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 		if templ_7745c5c3_Err != nil {
@@ -260,7 +260,7 @@ func GoalCard(goal database.Goal) templ.Component {
 		var templ_7745c5c3_Var10 string
 		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(goal.GoalDate.Format("Mon, Jan 02 2006"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 117, Col: 52}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 129, Col: 52}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 		if templ_7745c5c3_Err != nil {
@@ -278,7 +278,7 @@ func GoalCard(goal database.Goal) templ.Component {
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(goal.Notes.String)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 120, Col: 81}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 132, Col: 81}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
@@ -297,7 +297,7 @@ func GoalCard(goal database.Goal) templ.Component {
 			var templ_7745c5c3_Var12 string
 			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(goal.CompletionDate.Time.Format("Jan 02 2006"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 124, Col: 63}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 136, Col: 63}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 			if templ_7745c5c3_Err != nil {
@@ -315,7 +315,7 @@ func GoalCard(goal database.Goal) templ.Component {
 		var templ_7745c5c3_Var13 string
 		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(templ.URL(fmt.Sprintf("/goals/%v", goal.ID)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 131, Col: 61}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 143, Col: 61}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 		if templ_7745c5c3_Err != nil {
@@ -328,7 +328,7 @@ func GoalCard(goal database.Goal) templ.Component {
 		var templ_7745c5c3_Var14 string
 		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("#goal-%v", goal.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 132, Col: 49}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 144, Col: 49}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 		if templ_7745c5c3_Err != nil {
@@ -341,106 +341,184 @@ func GoalCard(goal database.Goal) templ.Component {
 		var templ_7745c5c3_Var15 string
 		templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(goal.GoalName)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 143, Col: 83}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 155, Col: 83}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "\" maxlength=\"100\" required></div><div><label class=\"label\"><span class=\"label-text\">Description</span></label> <textarea class=\"textarea w-full\" name=\"description\" maxlength=\"500\" rows=\"2\" required>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "\" maxlength=\"100\" required><div id=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var16 string
-		templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(goal.Description)
+		templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("err-%v-goal-name", goal.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 147, Col: 110}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 156, Col: 55}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</textarea></div><div><label class=\"label\"><span class=\"label-text\">Goal Date</span></label> <input class=\"input w-full\" type=\"date\" name=\"goal-date\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "\" class=\"hidden\"></div></div><div><label class=\"label\"><span class=\"label-text\">Description</span></label> <textarea class=\"textarea w-full\" name=\"description\" maxlength=\"500\" rows=\"2\" required>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var17 string
-		templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(goal.GoalDate.Format("2006-01-02"))
+		templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(goal.Description)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 151, Col: 104}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 160, Col: 110}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "\" required></div><div><label class=\"label\"><span class=\"label-text\">Notes</span></label> <textarea class=\"textarea w-full\" name=\"notes\" maxlength=\"500\" rows=\"2\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</textarea><div id=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var18 string
-		templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(goal.Notes.String)
+		templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("err-%v-description", goal.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 155, Col: 96}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 161, Col: 57}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</textarea></div><div><label class=\"label\"><span class=\"label-text\">Status</span></label> <select name=\"status\" class=\"select w-full\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		if goal.Status == "in_progress" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<option value=\"in_progress\" selected>In Progress</option> <option value=\"completed\">Completed</option>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<option value=\"in_progress\">In Progress</option> <option value=\"completed\" selected>Completed</option>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</select></div></div><div class=\"card-actions justify-end mt-3\"><button class=\"btn btn-primary btn-sm\" hx-put=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "\" class=\"hidden\"></div></div><div><label class=\"label\"><span class=\"label-text\">Goal Date</span></label> <input class=\"input w-full\" type=\"date\" name=\"goal-date\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var19 string
-		templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(templ.URL(fmt.Sprintf("/goals/%v", goal.ID)))
+		templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(goal.GoalDate.Format("2006-01-02"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 173, Col: 58}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 165, Col: 104}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "\" hx-include=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "\" required><div id=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var20 string
-		templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("#goal-%v", goal.ID))
+		templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("err-%v-goal-date", goal.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 174, Col: 50}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 166, Col: 55}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\" hx-target=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "\" class=\"hidden\"></div></div><div><label class=\"label\"><span class=\"label-text\">Notes</span></label> <textarea class=\"textarea w-full\" name=\"notes\" maxlength=\"500\" rows=\"2\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var21 string
-		templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("#goal-%v", goal.ID))
+		templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(goal.Notes.String)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 175, Col: 49}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 170, Col: 96}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "\" hx-swap=\"outerHTML\" hx-target-4*=\"body\" @click=\"editing = false\">Save</button> <button class=\"btn btn-ghost btn-sm\" @click=\"editing = false\">Cancel</button></div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</textarea><div id=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var22 string
+		templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("err-%v-notes", goal.ID))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 171, Col: 51}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "\" class=\"hidden\"></div></div><div><label class=\"label\"><span class=\"label-text\">Status</span></label> <select name=\"status\" class=\"select w-full\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if goal.Status == "in_progress" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<option value=\"in_progress\" selected>In Progress</option> <option value=\"completed\">Completed</option>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<option value=\"in_progress\">In Progress</option> <option value=\"completed\" selected>Completed</option>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</select><div id=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var23 string
+		templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("err-%v-status", goal.ID))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 184, Col: 52}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "\" class=\"hidden\"></div></div></div><div id=\"form-error\" class=\"hidden\"></div><div class=\"card-actions justify-end mt-3\"><button class=\"btn btn-primary btn-sm\" hx-put=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var24 string
+		templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(templ.URL(fmt.Sprintf("/goals/%v", goal.ID)))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 191, Col: 58}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "\" hx-include=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var25 string
+		templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("#goal-%v", goal.ID))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 192, Col: 50}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "\" hx-target=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var26 string
+		templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("#goal-%v", goal.ID))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 193, Col: 49}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "\" hx-swap=\"outerHTML\" hx-target-400=\"#form-error\" hx-target-4*=\"body\">Save</button> <button class=\"btn btn-ghost btn-sm\" @click=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var27 string
+		templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("editing = false; resetForm('goal-%v', ['err-%v-goal-name','err-%v-description','err-%v-goal-date','err-%v-notes','err-%v-status','form-error'])", goal.ID, goal.ID, goal.ID, goal.ID, goal.ID, goal.ID))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/goals.templ`, Line: 200, Col: 226}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "\">Cancel</button></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
