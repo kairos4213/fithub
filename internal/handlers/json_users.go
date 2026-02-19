@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/kairos4213/fithub/internal/auth"
 	"github.com/kairos4213/fithub/internal/cntx"
@@ -66,32 +65,16 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		MiddleName:     middleName,
 		LastName:       strings.ToLower(reqParams.LastName),
 		Email:          strings.ToLower(reqParams.Email),
-		HashedPassword: hashedPassword,
+		HashedPassword: sql.NullString{String: hashedPassword, Valid: true},
 	})
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, "Error creating user in database", err)
 		return
 	}
 
-	accessToken, err := auth.MakeJWT(user.ID, user.IsAdmin, h.cfg.TokenSecret)
+	accessToken, refreshToken, err := h.issueSessionTokens(r.Context(), w, user.ID, user.IsAdmin)
 	if err != nil {
-		utils.RespondWithError(w, http.StatusInternalServerError, "Couldn't create access token", err)
-		return
-	}
-
-	refreshToken, err := auth.MakeRefreshToken()
-	if err != nil {
-		utils.RespondWithError(w, http.StatusInternalServerError, "Couldn't create refresh token", err)
-		return
-	}
-
-	err = h.cfg.DB.CreateRefreshToken(r.Context(), database.CreateRefreshTokenParams{
-		Token:     refreshToken,
-		UserID:    user.ID,
-		ExpiresAt: time.Now().UTC().AddDate(0, 0, 60),
-	})
-	if err != nil {
-		utils.RespondWithError(w, http.StatusInternalServerError, "Error storing refresh token", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Error issuing session tokens", err)
 		return
 	}
 
@@ -129,7 +112,12 @@ func (h *Handler) LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	match, err := auth.CheckPasswordHash(reqParams.Password, user.HashedPassword)
+	if !user.HashedPassword.Valid {
+		utils.RespondWithError(w, http.StatusUnauthorized, "Incorrect email or password", nil)
+		return
+	}
+
+	match, err := auth.CheckPasswordHash(reqParams.Password, user.HashedPassword.String)
 	if !match {
 		utils.RespondWithError(w, http.StatusUnauthorized, "Incorrect email or password", err)
 		return
@@ -139,25 +127,9 @@ func (h *Handler) LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accessToken, err := auth.MakeJWT(user.ID, user.IsAdmin, h.cfg.TokenSecret)
+	accessToken, refreshToken, err := h.issueSessionTokens(r.Context(), w, user.ID, user.IsAdmin)
 	if err != nil {
-		utils.RespondWithError(w, http.StatusInternalServerError, "Couldn't create access token", err)
-		return
-	}
-
-	refreshToken, err := auth.MakeRefreshToken()
-	if err != nil {
-		utils.RespondWithError(w, http.StatusInternalServerError, "Couldn't create refresh token", err)
-		return
-	}
-
-	err = h.cfg.DB.CreateRefreshToken(r.Context(), database.CreateRefreshTokenParams{
-		Token:     refreshToken,
-		UserID:    user.ID,
-		ExpiresAt: time.Now().UTC().AddDate(0, 0, 60),
-	})
-	if err != nil {
-		utils.RespondWithError(w, http.StatusInternalServerError, "Error storing refresh token", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Error issuing session tokens", err)
 		return
 	}
 
