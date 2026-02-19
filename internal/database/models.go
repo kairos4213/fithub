@@ -13,6 +13,15 @@ import (
 	"github.com/sqlc-dev/pqtype"
 )
 
+type AuthProvider struct {
+	ID             uuid.UUID
+	UserID         uuid.UUID
+	Provider       string
+	ProviderUserID string
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+}
+
 type BodyFatPercent struct {
 	ID          uuid.UUID
 	UserID      uuid.UUID
@@ -78,7 +87,7 @@ type User struct {
 	MiddleName     sql.NullString
 	LastName       string
 	Email          string
-	HashedPassword string
+	HashedPassword sql.NullString
 	ProfileImage   sql.NullString
 	Preferences    pqtype.NullRawMessage
 	IsAdmin        bool

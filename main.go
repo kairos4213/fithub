@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"log/slog"
 	"os"
@@ -52,7 +53,21 @@ func main() {
 
 	dbQueries := database.New(db)
 	logger := slog.Default()
-	cfg := config.New(dbQueries, db, logger, tokenSecret)
+
+	oauthProviders := make(map[string]config.OAuthProvider)
+	googleClientID := os.Getenv("GOOGLE_CLIENT_ID")
+	googleClientSecret := os.Getenv("GOOGLE_CLIENT_SECRET")
+	if googleClientID != "" && googleClientSecret != "" {
+		oauthProviders["google"] = config.OAuthProvider{
+			ClientID:     googleClientID,
+			ClientSecret: googleClientSecret,
+			RedirectURL:  fmt.Sprintf("http://localhost:%s/auth/google/callback", port),
+		}
+	} else {
+		log.Println("WARNING: GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET not set; Google OAuth disabled")
+	}
+
+	cfg := config.New(dbQueries, db, logger, tokenSecret, oauthProviders)
 
 	srv := server.New(port, filePathRoot, cfg)
 	srv.Start()

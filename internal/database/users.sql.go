@@ -12,6 +12,50 @@ import (
 	"github.com/google/uuid"
 )
 
+const createOAuthUser = `-- name: CreateOAuthUser :one
+INSERT INTO users (
+    id,
+    created_at,
+    updated_at,
+    first_name,
+    last_name,
+    email,
+    profile_image
+) VALUES (gen_random_uuid(), now(), now(), $1, $2, $3, $4)
+RETURNING id, created_at, updated_at, first_name, middle_name, last_name, email, hashed_password, profile_image, preferences, is_admin
+`
+
+type CreateOAuthUserParams struct {
+	FirstName    string
+	LastName     string
+	Email        string
+	ProfileImage sql.NullString
+}
+
+func (q *Queries) CreateOAuthUser(ctx context.Context, arg CreateOAuthUserParams) (User, error) {
+	row := q.db.QueryRowContext(ctx, createOAuthUser,
+		arg.FirstName,
+		arg.LastName,
+		arg.Email,
+		arg.ProfileImage,
+	)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.FirstName,
+		&i.MiddleName,
+		&i.LastName,
+		&i.Email,
+		&i.HashedPassword,
+		&i.ProfileImage,
+		&i.Preferences,
+		&i.IsAdmin,
+	)
+	return i, err
+}
+
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
     id,
@@ -31,7 +75,7 @@ type CreateUserParams struct {
 	MiddleName     sql.NullString
 	LastName       string
 	Email          string
-	HashedPassword string
+	HashedPassword sql.NullString
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {

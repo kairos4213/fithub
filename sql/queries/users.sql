@@ -28,6 +28,18 @@ SET
 WHERE id = $1
 RETURNING *;
 
+-- name: CreateOAuthUser :one
+INSERT INTO users (
+    id,
+    created_at,
+    updated_at,
+    first_name,
+    last_name,
+    email,
+    profile_image
+) VALUES (gen_random_uuid(), now(), now(), $1, $2, $3, $4)
+RETURNING *;
+
 -- name: DeleteUser :exec
 DELETE FROM users
 WHERE id = $1;
