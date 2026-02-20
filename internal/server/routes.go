@@ -25,6 +25,9 @@ func (s *Server) registerRoutes(mux *http.ServeMux) {
 	mux.Handle("POST /register", authLimit(http.HandlerFunc(s.handler.Register)))
 	mux.HandleFunc("POST /users/email", s.handler.CheckUserEmail)
 
+	// Google OAuth
+	mux.HandleFunc("GET /auth/google/login", s.handler.GoogleLogin)
+	mux.Handle("GET /auth/google/callback", authLimit(http.HandlerFunc(s.handler.GoogleCallback)))
 
 	// Error pages
 	mux.Handle("GET /unauthorized", http.HandlerFunc(handlers.GetUnauthorizedPage))
