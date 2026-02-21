@@ -5,6 +5,13 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - "*.md"
+      - "LICENSE"
+      - ".gitignore"
+      - "docker-compose.yml"
+      - "Makefile"
+      - ".dockerignore"
 jobs:
   deploy:
     name: Deploy app
