@@ -64,17 +64,23 @@ SET
 WHERE id = $2 AND user_id = $3
 RETURNING *;
 
--- name: DeleteBodyWeight :exec
-DELETE FROM body_weights
-WHERE id = $1 AND user_id = $2;
+-- name: DeleteBodyWeight :one
+WITH deleted AS (
+    DELETE FROM body_weights WHERE body_weights.id = $1 AND body_weights.user_id = $2 RETURNING body_weights.user_id
+)
+SELECT COUNT(*) FROM body_weights WHERE body_weights.user_id = $2;
 
--- name: DeleteMuscleMass :exec
-DELETE FROM muscle_masses
-WHERE id = $1 AND user_id = $2;
+-- name: DeleteMuscleMass :one
+WITH deleted AS (
+    DELETE FROM muscle_masses WHERE muscle_masses.id = $1 AND muscle_masses.user_id = $2 RETURNING muscle_masses.user_id
+)
+SELECT COUNT(*) FROM muscle_masses WHERE muscle_masses.user_id = $2;
 
--- name: DeleteBodyFatPerc :exec
-DELETE FROM body_fat_percents
-WHERE id = $1 AND user_id = $2;
+-- name: DeleteBodyFatPerc :one
+WITH deleted AS (
+    DELETE FROM body_fat_percents WHERE body_fat_percents.id = $1 AND body_fat_percents.user_id = $2 RETURNING body_fat_percents.user_id
+)
+SELECT COUNT(*) FROM body_fat_percents WHERE body_fat_percents.user_id = $2;
 
 -- name: DeleteAllBodyWeights :exec
 DELETE FROM body_weights

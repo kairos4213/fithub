@@ -101,18 +101,34 @@ templ GoalsTabs(activeTab string) {
 templ GoalsCardGrid(goals []database.Goal, activeTab string) {
 	<div id="goals-card-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 		if len(goals) == 0 {
-			<div class="md:col-span-2 lg:col-span-3 text-center py-12 text-base-content/50">
+			<div id="goals-empty" class="md:col-span-2 lg:col-span-3 text-center py-12 text-base-content/50">
 				if activeTab == "in_progress" {
 					<p>No goals in progress. Create one above!</p>
 				} else {
 					<p>No completed goals yet.</p>
 				}
 			</div>
+		} else {
+			<div id="goals-empty" class="hidden"></div>
 		}
 		for _, goal := range goals {
 			@GoalCard(goal)
 		}
 	</div>
+}
+
+templ GoalsEmptyOOB(show bool, activeTab string) {
+	if show {
+		<div id="goals-empty" class="md:col-span-2 lg:col-span-3 text-center py-12 text-base-content/50" hx-swap-oob="outerHTML">
+			if activeTab == "in_progress" {
+				<p>No goals in progress. Create one above!</p>
+			} else {
+				<p>No completed goals yet.</p>
+			}
+		</div>
+	} else {
+		<div id="goals-empty" class="hidden" hx-swap-oob="outerHTML"></div>
+	}
 }
 
 templ GoalCard(goal database.Goal) {
@@ -142,7 +158,7 @@ templ GoalCard(goal database.Goal) {
 					class="btn btn-warning btn-sm"
 					hx-delete={ templ.URL(fmt.Sprintf("/goals/%v", goal.ID)) }
 					hx-target={ fmt.Sprintf("#goal-%v", goal.ID) }
-					hx-swap="delete"
+					hx-swap="outerHTML"
 					hx-target-4*="body"
 				>Delete</button>
 			</div>

@@ -76,6 +76,44 @@ func (q *Queries) DeleteAllUserWorkouts(ctx context.Context, userID uuid.UUID) e
 	return err
 }
 
+const deleteCompletedWorkout = `-- name: DeleteCompletedWorkout :one
+WITH deleted AS (
+    DELETE FROM workouts WHERE workouts.id = $1 AND workouts.user_id = $2 RETURNING workouts.user_id
+)
+SELECT COUNT(*) FROM workouts WHERE workouts.user_id = $2 AND workouts.date_completed IS NOT NULL
+`
+
+type DeleteCompletedWorkoutParams struct {
+	ID     uuid.UUID
+	UserID uuid.UUID
+}
+
+func (q *Queries) DeleteCompletedWorkout(ctx context.Context, arg DeleteCompletedWorkoutParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, deleteCompletedWorkout, arg.ID, arg.UserID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const deleteUpcomingWorkout = `-- name: DeleteUpcomingWorkout :one
+WITH deleted AS (
+    DELETE FROM workouts WHERE workouts.id = $1 AND workouts.user_id = $2 RETURNING workouts.user_id
+)
+SELECT COUNT(*) FROM workouts WHERE workouts.user_id = $2 AND workouts.date_completed IS NULL
+`
+
+type DeleteUpcomingWorkoutParams struct {
+	ID     uuid.UUID
+	UserID uuid.UUID
+}
+
+func (q *Queries) DeleteUpcomingWorkout(ctx context.Context, arg DeleteUpcomingWorkoutParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, deleteUpcomingWorkout, arg.ID, arg.UserID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const deleteWorkout = `-- name: DeleteWorkout :exec
 DELETE FROM workouts
 WHERE id = $1 AND user_id = $2

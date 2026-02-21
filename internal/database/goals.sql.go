@@ -69,6 +69,25 @@ func (q *Queries) DeleteAllUserGoals(ctx context.Context, userID uuid.UUID) erro
 	return err
 }
 
+const deleteCompletedGoal = `-- name: DeleteCompletedGoal :one
+WITH deleted AS (
+    DELETE FROM goals WHERE goals.id = $1 AND goals.user_id = $2 RETURNING goals.user_id
+)
+SELECT COUNT(*) FROM goals WHERE goals.user_id = $2 AND goals.status = 'completed'
+`
+
+type DeleteCompletedGoalParams struct {
+	ID     uuid.UUID
+	UserID uuid.UUID
+}
+
+func (q *Queries) DeleteCompletedGoal(ctx context.Context, arg DeleteCompletedGoalParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, deleteCompletedGoal, arg.ID, arg.UserID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const deleteGoal = `-- name: DeleteGoal :exec
 DELETE FROM goals
 WHERE id = $1 AND user_id = $2
@@ -82,6 +101,25 @@ type DeleteGoalParams struct {
 func (q *Queries) DeleteGoal(ctx context.Context, arg DeleteGoalParams) error {
 	_, err := q.db.ExecContext(ctx, deleteGoal, arg.ID, arg.UserID)
 	return err
+}
+
+const deleteInProgressGoal = `-- name: DeleteInProgressGoal :one
+WITH deleted AS (
+    DELETE FROM goals WHERE goals.id = $1 AND goals.user_id = $2 RETURNING goals.user_id
+)
+SELECT COUNT(*) FROM goals WHERE goals.user_id = $2 AND goals.status = 'in_progress'
+`
+
+type DeleteInProgressGoalParams struct {
+	ID     uuid.UUID
+	UserID uuid.UUID
+}
+
+func (q *Queries) DeleteInProgressGoal(ctx context.Context, arg DeleteInProgressGoalParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, deleteInProgressGoal, arg.ID, arg.UserID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
 }
 
 const getAllUserGoals = `-- name: GetAllUserGoals :many

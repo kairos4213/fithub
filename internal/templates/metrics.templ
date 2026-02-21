@@ -105,7 +105,9 @@ templ BodyweightsContent(bodyweights []database.BodyWeight) {
 	</div>
 	<div id="metrics-list" class="space-y-2">
 		if len(bodyweights) == 0 {
-			<p class="text-center py-8 text-base-content/50">No body weight entries yet.</p>
+			<p id="metrics-empty" class="text-center py-8 text-base-content/50">No body weight entries yet.</p>
+		} else {
+			<div id="metrics-empty" class="hidden"></div>
 		}
 		for _, bw := range bodyweights {
 			@BWRow(bw)
@@ -130,7 +132,7 @@ templ BWRow(bw database.BodyWeight) {
 				class="btn btn-warning btn-xs"
 				hx-delete={ templ.URL(fmt.Sprintf("/metrics/bodyweights/%v", bw.ID)) }
 				hx-target={ fmt.Sprintf("#bw-%v", bw.ID) }
-				hx-swap="delete"
+				hx-swap="outerHTML"
 				hx-target-4*="body"
 			>Delete</button>
 		</div>
@@ -211,7 +213,9 @@ templ MuscleMassesContent(muscleMasses []database.MuscleMass) {
 	</div>
 	<div id="metrics-list" class="space-y-2">
 		if len(muscleMasses) == 0 {
-			<p class="text-center py-8 text-base-content/50">No muscle mass entries yet.</p>
+			<p id="metrics-empty" class="text-center py-8 text-base-content/50">No muscle mass entries yet.</p>
+		} else {
+			<div id="metrics-empty" class="hidden"></div>
 		}
 		for _, mm := range muscleMasses {
 			@MMRow(mm)
@@ -236,7 +240,7 @@ templ MMRow(mm database.MuscleMass) {
 				class="btn btn-warning btn-xs"
 				hx-delete={ templ.URL(fmt.Sprintf("/metrics/muscleMasses/%v", mm.ID)) }
 				hx-target={ fmt.Sprintf("#mm-%v", mm.ID) }
-				hx-swap="delete"
+				hx-swap="outerHTML"
 				hx-target-4*="body"
 			>Delete</button>
 		</div>
@@ -317,12 +321,22 @@ templ BfPercentsContent(bfPercents []database.BodyFatPercent) {
 	</div>
 	<div id="metrics-list" class="space-y-2">
 		if len(bfPercents) == 0 {
-			<p class="text-center py-8 text-base-content/50">No body fat entries yet.</p>
+			<p id="metrics-empty" class="text-center py-8 text-base-content/50">No body fat entries yet.</p>
+		} else {
+			<div id="metrics-empty" class="hidden"></div>
 		}
 		for _, bf := range bfPercents {
 			@BFRow(bf)
 		}
 	</div>
+}
+
+templ MetricsEmptyOOB(show bool, message string) {
+	if show {
+		<p id="metrics-empty" class="text-center py-8 text-base-content/50" hx-swap-oob="outerHTML">{ message }</p>
+	} else {
+		<div id="metrics-empty" class="hidden" hx-swap-oob="outerHTML"></div>
+	}
 }
 
 templ BFRow(bf database.BodyFatPercent) {
@@ -342,7 +356,7 @@ templ BFRow(bf database.BodyFatPercent) {
 				class="btn btn-warning btn-xs"
 				hx-delete={ templ.URL(fmt.Sprintf("/metrics/bfPercents/%v", bf.ID)) }
 				hx-target={ fmt.Sprintf("#bf-%v", bf.ID) }
-				hx-swap="delete"
+				hx-swap="outerHTML"
 				hx-target-4*="body"
 			>Delete</button>
 		</div>

@@ -282,20 +282,46 @@ func (h *Handler) DeleteUserWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.cfg.DB.DeleteWorkout(r.Context(), database.DeleteWorkoutParams{
-		ID:     workoutID,
-		UserID: userID,
-	})
+	currentURL := r.Header.Get("HX-Current-URL")
+
+	// Detail page delete — redirect to list
+	if strings.Contains(currentURL, "/workouts/"+workoutID.String()) {
+		err = h.cfg.DB.DeleteWorkout(r.Context(), database.DeleteWorkoutParams{
+			ID:     workoutID,
+			UserID: userID,
+		})
+		if err != nil {
+			HandleInternalServerError(w, r)
+			h.cfg.Logger.Error("failed to delete workout", slog.String("error", err.Error()))
+			return
+		}
+		w.Header().Set("HX-Location", `{ "path": "/workouts" }`)
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+
+	// List page delete — use tab-specific query to get remaining count
+	var count int64
+	tab := "upcoming"
+	if strings.Contains(currentURL, "tab=completed") {
+		tab = "completed"
+		count, err = h.cfg.DB.DeleteCompletedWorkout(r.Context(), database.DeleteCompletedWorkoutParams{ID: workoutID, UserID: userID})
+	} else {
+		count, err = h.cfg.DB.DeleteUpcomingWorkout(r.Context(), database.DeleteUpcomingWorkoutParams{ID: workoutID, UserID: userID})
+	}
 	if err != nil {
 		HandleInternalServerError(w, r)
 		h.cfg.Logger.Error("failed to delete workout", slog.String("error", err.Error()))
 		return
 	}
 
-	currentURL := r.Header.Get("HX-Current-URL")
-	if strings.Contains(currentURL, "/workouts/"+workoutID.String()) {
-		w.Header().Set("HX-Location", `{ "path": "/workouts" }`)
-		w.WriteHeader(http.StatusNoContent)
+	if count <= 1 {
+		err = templates.WorkoutsEmptyOOB(true, tab).Render(r.Context(), w)
+		if err != nil {
+			HandleInternalServerError(w, r)
+			h.cfg.Logger.Error("failed to render workouts empty oob", slog.String("error", err.Error()))
+			return
+		}
 		return
 	}
 	w.WriteHeader(http.StatusOK)

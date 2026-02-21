@@ -107,6 +107,12 @@ func (h *Handler) LogMetrics(w http.ResponseWriter, r *http.Request) {
 			h.cfg.Logger.Error("failed to render body weights", slog.String("error", err.Error()))
 			return
 		}
+		err = templates.MetricsEmptyOOB(false, "").Render(r.Context(), w)
+		if err != nil {
+			HandleInternalServerError(w, r)
+			h.cfg.Logger.Error("failed to render metrics empty oob", slog.String("error", err.Error()))
+			return
+		}
 	case "muscleMasses":
 		entry := r.FormValue("muscle-mass")
 		if errs := validate.Fields(
@@ -131,6 +137,12 @@ func (h *Handler) LogMetrics(w http.ResponseWriter, r *http.Request) {
 			h.cfg.Logger.Error("failed to render muscle masses", slog.String("error", err.Error()))
 			return
 		}
+		err = templates.MetricsEmptyOOB(false, "").Render(r.Context(), w)
+		if err != nil {
+			HandleInternalServerError(w, r)
+			h.cfg.Logger.Error("failed to render metrics empty oob", slog.String("error", err.Error()))
+			return
+		}
 	case "bfPercents":
 		entry := r.FormValue("bf-percent")
 		if errs := validate.Fields(
@@ -153,6 +165,12 @@ func (h *Handler) LogMetrics(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			HandleInternalServerError(w, r)
 			h.cfg.Logger.Error("failed to render body fats", slog.String("error", err.Error()))
+			return
+		}
+		err = templates.MetricsEmptyOOB(false, "").Render(r.Context(), w)
+		if err != nil {
+			HandleInternalServerError(w, r)
+			h.cfg.Logger.Error("failed to render metrics empty oob", slog.String("error", err.Error()))
 			return
 		}
 	}
@@ -262,33 +280,44 @@ func (h *Handler) DeleteMetrics(w http.ResponseWriter, r *http.Request) {
 		h.cfg.Logger.Error("failed to parse metric id", slog.String("error", err.Error()))
 		return
 	}
+	var count int64
+	var emptyMessage string
+
 	switch metricType {
 	case "bodyweights":
-		err := h.cfg.DB.DeleteBodyWeight(r.Context(), database.DeleteBodyWeightParams{ID: id, UserID: userID})
+		count, err = h.cfg.DB.DeleteBodyWeight(r.Context(), database.DeleteBodyWeightParams{ID: id, UserID: userID})
 		if err != nil {
 			HandleInternalServerError(w, r)
 			h.cfg.Logger.Error("failed to delete body weight", slog.String("error", err.Error()))
 			return
 		}
-
-		w.WriteHeader(http.StatusOK)
+		emptyMessage = "No body weight entries yet."
 	case "muscleMasses":
-		err := h.cfg.DB.DeleteMuscleMass(r.Context(), database.DeleteMuscleMassParams{ID: id, UserID: userID})
+		count, err = h.cfg.DB.DeleteMuscleMass(r.Context(), database.DeleteMuscleMassParams{ID: id, UserID: userID})
 		if err != nil {
 			HandleInternalServerError(w, r)
 			h.cfg.Logger.Error("failed to delete muscle mass", slog.String("error", err.Error()))
 			return
 		}
-
-		w.WriteHeader(http.StatusOK)
+		emptyMessage = "No muscle mass entries yet."
 	case "bfPercents":
-		err := h.cfg.DB.DeleteBodyFatPerc(r.Context(), database.DeleteBodyFatPercParams{ID: id, UserID: userID})
+		count, err = h.cfg.DB.DeleteBodyFatPerc(r.Context(), database.DeleteBodyFatPercParams{ID: id, UserID: userID})
 		if err != nil {
 			HandleInternalServerError(w, r)
 			h.cfg.Logger.Error("failed to delete body fat", slog.String("error", err.Error()))
 			return
 		}
-
-		w.WriteHeader(http.StatusOK)
+		emptyMessage = "No body fat entries yet."
 	}
+
+	if count <= 1 {
+		err = templates.MetricsEmptyOOB(true, emptyMessage).Render(r.Context(), w)
+		if err != nil {
+			HandleInternalServerError(w, r)
+			h.cfg.Logger.Error("failed to render metrics empty oob", slog.String("error", err.Error()))
+			return
+		}
+		return
+	}
+	w.WriteHeader(http.StatusOK)
 }

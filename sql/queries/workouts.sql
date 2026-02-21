@@ -53,6 +53,18 @@ RETURNING *;
 DELETE FROM workouts
 WHERE id = $1 AND user_id = $2;
 
+-- name: DeleteUpcomingWorkout :one
+WITH deleted AS (
+    DELETE FROM workouts WHERE workouts.id = $1 AND workouts.user_id = $2 RETURNING workouts.user_id
+)
+SELECT COUNT(*) FROM workouts WHERE workouts.user_id = $2 AND workouts.date_completed IS NULL;
+
+-- name: DeleteCompletedWorkout :one
+WITH deleted AS (
+    DELETE FROM workouts WHERE workouts.id = $1 AND workouts.user_id = $2 RETURNING workouts.user_id
+)
+SELECT COUNT(*) FROM workouts WHERE workouts.user_id = $2 AND workouts.date_completed IS NOT NULL;
+
 -- name: DeleteAllUserWorkouts :exec
 DELETE FROM workouts
 WHERE user_id = $1;

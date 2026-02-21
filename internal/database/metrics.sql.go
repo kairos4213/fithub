@@ -128,9 +128,11 @@ func (q *Queries) DeleteAllMuscleMasses(ctx context.Context, userID uuid.UUID) e
 	return err
 }
 
-const deleteBodyFatPerc = `-- name: DeleteBodyFatPerc :exec
-DELETE FROM body_fat_percents
-WHERE id = $1 AND user_id = $2
+const deleteBodyFatPerc = `-- name: DeleteBodyFatPerc :one
+WITH deleted AS (
+    DELETE FROM body_fat_percents WHERE body_fat_percents.id = $1 AND body_fat_percents.user_id = $2 RETURNING body_fat_percents.user_id
+)
+SELECT COUNT(*) FROM body_fat_percents WHERE body_fat_percents.user_id = $2
 `
 
 type DeleteBodyFatPercParams struct {
@@ -138,14 +140,18 @@ type DeleteBodyFatPercParams struct {
 	UserID uuid.UUID
 }
 
-func (q *Queries) DeleteBodyFatPerc(ctx context.Context, arg DeleteBodyFatPercParams) error {
-	_, err := q.db.ExecContext(ctx, deleteBodyFatPerc, arg.ID, arg.UserID)
-	return err
+func (q *Queries) DeleteBodyFatPerc(ctx context.Context, arg DeleteBodyFatPercParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, deleteBodyFatPerc, arg.ID, arg.UserID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
 }
 
-const deleteBodyWeight = `-- name: DeleteBodyWeight :exec
-DELETE FROM body_weights
-WHERE id = $1 AND user_id = $2
+const deleteBodyWeight = `-- name: DeleteBodyWeight :one
+WITH deleted AS (
+    DELETE FROM body_weights WHERE body_weights.id = $1 AND body_weights.user_id = $2 RETURNING body_weights.user_id
+)
+SELECT COUNT(*) FROM body_weights WHERE body_weights.user_id = $2
 `
 
 type DeleteBodyWeightParams struct {
@@ -153,14 +159,18 @@ type DeleteBodyWeightParams struct {
 	UserID uuid.UUID
 }
 
-func (q *Queries) DeleteBodyWeight(ctx context.Context, arg DeleteBodyWeightParams) error {
-	_, err := q.db.ExecContext(ctx, deleteBodyWeight, arg.ID, arg.UserID)
-	return err
+func (q *Queries) DeleteBodyWeight(ctx context.Context, arg DeleteBodyWeightParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, deleteBodyWeight, arg.ID, arg.UserID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
 }
 
-const deleteMuscleMass = `-- name: DeleteMuscleMass :exec
-DELETE FROM muscle_masses
-WHERE id = $1 AND user_id = $2
+const deleteMuscleMass = `-- name: DeleteMuscleMass :one
+WITH deleted AS (
+    DELETE FROM muscle_masses WHERE muscle_masses.id = $1 AND muscle_masses.user_id = $2 RETURNING muscle_masses.user_id
+)
+SELECT COUNT(*) FROM muscle_masses WHERE muscle_masses.user_id = $2
 `
 
 type DeleteMuscleMassParams struct {
@@ -168,9 +178,11 @@ type DeleteMuscleMassParams struct {
 	UserID uuid.UUID
 }
 
-func (q *Queries) DeleteMuscleMass(ctx context.Context, arg DeleteMuscleMassParams) error {
-	_, err := q.db.ExecContext(ctx, deleteMuscleMass, arg.ID, arg.UserID)
-	return err
+func (q *Queries) DeleteMuscleMass(ctx context.Context, arg DeleteMuscleMassParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, deleteMuscleMass, arg.ID, arg.UserID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
 }
 
 const getAllBodyFatPercs = `-- name: GetAllBodyFatPercs :many

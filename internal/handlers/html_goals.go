@@ -231,15 +231,30 @@ func (h *Handler) DeleteGoal(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.cfg.DB.DeleteGoal(r.Context(), database.DeleteGoalParams{
-		ID:     goalID,
-		UserID: userID,
-	})
+	// List page delete — use tab-specific query to get remaining count
+	currentURL := r.Header.Get("HX-Current-URL")
+	var count int64
+	tab := "in_progress"
+	if strings.Contains(currentURL, "tab=completed") {
+		tab = "completed"
+		count, err = h.cfg.DB.DeleteCompletedGoal(r.Context(), database.DeleteCompletedGoalParams{ID: goalID, UserID: userID})
+	} else {
+		count, err = h.cfg.DB.DeleteInProgressGoal(r.Context(), database.DeleteInProgressGoalParams{ID: goalID, UserID: userID})
+	}
 	if err != nil {
 		HandleInternalServerError(w, r)
 		h.cfg.Logger.Error("failed to delete goal", slog.String("error", err.Error()))
 		return
 	}
 
+	if count <= 1 {
+		err = templates.GoalsEmptyOOB(true, tab).Render(r.Context(), w)
+		if err != nil {
+			HandleInternalServerError(w, r)
+			h.cfg.Logger.Error("failed to render goals empty oob", slog.String("error", err.Error()))
+			return
+		}
+		return
+	}
 	w.WriteHeader(http.StatusOK)
 }

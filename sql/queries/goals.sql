@@ -32,6 +32,18 @@ RETURNING *;
 DELETE FROM goals
 WHERE id = $1 AND user_id = $2;
 
+-- name: DeleteInProgressGoal :one
+WITH deleted AS (
+    DELETE FROM goals WHERE goals.id = $1 AND goals.user_id = $2 RETURNING goals.user_id
+)
+SELECT COUNT(*) FROM goals WHERE goals.user_id = $2 AND goals.status = 'in_progress';
+
+-- name: DeleteCompletedGoal :one
+WITH deleted AS (
+    DELETE FROM goals WHERE goals.id = $1 AND goals.user_id = $2 RETURNING goals.user_id
+)
+SELECT COUNT(*) FROM goals WHERE goals.user_id = $2 AND goals.status = 'completed';
+
 -- name: DeleteAllUserGoals :exec
 DELETE FROM goals
 WHERE user_id = $1;

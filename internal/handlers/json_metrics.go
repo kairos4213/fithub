@@ -270,7 +270,7 @@ func (h *Handler) DeleteMetric(w http.ResponseWriter, r *http.Request) {
 
 	switch metricType {
 	case "body_weights":
-		err := h.cfg.DB.DeleteBodyWeight(r.Context(), database.DeleteBodyWeightParams{
+		_, err := h.cfg.DB.DeleteBodyWeight(r.Context(), database.DeleteBodyWeightParams{
 			ID:     metricID,
 			UserID: userID,
 		})
@@ -281,7 +281,7 @@ func (h *Handler) DeleteMetric(w http.ResponseWriter, r *http.Request) {
 
 		utils.RespondWithJSON(w, http.StatusNoContent, Metric{})
 	case "muscle_masses":
-		err := h.cfg.DB.DeleteMuscleMass(r.Context(), database.DeleteMuscleMassParams{
+		_, err := h.cfg.DB.DeleteMuscleMass(r.Context(), database.DeleteMuscleMassParams{
 			ID:     metricID,
 			UserID: userID,
 		})
@@ -291,7 +291,7 @@ func (h *Handler) DeleteMetric(w http.ResponseWriter, r *http.Request) {
 		}
 		utils.RespondWithJSON(w, http.StatusNoContent, Metric{})
 	case "body_fat_percentages":
-		err := h.cfg.DB.DeleteBodyFatPerc(r.Context(), database.DeleteBodyFatPercParams{
+		_, err := h.cfg.DB.DeleteBodyFatPerc(r.Context(), database.DeleteBodyFatPercParams{
 			ID:     metricID,
 			UserID: userID,
 		})

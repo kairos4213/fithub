@@ -101,18 +101,34 @@ templ WorkoutsTabs(activeTab string) {
 templ WorkoutsCardGrid(workouts []database.Workout, activeTab string) {
 	<div id="workouts-card-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 		if len(workouts) == 0 {
-			<div class="md:col-span-2 lg:col-span-3 text-center py-12 text-base-content/50">
+			<div id="workouts-empty" class="md:col-span-2 lg:col-span-3 text-center py-12 text-base-content/50">
 				if activeTab == "upcoming" {
 					<p>No upcoming workouts. Create one above!</p>
 				} else {
 					<p>No completed workouts yet.</p>
 				}
 			</div>
+		} else {
+			<div id="workouts-empty" class="hidden"></div>
 		}
 		for _, workout := range workouts {
 			@WorkoutCard(workout)
 		}
 	</div>
+}
+
+templ WorkoutsEmptyOOB(show bool, activeTab string) {
+	if show {
+		<div id="workouts-empty" class="md:col-span-2 lg:col-span-3 text-center py-12 text-base-content/50" hx-swap-oob="outerHTML">
+			if activeTab == "upcoming" {
+				<p>No upcoming workouts. Create one above!</p>
+			} else {
+				<p>No completed workouts yet.</p>
+			}
+		</div>
+	} else {
+		<div id="workouts-empty" class="hidden" hx-swap-oob="outerHTML"></div>
+	}
 }
 
 templ WorkoutCard(workout database.Workout) {
@@ -147,7 +163,7 @@ templ WorkoutCard(workout database.Workout) {
 					class="btn btn-warning btn-sm"
 					hx-delete={ templ.URL(fmt.Sprintf("/workouts/%v", workout.ID)) }
 					hx-target={ fmt.Sprintf("#workout-%v", workout.ID) }
-					hx-swap="delete"
+					hx-swap="outerHTML"
 					hx-target-4*="body"
 				>Delete</button>
 			</div>
