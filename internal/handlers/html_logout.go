@@ -21,7 +21,7 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	if refreshCookie != nil {
 		err = h.cfg.DB.RevokeRefreshToken(r.Context(), refreshCookie.Value)
 		if err != nil {
-			h.cfg.Logger.Error("failed to revoke refresh token", slog.String("refresh_token", refreshCookie.Value), slog.String("error", err.Error()))
+			h.cfg.Logger.Error("failed to revoke refresh token", slog.String("error", err.Error()))
 		}
 	}
 

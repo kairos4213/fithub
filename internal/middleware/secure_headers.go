@@ -9,9 +9,11 @@ func (mw *Middleware) SecureHeaders(next http.Handler) http.Handler {
 		w.Header().Set("Referrer-Policy", "strict-origin-when-cross-origin")
 		w.Header().Set("Content-Security-Policy",
 			"default-src 'self'; "+
-				"script-src 'self' https://cdn.jsdelivr.net 'unsafe-eval'; "+
+				"script-src 'self' https://cdn.jsdelivr.net; "+
 				"style-src 'self' 'unsafe-inline'; "+
-				"img-src 'self'")
+				"img-src 'self'; "+
+				"connect-src 'self'; "+
+				"font-src 'self'")
 
 		next.ServeHTTP(w, r)
 	})

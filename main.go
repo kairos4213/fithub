@@ -16,9 +16,8 @@ import (
 )
 
 func main() {
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Fatalf("warning: missing or misconfigured .env: %v", err)
+	if err := godotenv.Load(".env"); err != nil {
+		log.Println("No .env file found, reading env vars from environment")
 	}
 
 	port := os.Getenv("PORT")
@@ -34,6 +33,9 @@ func main() {
 	tokenSecret := os.Getenv("TOKEN_SECRET")
 	if tokenSecret == "" {
 		log.Fatal("TOKEN_SECRET environment variable is not set")
+	}
+	if len(tokenSecret) < 32 {
+		log.Fatal("TOKEN_SECRET must be at least 32 characters")
 	}
 
 	dbURL := os.Getenv("DATABASE_URL")
@@ -54,8 +56,12 @@ func main() {
 	dbQueries := database.New(db)
 	logger := slog.Default()
 
+	env := os.Getenv("GO_ENV")
 	baseURL := os.Getenv("BASE_URL")
 	if baseURL == "" {
+		if env == "production" {
+			log.Fatal("BASE_URL must be set in production")
+		}
 		baseURL = fmt.Sprintf("http://localhost:%s", port)
 	}
 
@@ -74,6 +80,6 @@ func main() {
 
 	cfg := config.New(dbQueries, db, logger, tokenSecret, oauthProviders)
 
-	srv := server.New(port, filePathRoot, cfg)
+	srv := server.New(port, filePathRoot, cfg, db)
 	srv.Start()
 }

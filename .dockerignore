@@ -1,0 +1,8 @@
+.env
+.git
+tmp/
+node_modules/
+*.pem
+*.toml
+.sqlfluff
+.claude/

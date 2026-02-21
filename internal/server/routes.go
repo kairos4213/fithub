@@ -116,5 +116,5 @@ func (s *Server) registerAPIRoutes(mux *http.ServeMux) {
 	mux.Handle("DELETE /api/v1/workouts", s.mw.Auth(http.HandlerFunc(s.handler.DeleteAllUserWorkouts)))
 
 	// Health
-	mux.HandleFunc("GET /api/v1/healthz", handlers.Readiness)
+	mux.HandleFunc("GET /api/v1/healthz", s.handler.Readiness)
 }

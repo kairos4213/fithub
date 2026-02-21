@@ -28,3 +28,8 @@ sync_static:
 
 dev:
 	make -j4 tailwind templ server sync_static
+
+build:
+	go tool templ generate
+	npx --yes @tailwindcss/cli -i "./static/css/input.css" -o "./static/css/output.css" --minify
+	CGO_ENABLED=0 GOOS=linux go build -o fithub .

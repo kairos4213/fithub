@@ -66,15 +66,18 @@ func (h *Handler) GoogleCallback(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid OAuth state", http.StatusForbidden)
 		return
 	}
-	h.cfg.Logger.Info("oauth callback debug",
-		slog.String("cookie_value", stateCookie.Value),
-		slog.String("query_state", r.URL.Query().Get("state")),
-	)
 	if stateCookie.Value != r.URL.Query().Get("state") {
 		http.Error(w, "Invalid OAuth state", http.StatusForbidden)
 		return
 	}
-	http.SetCookie(w, &http.Cookie{Name: "oauth_state", MaxAge: -1, Path: "/"})
+	http.SetCookie(w, &http.Cookie{
+		Name:     "oauth_state",
+		MaxAge:   -1,
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteDefaultMode,
+	})
 
 	// Exchange authorization code for tokens
 	code := r.URL.Query().Get("code")
