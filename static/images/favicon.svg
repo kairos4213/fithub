@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="fg" x1="0" y1="0" x2="0.5" y2="1">
+      <stop offset="0%" stop-color="#7aa2f7"/>
+      <stop offset="100%" stop-color="#bb9af7"/>
+    </linearGradient>
+  </defs>
+  <!-- Handle -->
+  <path d="M28,48 C28,14 72,14 72,48" fill="none" stroke="url(#fg)" stroke-width="10" stroke-linecap="round"/>
+  <!-- Body -->
+  <ellipse cx="50" cy="66" rx="36" ry="30" fill="url(#fg)"/>
+  <!-- Flat bottom -->
+  <rect x="26" y="90" width="48" height="6" rx="3" fill="url(#fg)"/>
+  <!-- Eyes -->
+  <circle cx="38" cy="62" r="6" fill="#1a1b26"/>
+  <circle cx="62" cy="62" r="6" fill="#1a1b26"/>
+  <!-- Pupils -->
+  <circle cx="40" cy="62" r="2.5" fill="#c0caf5"/>
+  <circle cx="64" cy="62" r="2.5" fill="#c0caf5"/>
+  <!-- Smile -->
+  <path d="M40,74 Q50,82 60,74" fill="none" stroke="#1a1b26" stroke-width="2.5" stroke-linecap="round"/>
+</svg>

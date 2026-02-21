@@ -3,11 +3,13 @@ package templates
 templ Index() {
 	<section class="hero bg-base-200 min-h-screen">
 		<div class="hero-content text-center">
-			<div class="max-w-md">
-				<h1 class="text-5xl font-bold">Welcome to FitHub!</h1>
-				<p class="py-6">Hit one of the buttons below to enter the hub</p>
-				<a href={ templ.URL("/login") } class="btn btn-primary btn-outline">Login</a>
-				<a href={ templ.URL("/register") } class="btn btn-secondary btn-outline">Register</a>
+			<div class="flex flex-col items-center max-w-md">
+				@logoLarge()
+				<h1 class="text-5xl font-bold mt-6">FitHub</h1>
+				<div class="mt-6 flex gap-4">
+					<a href={ templ.URL("/login") } class="btn btn-primary btn-outline">Login</a>
+					<a href={ templ.URL("/register") } class="btn btn-secondary btn-outline">Register</a>
+				</div>
 			</div>
 		</div>
 	</section>
