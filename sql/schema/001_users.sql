@@ -8,7 +8,7 @@ create table users (
     last_name varchar(100) not null,
     email varchar(254) unique not null,
     hashed_password text not null,
-    profile_image varchar(255) default null,
+    profile_image text default null,
     preferences json default null,
     is_admin boolean default false not null
 );

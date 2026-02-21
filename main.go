@@ -54,6 +54,11 @@ func main() {
 	dbQueries := database.New(db)
 	logger := slog.Default()
 
+	baseURL := os.Getenv("BASE_URL")
+	if baseURL == "" {
+		baseURL = fmt.Sprintf("http://localhost:%s", port)
+	}
+
 	oauthProviders := make(map[string]config.OAuthProvider)
 	googleClientID := os.Getenv("GOOGLE_CLIENT_ID")
 	googleClientSecret := os.Getenv("GOOGLE_CLIENT_SECRET")
@@ -61,7 +66,7 @@ func main() {
 		oauthProviders["google"] = config.OAuthProvider{
 			ClientID:     googleClientID,
 			ClientSecret: googleClientSecret,
-			RedirectURL:  fmt.Sprintf("http://localhost:%s/auth/google/callback", port),
+			RedirectURL:  baseURL + "/auth/google/callback",
 		}
 	} else {
 		log.Println("WARNING: GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET not set; Google OAuth disabled")
