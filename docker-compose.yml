@@ -3,6 +3,7 @@ services:
     build: .
     ports:
       - "8080:8080"
+    entrypoint: ["/bin/sh", "-c", "until goose -dir sql/schema postgres \"$$DATABASE_URL\" up; do echo 'Retrying migrations in 2s...'; sleep 2; done && ./fithub"]
     environment:
       PORT: "8080"
       FILEPATH_ROOT: "./static"
@@ -14,6 +15,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      - fithub
 
   db:
     image: postgres:17-alpine
@@ -30,18 +33,12 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-
-  migrate:
-    image: ghcr.io/pressly/goose:latest
-    environment:
-      GOOSE_DRIVER: postgres
-      GOOSE_DBSTRING: "postgres://fithub:fithub@db:5432/fithub?sslmode=disable"
-    volumes:
-      - ./sql/schema:/migrations
-    command: ["-dir", "/migrations", "up"]
-    depends_on:
-      db:
-        condition: service_healthy
+    networks:
+      - fithub
 
 volumes:
   pgdata:
+
+networks:
+  fithub:
+    driver: bridge

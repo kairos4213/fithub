@@ -9,6 +9,10 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 
+# Cache npm dependencies
+COPY package.json package-lock.json ./
+RUN npm ci
+
 # Copy source
 COPY . .
 
@@ -16,7 +20,7 @@ COPY . .
 RUN go tool templ generate
 
 # Build Tailwind CSS
-RUN npx --yes @tailwindcss/cli \
+RUN npx @tailwindcss/cli \
     -i ./static/css/input.css \
     -o ./static/css/output.css \
     --minify
@@ -51,4 +55,4 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
     CMD wget -qO- http://localhost:8080/api/v1/healthz || exit 1
 
-ENTRYPOINT ["./fithub"]
+CMD ["./fithub"]
