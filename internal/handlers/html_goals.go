@@ -209,6 +209,13 @@ func (h *Handler) EditGoal(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Redirect to completed tab when marking a goal complete
+	if reqStatus == "completed" {
+		w.Header().Set("HX-Location", `{ "path": "/goals?tab=completed" }`)
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+
 	err = templates.GoalCard(updatedGoal).Render(r.Context(), w)
 	if err != nil {
 		HandleInternalServerError(w, r)

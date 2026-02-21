@@ -260,6 +260,13 @@ func (h *Handler) EditUserWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Redirect to completed tab when marking a workout complete from the list
+	if dateCompleted.Valid {
+		w.Header().Set("HX-Location", `{ "path": "/workouts?tab=completed" }`)
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+
 	err = templates.WorkoutCard(updatedWorkout).Render(r.Context(), w)
 	if err != nil {
 		HandleInternalServerError(w, r)
