@@ -239,6 +239,7 @@ templ WorkoutPage(
 			</div>
 		</div>
 		<!-- Exercise list -->
+		// TODO: Make number of exercises show as dynamic front-end num
 		<h3 class="text-xl font-semibold mb-3">Exercises ({ fmt.Sprintf("%d", len(workoutExercises)) })</h3>
 		@WorkoutExercisesList(workout, workoutExercises)
 	</section>
@@ -353,7 +354,7 @@ templ WorkoutExercisesList(workout database.Workout, workoutExercises []database
 			@WorkoutExerciseCard(workoutExercise)
 		}
 	</div>
-	@WorkoutExerciseAddCard(workout)
+	//@WorkoutExerciseAddCard(workout)
 }
 
 templ WorkoutExerciseCard(workoutExercise database.WorkoutAndExercisesRow) {
@@ -606,6 +607,7 @@ templ exerciseDataEdit() {
 	</div>
 }
 
+// FIX: Removed from WorkoutExercisesList until we add dynamic search to this
 templ WorkoutExerciseAddCard(workout database.Workout) {
 	<div id="add-exercise-card" class="mt-3" x-data="workoutExerciseFooter()" x-init="updateArrays(plannedSets)">
 		<button x-show="!open" class="btn btn-primary btn-outline w-full" @click="open = true">+ Add Exercise</button>
