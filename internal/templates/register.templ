@@ -10,7 +10,10 @@ templ RegisterPage() {
 			hx-target-500="body"
 			class="justify-self-center"
 		>
-			<h1 class="text-5xl">FitHub</h1>
+			<div class="flex items-center gap-3 mb-2">
+				@logoSVG()
+				<h1 class="text-5xl">FitHub</h1>
+			</div>
 			<fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4">
 				<legend class="fieldset-legend text-lg">Register</legend>
 				<a href="/auth/google/login" class="btn btn-outline w-full" hx-boost="false" hx-disable>
@@ -45,8 +48,8 @@ templ RegisterPage() {
 				<div id="form-error" class="hidden"></div>
 				<button class="btn btn-secondary mt-4" type="submit">Register</button>
 			</fieldset>
-			<p class="text-lg px-6 mt-4 justify-self-center">
-				Already a member? <a href={ templ.URL("/login") } class="btn btn-primary ml-2">Login Here</a>
+			<p class="text-lg px-6 mt-4 justify-self-center whitespace-nowrap">
+				Already a member? <a href={ templ.URL("/login") } class="btn btn-primary btn-sm ml-2">Login Here</a>
 			</p>
 		</form>
 	</section>
