@@ -1,0 +1,31 @@
+# fly.toml app configuration file generated for fithub on 2026-02-20T21:22:09-06:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'fithub'
+primary_region = 'ord'
+
+[build]
+
+[deploy]
+  release_command = '/bin/sh -c "goose -dir sql/schema postgres \"$DATABASE_URL\" up"'
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 0
+
+[checks]
+  [checks.health]
+    port = 8080
+    type = 'http'
+    interval = '30s'
+    timeout = '5s'
+    path = '/api/v1/healthz'
+
+[[vm]]
+  size = 'shared-cpu-1x'
+  memory = '256mb'

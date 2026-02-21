@@ -1,7 +1,6 @@
 .env
 fithub
 *.pem
-*.toml
 tmp/
 node_modules/
 .sqlfluff
