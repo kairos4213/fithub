@@ -163,6 +163,7 @@ func (h *Handler) ApplyTemplate(w http.ResponseWriter, r *http.Request) {
 	reqPlannedDate := r.FormValue("planned-date")
 	reqExerciseCount := r.FormValue("exercise_count")
 
+	templateFields := []string{"title", "duration", "planned-date", "description"}
 	if errs := validate.Fields(
 		validate.Required(reqTitle, "title"),
 		validate.Required(reqDuration, "duration"),
@@ -173,8 +174,7 @@ func (h *Handler) ApplyTemplate(w http.ResponseWriter, r *http.Request) {
 		validate.Numeric(reqDuration, "duration"),
 		validate.Numeric(reqExerciseCount, "exercise count"),
 	); errs != nil {
-		HandleBadRequest(w, r, errs[0].Error())
-		h.cfg.Logger.Info("invalid form field", slog.Any("fields", errs))
+		HandleFieldErrors(w, r, h.cfg.Logger, errs, templateFields, "")
 		return
 	}
 
