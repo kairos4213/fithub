@@ -61,8 +61,12 @@ GOOSE_MIGRATION_DIR=./sql/schema/
 
 ```bash
 createdb fithub
-goose -dir sql/schema postgres "$DATABASE_URL" up
+goose up
 ```
+
+If there are any issues running `goose up` try manually running
+
+`goose -dir sql/schema postgres "$DATABASE_URL" up`
 
 ### Generate the database queries
 
