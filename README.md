@@ -14,5 +14,13 @@ workouts!📘
 
 ## In The Works
 
-* Generate workouts automagically 🪄
+* Create tutorial for users 📚
+* Integrate users Oauth provider photos 📷
+* Embed video instructions for workouts 📺
 * Expanded exercise selection 📈
+* Expand tracking measures beyond simple logging 🧮
+
+## Potential Additions
+
+* AI generated workouts 🤖
+* Integrations with third party fitness trackers (Fitbit, Apple Watch, etc) ⌚
