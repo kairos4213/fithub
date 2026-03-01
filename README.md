@@ -98,6 +98,8 @@ If you'd like to contribute, please fork the repo and open a pull request to the
 
 Check out some of the things being worked on below, or potential ideas for future implementation
 
+Found a bug or have a feature idea? [Open an issue](https://github.com/kairos4213/fithub/issues)
+
 ## Items Currently Being Worked On
 
 * Create tutorial for users to better understand functionality 📚
