@@ -1,7 +1,9 @@
+// Package auth is for making and hashing auth tokens
 package auth
 
 import (
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/hex"
 	"errors"
 	"net/http"
@@ -98,4 +100,9 @@ func MakeRefreshToken() (string, error) {
 		return "", err
 	}
 	return hex.EncodeToString(refreshTokenBase), nil
+}
+
+func HashRefreshToken(refreshToken string) string {
+	hashedRefreshToken := sha256.Sum256([]byte(refreshToken))
+	return hex.EncodeToString(hashedRefreshToken[:])
 }

@@ -104,7 +104,8 @@ func (mw *Middleware) refreshAccessToken(w http.ResponseWriter, r *http.Request)
 
 	// Check for valid refresh token in db
 	refreshToken := refreshCookie.Value
-	user, err := mw.cfg.DB.GetUserFromRefreshToken(r.Context(), refreshToken)
+	hashedRefreshToken := auth.HashRefreshToken(refreshToken)
+	user, err := mw.cfg.DB.GetUserFromRefreshToken(r.Context(), hashedRefreshToken)
 	if err != nil {
 		utils.ClearCookies(w, refreshCookie)
 		mw.cfg.Logger.Info("unable to fetch valid refresh token", slog.String("error", err.Error()))
@@ -118,7 +119,7 @@ func (mw *Middleware) refreshAccessToken(w http.ResponseWriter, r *http.Request)
 		// revoke valid refresh token
 		utils.ClearCookies(w, refreshCookie)
 
-		revokeErr := mw.cfg.DB.RevokeRefreshToken(r.Context(), refreshToken)
+		revokeErr := mw.cfg.DB.RevokeRefreshToken(r.Context(), hashedRefreshToken)
 		if revokeErr != nil {
 			mw.cfg.Logger.Error("unable to revoke refresh token", slog.String("error", err.Error()))
 			return "", "internal_error"

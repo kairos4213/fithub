@@ -34,8 +34,9 @@ func (h *Handler) issueSessionTokens(ctx context.Context, w http.ResponseWriter,
 		return "", "", err
 	}
 
+	hashedRefreshToken := auth.HashRefreshToken(refreshToken)
 	err = h.cfg.DB.CreateRefreshToken(ctx, database.CreateRefreshTokenParams{
-		Token:     refreshToken,
+		Token:     hashedRefreshToken,
 		UserID:    userID,
 		ExpiresAt: time.Now().UTC().AddDate(0, 0, 60),
 	})
