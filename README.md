@@ -38,6 +38,8 @@ workouts!📘
 * Goose (`go install github.com/pressly/goose/v3/cmd/goose@latest`) for DB migrations
 * sqlc (`go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest`) for generating database code
 
+> **Note:** `templ` and `air` are managed via `go tool` in go.mod — no manual install needed. They're invoked automatically by `make dev`.
+
 ### Clone the repo and install dependencies
 
 ```bash
@@ -55,6 +57,11 @@ TOKEN_SECRET=<generate-a-base64-secret>
 GOOSE_DRIVER=postgres
 GOOSE_DBSTRING=postgres://<user>:<password>@localhost:5432/fithub
 GOOSE_MIGRATION_DIR=./sql/schema/
+
+# Optional — Google OAuth (app works without these)
+BASE_URL=http://localhost:
+GOOGLE_CLIENT_ID=<oauth-client-id>
+GOOGLE_CLIENT_SECRET=<oauth-client-secret>
 ```
 
 ### Create the database & run migrations
@@ -82,7 +89,7 @@ sqlc generate
 make dev
 ```
 
-In your browser, navigate to `http://127.0.0.1:7331/` proxy server for live reloading. 
+In your browser, navigate to `http://127.0.0.1:7331/` proxy server for live reloading.
 
 `http://localhost:8080/` will be where the server is actually running.
 
