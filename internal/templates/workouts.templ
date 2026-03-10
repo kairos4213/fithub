@@ -235,7 +235,7 @@ templ WorkoutPage(
 				class="btn btn-outline btn-sm"
 				@click="searching = true"
 			>Search For Exercises</button>
-			<div x-cloak x-show="searching" class="card bg-base-100 card-border shadow-sm p-4">
+			<div x-cloak x-show="searching" class="card bg-base-100 card-border shadow-sm p-4 max-h-96 flex flex-col">
 				<div class="flex items-center justify-between mb-2">
 					<h4 class="text-sm font-semibold">Add Exercise<span class="htmx-indicator loading loading-ring loading-sm ml-2"></span></h4>
 					<button class="btn btn-ghost btn-xs" @click="searching = false">Close</button>
@@ -725,7 +725,7 @@ templ UserWorkoutsHTML(workouts []database.Workout, exerciseName string) {
 }
 
 templ ExerciseQuickSearchResults(exercises []database.Exercise, workout uuid.UUID) {
-	<div id="exercise-search-results" class="space-y-2 mt-2 max-h-64 overflow-y-auto">
+	<div id="exercise-search-results" class="space-y-2 mt-2 min-h-0 overflow-y-auto">
 		for _, exercise := range exercises {
 			<div class="flex items-center justify-between p-2 rounded-lg border border-base-content/5 hover:bg-base-200" x-data="{ added: false }">
 				<div class="flex items-center gap-2">

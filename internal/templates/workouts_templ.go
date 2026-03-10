@@ -624,7 +624,7 @@ func WorkoutPage(
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<!-- Quick search for adding exercises --><div class=\"mb-6\" x-data=\"{ searching: false }\"><button x-show=\"!searching\" class=\"btn btn-outline btn-sm\" @click=\"searching = true\">Search For Exercises</button><div x-cloak x-show=\"searching\" class=\"card bg-base-100 card-border shadow-sm p-4\"><div class=\"flex items-center justify-between mb-2\"><h4 class=\"text-sm font-semibold\">Add Exercise<span class=\"htmx-indicator loading loading-ring loading-sm ml-2\"></span></h4><button class=\"btn btn-ghost btn-xs\" @click=\"searching = false\">Close</button></div><input class=\"input input-sm w-full\" type=\"search\" name=\"exercise-search\" placeholder=\"Search by name...\" hx-post=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<!-- Quick search for adding exercises --><div class=\"mb-6\" x-data=\"{ searching: false }\"><button x-show=\"!searching\" class=\"btn btn-outline btn-sm\" @click=\"searching = true\">Search For Exercises</button><div x-cloak x-show=\"searching\" class=\"card bg-base-100 card-border shadow-sm p-4 max-h-96 flex flex-col\"><div class=\"flex items-center justify-between mb-2\"><h4 class=\"text-sm font-semibold\">Add Exercise<span class=\"htmx-indicator loading loading-ring loading-sm ml-2\"></span></h4><button class=\"btn btn-ghost btn-xs\" @click=\"searching = false\">Close</button></div><input class=\"input input-sm w-full\" type=\"search\" name=\"exercise-search\" placeholder=\"Search by name...\" hx-post=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1614,7 +1614,7 @@ func ExerciseQuickSearchResults(exercises []database.Exercise, workout uuid.UUID
 			templ_7745c5c3_Var82 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 123, "<div id=\"exercise-search-results\" class=\"space-y-2 mt-2 max-h-64 overflow-y-auto\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 123, "<div id=\"exercise-search-results\" class=\"space-y-2 mt-2 min-h-0 overflow-y-auto\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
