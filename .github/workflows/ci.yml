@@ -56,7 +56,9 @@ jobs:
           TOKEN_SECRET: ci-test-secret-that-is-at-least-32-characters-long
           PORT: "8080"
           FILEPATH_ROOT: "./static"
-        run: go test ./...
+        run: go test -coverprofile=coverage.out -covermode=atomic ./...
+      - name: Print coverage results
+        run: go tool cover -func=coverage.out
 
   build:
     runs-on: ubuntu-latest

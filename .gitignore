@@ -4,3 +4,4 @@ fithub
 tmp/
 node_modules/
 .sqlfluff
+coverage.*
