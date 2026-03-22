@@ -33,3 +33,6 @@ build:
 	go tool templ generate
 	npx --yes @tailwindcss/cli -i "./static/css/input.css" -o "./static/css/output.css" --minify
 	CGO_ENABLED=0 GOOS=linux go build -o fithub .
+
+test:
+	go test -coverprofile=coverage.out -covermode=atomic ./... && go tool cover -html=coverage.out -o coverage.html
