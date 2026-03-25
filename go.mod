@@ -1,6 +1,6 @@
 module github.com/kairos4213/fithub
 
-go 1.25
+go 1.25.0
 
 require (
 	github.com/a-h/templ v0.3.943
@@ -11,7 +11,7 @@ require (
 	github.com/lib/pq v1.10.9
 	github.com/sqlc-dev/pqtype v0.3.0
 	golang.org/x/oauth2 v0.35.0
-	golang.org/x/text v0.29.0
+	golang.org/x/text v0.35.0
 )
 
 require (
@@ -36,12 +36,12 @@ require (
 	github.com/spf13/afero v1.14.0 // indirect
 	github.com/spf13/cast v1.9.2 // indirect
 	github.com/tdewolff/parse/v2 v2.8.3 // indirect
-	golang.org/x/crypto v0.42.0 // indirect
-	golang.org/x/mod v0.27.0 // indirect
-	golang.org/x/net v0.43.0 // indirect
-	golang.org/x/sync v0.17.0 // indirect
-	golang.org/x/sys v0.36.0 // indirect
-	golang.org/x/tools v0.36.0 // indirect
+	golang.org/x/crypto v0.49.0 // indirect
+	golang.org/x/mod v0.33.0 // indirect
+	golang.org/x/net v0.51.0 // indirect
+	golang.org/x/sync v0.20.0 // indirect
+	golang.org/x/sys v0.42.0 // indirect
+	golang.org/x/tools v0.42.0 // indirect
 	google.golang.org/protobuf v1.36.8 // indirect
 )
 
